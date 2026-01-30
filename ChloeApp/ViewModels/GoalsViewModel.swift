@@ -1,0 +1,33 @@
+import Foundation
+import SwiftUI
+
+@MainActor
+class GoalsViewModel: ObservableObject {
+    @Published var goals: [Goal] = []
+    @Published var isLoading = false
+
+    func loadGoals() {
+        goals = StorageService.shared.loadGoals()
+    }
+
+    func addGoal(_ goal: Goal) {
+        goals.append(goal)
+        try? StorageService.shared.saveGoals(goals)
+    }
+
+    func toggleGoalStatus(goalId: String) {
+        guard let index = goals.firstIndex(where: { $0.id == goalId }) else { return }
+        switch goals[index].status {
+        case .active:
+            goals[index].status = .completed
+            goals[index].completedAt = Date()
+        case .completed:
+            goals[index].status = .active
+            goals[index].completedAt = nil
+        case .paused:
+            goals[index].status = .active
+            goals[index].completedAt = nil
+        }
+        try? StorageService.shared.saveGoals(goals)
+    }
+}

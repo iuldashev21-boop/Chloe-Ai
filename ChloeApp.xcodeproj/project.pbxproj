@@ -1,0 +1,815 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		3EF786585C46034254C21D71 /* DailyUsage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8B72291CB2B25437CC979C4 /* DailyUsage.swift */; };
+		A10000010000000000000001 /* ChloeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000001 /* ChloeApp.swift */; };
+		A10000020000000000000001 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000020000000000000001 /* ContentView.swift */; };
+		A10000030000000000000001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A20000030000000000000001 /* Assets.xcassets */; };
+		A10000050000000000000001 /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000050000000000000001 /* Colors.swift */; };
+		A10000060000000000000001 /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000060000000000000001 /* Fonts.swift */; };
+		A10000070000000000000001 /* Spacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000070000000000000001 /* Spacing.swift */; };
+		A10000080000000000000001 /* Color+Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000080000000000000001 /* Color+Theme.swift */; };
+		A10000090000000000000001 /* Date+Formatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000090000000000000001 /* Date+Formatting.swift */; };
+		A10000100000000000000001 /* String+Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000100000000000000001 /* String+Utils.swift */; };
+		A10000110000000000000001 /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000110000000000000001 /* Profile.swift */; };
+		A10000120000000000000001 /* Conversation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000120000000000000001 /* Conversation.swift */; };
+		A10000130000000000000001 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000130000000000000001 /* Message.swift */; };
+		A10000140000000000000001 /* JournalEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000140000000000000001 /* JournalEntry.swift */; };
+		A10000150000000000000001 /* Goal.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000150000000000000001 /* Goal.swift */; };
+		A10000160000000000000001 /* Affirmation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000160000000000000001 /* Affirmation.swift */; };
+		A10000170000000000000001 /* VisionItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000170000000000000001 /* VisionItem.swift */; };
+		A10000180000000000000001 /* OnboardingPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000180000000000000001 /* OnboardingPreferences.swift */; };
+		A10000190000000000000001 /* Archetype.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000190000000000000001 /* Archetype.swift */; };
+		A10000200000000000000001 /* GeminiService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000200000000000000001 /* GeminiService.swift */; };
+		A10000210000000000000001 /* StorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000210000000000000001 /* StorageService.swift */; };
+		A10000220000000000000001 /* ArchetypeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000220000000000000001 /* ArchetypeService.swift */; };
+		A10000230000000000000001 /* SafetyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000230000000000000001 /* SafetyService.swift */; };
+		A10000240000000000000001 /* AnalystService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000240000000000000001 /* AnalystService.swift */; };
+		A10000250000000000000001 /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000250000000000000001 /* AuthViewModel.swift */; };
+		A10000260000000000000001 /* OnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000260000000000000001 /* OnboardingViewModel.swift */; };
+		A10000270000000000000001 /* ChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000270000000000000001 /* ChatViewModel.swift */; };
+		A10000280000000000000001 /* JournalViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000280000000000000001 /* JournalViewModel.swift */; };
+		A10000290000000000000001 /* GoalsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000290000000000000001 /* GoalsViewModel.swift */; };
+		A10000300000000000000001 /* VisionBoardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000300000000000000001 /* VisionBoardViewModel.swift */; };
+		A10000310000000000000001 /* AffirmationsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000310000000000000001 /* AffirmationsViewModel.swift */; };
+		A10000320000000000000001 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000320000000000000001 /* WelcomeView.swift */; };
+		A10000330000000000000001 /* EmailLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000330000000000000001 /* EmailLoginView.swift */; };
+		A10000340000000000000001 /* OnboardingContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000340000000000000001 /* OnboardingContainerView.swift */; };
+		A10000350000000000000001 /* NameStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000350000000000000001 /* NameStepView.swift */; };
+		A10000360000000000000001 /* RelationshipStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000360000000000000001 /* RelationshipStatusView.swift */; };
+		A10000370000000000000001 /* PrimaryGoalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000370000000000000001 /* PrimaryGoalView.swift */; };
+		A10000380000000000000001 /* CoreDesireView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000380000000000000001 /* CoreDesireView.swift */; };
+		A10000390000000000000001 /* PainPointView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000390000000000000001 /* PainPointView.swift */; };
+		A10000400000000000000001 /* VibeCheckView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000400000000000000001 /* VibeCheckView.swift */; };
+		A10000410000000000000001 /* ArchetypeQuizView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000410000000000000001 /* ArchetypeQuizView.swift */; };
+		A10000420000000000000001 /* OnboardingCompleteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000420000000000000001 /* OnboardingCompleteView.swift */; };
+		A10000430000000000000001 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000430000000000000001 /* MainTabView.swift */; };
+		A10000440000000000000001 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000440000000000000001 /* HomeView.swift */; };
+		A10000450000000000000001 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000450000000000000001 /* ChatView.swift */; };
+		A10000460000000000000001 /* JournalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000460000000000000001 /* JournalView.swift */; };
+		A10000470000000000000001 /* GoalsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000470000000000000001 /* GoalsView.swift */; };
+		A10000480000000000000001 /* VisionBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000480000000000000001 /* VisionBoardView.swift */; };
+		A10000490000000000000001 /* AffirmationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000490000000000000001 /* AffirmationsView.swift */; };
+		A10000500000000000000001 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000500000000000000001 /* SettingsView.swift */; };
+		A10000510000000000000001 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000510000000000000001 /* ProfileView.swift */; };
+		A10000520000000000000001 /* ChatBubble.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000520000000000000001 /* ChatBubble.swift */; };
+		A10000530000000000000001 /* ChatInputBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000530000000000000001 /* ChatInputBar.swift */; };
+		A10000540000000000000001 /* TypingIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000540000000000000001 /* TypingIndicator.swift */; };
+		A10000550000000000000001 /* ChloeAvatar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000550000000000000001 /* ChloeAvatar.swift */; };
+		A10000560000000000000001 /* SelectionChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000560000000000000001 /* SelectionChip.swift */; };
+		A10000570000000000000001 /* GradientBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000570000000000000001 /* GradientBackground.swift */; };
+		A10000580000000000000001 /* DisclaimerText.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000580000000000000001 /* DisclaimerText.swift */; };
+		A10000590000000000000001 /* Prompts.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000590000000000000001 /* Prompts.swift */; };
+		A10000600000000000000001 /* CrisisResponses.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000600000000000000001 /* CrisisResponses.swift */; };
+		A10000610000000000000001 /* Inter-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A20000610000000000000001 /* Inter-Regular.ttf */; };
+		A10000620000000000000001 /* Inter-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A20000620000000000000001 /* Inter-Medium.ttf */; };
+		A10000630000000000000001 /* PlayfairDisplay-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A20000630000000000000001 /* PlayfairDisplay-Regular.ttf */; };
+		A10000640000000000000001 /* PlayfairDisplay-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A20000640000000000000001 /* PlayfairDisplay-Medium.ttf */; };
+		C10000010000000000000001 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = C20000010000000000000001 /* Lottie */; };
+		C10000020000000000000001 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = C20000020000000000000001 /* Kingfisher */; };
+		C10000030000000000000001 /* ExyteChat in Frameworks */ = {isa = PBXBuildFile; productRef = C20000030000000000000001 /* ExyteChat */; };
+		C10000040000000000000001 /* ConfettiSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = C20000040000000000000001 /* ConfettiSwiftUI */; };
+		C10000050000000000000001 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = C20000050000000000000001 /* MarkdownUI */; };
+		C10000060000000000000001 /* TelemetryDeck in Frameworks */ = {isa = PBXBuildFile; productRef = C20000060000000000000001 /* TelemetryDeck */; };
+		CE6AF8EADDADE82FD8EDA73B /* TopicCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09A0E1234B03A34F42572AE0 /* TopicCard.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		09A0E1234B03A34F42572AE0 /* TopicCard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TopicCard.swift; sourceTree = "<group>"; };
+		A20000010000000000000001 /* ChloeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChloeApp.swift; sourceTree = "<group>"; };
+		A20000020000000000000001 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		A20000030000000000000001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A20000040000000000000001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A20000050000000000000001 /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
+		A20000060000000000000001 /* Fonts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fonts.swift; sourceTree = "<group>"; };
+		A20000070000000000000001 /* Spacing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Spacing.swift; sourceTree = "<group>"; };
+		A20000080000000000000001 /* Color+Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Theme.swift"; sourceTree = "<group>"; };
+		A20000090000000000000001 /* Date+Formatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Formatting.swift"; sourceTree = "<group>"; };
+		A20000100000000000000001 /* String+Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Utils.swift"; sourceTree = "<group>"; };
+		A20000110000000000000001 /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
+		A20000120000000000000001 /* Conversation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Conversation.swift; sourceTree = "<group>"; };
+		A20000130000000000000001 /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
+		A20000140000000000000001 /* JournalEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JournalEntry.swift; sourceTree = "<group>"; };
+		A20000150000000000000001 /* Goal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Goal.swift; sourceTree = "<group>"; };
+		A20000160000000000000001 /* Affirmation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Affirmation.swift; sourceTree = "<group>"; };
+		A20000170000000000000001 /* VisionItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionItem.swift; sourceTree = "<group>"; };
+		A20000180000000000000001 /* OnboardingPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPreferences.swift; sourceTree = "<group>"; };
+		A20000190000000000000001 /* Archetype.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Archetype.swift; sourceTree = "<group>"; };
+		A20000200000000000000001 /* GeminiService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeminiService.swift; sourceTree = "<group>"; };
+		A20000210000000000000001 /* StorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageService.swift; sourceTree = "<group>"; };
+		A20000220000000000000001 /* ArchetypeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchetypeService.swift; sourceTree = "<group>"; };
+		A20000230000000000000001 /* SafetyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafetyService.swift; sourceTree = "<group>"; };
+		A20000240000000000000001 /* AnalystService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalystService.swift; sourceTree = "<group>"; };
+		A20000250000000000000001 /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
+		A20000260000000000000001 /* OnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingViewModel.swift; sourceTree = "<group>"; };
+		A20000270000000000000001 /* ChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewModel.swift; sourceTree = "<group>"; };
+		A20000280000000000000001 /* JournalViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JournalViewModel.swift; sourceTree = "<group>"; };
+		A20000290000000000000001 /* GoalsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalsViewModel.swift; sourceTree = "<group>"; };
+		A20000300000000000000001 /* VisionBoardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionBoardViewModel.swift; sourceTree = "<group>"; };
+		A20000310000000000000001 /* AffirmationsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AffirmationsViewModel.swift; sourceTree = "<group>"; };
+		A20000320000000000000001 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
+		A20000330000000000000001 /* EmailLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailLoginView.swift; sourceTree = "<group>"; };
+		A20000340000000000000001 /* OnboardingContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingContainerView.swift; sourceTree = "<group>"; };
+		A20000350000000000000001 /* NameStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NameStepView.swift; sourceTree = "<group>"; };
+		A20000360000000000000001 /* RelationshipStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelationshipStatusView.swift; sourceTree = "<group>"; };
+		A20000370000000000000001 /* PrimaryGoalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryGoalView.swift; sourceTree = "<group>"; };
+		A20000380000000000000001 /* CoreDesireView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDesireView.swift; sourceTree = "<group>"; };
+		A20000390000000000000001 /* PainPointView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PainPointView.swift; sourceTree = "<group>"; };
+		A20000400000000000000001 /* VibeCheckView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VibeCheckView.swift; sourceTree = "<group>"; };
+		A20000410000000000000001 /* ArchetypeQuizView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchetypeQuizView.swift; sourceTree = "<group>"; };
+		A20000420000000000000001 /* OnboardingCompleteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCompleteView.swift; sourceTree = "<group>"; };
+		A20000430000000000000001 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		A20000440000000000000001 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		A20000450000000000000001 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
+		A20000460000000000000001 /* JournalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JournalView.swift; sourceTree = "<group>"; };
+		A20000470000000000000001 /* GoalsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalsView.swift; sourceTree = "<group>"; };
+		A20000480000000000000001 /* VisionBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionBoardView.swift; sourceTree = "<group>"; };
+		A20000490000000000000001 /* AffirmationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AffirmationsView.swift; sourceTree = "<group>"; };
+		A20000500000000000000001 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		A20000510000000000000001 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		A20000520000000000000001 /* ChatBubble.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatBubble.swift; sourceTree = "<group>"; };
+		A20000530000000000000001 /* ChatInputBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatInputBar.swift; sourceTree = "<group>"; };
+		A20000540000000000000001 /* TypingIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingIndicator.swift; sourceTree = "<group>"; };
+		A20000550000000000000001 /* ChloeAvatar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChloeAvatar.swift; sourceTree = "<group>"; };
+		A20000560000000000000001 /* SelectionChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionChip.swift; sourceTree = "<group>"; };
+		A20000570000000000000001 /* GradientBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradientBackground.swift; sourceTree = "<group>"; };
+		A20000580000000000000001 /* DisclaimerText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisclaimerText.swift; sourceTree = "<group>"; };
+		A20000590000000000000001 /* Prompts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Prompts.swift; sourceTree = "<group>"; };
+		A20000600000000000000001 /* CrisisResponses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrisisResponses.swift; sourceTree = "<group>"; };
+		A20000610000000000000001 /* Inter-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Regular.ttf"; sourceTree = "<group>"; };
+		A20000620000000000000001 /* Inter-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Medium.ttf"; sourceTree = "<group>"; };
+		A20000630000000000000001 /* PlayfairDisplay-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlayfairDisplay-Regular.ttf"; sourceTree = "<group>"; };
+		A20000640000000000000001 /* PlayfairDisplay-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlayfairDisplay-Medium.ttf"; sourceTree = "<group>"; };
+		A20000650000000000000001 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
+		A30000010000000000000001 /* ChloeApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChloeApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B8B72291CB2B25437CC979C4 /* DailyUsage.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DailyUsage.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A40000010000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C10000010000000000000001 /* Lottie in Frameworks */,
+				C10000020000000000000001 /* Kingfisher in Frameworks */,
+				C10000030000000000000001 /* ExyteChat in Frameworks */,
+				C10000040000000000000001 /* ConfettiSwiftUI in Frameworks */,
+				C10000050000000000000001 /* MarkdownUI in Frameworks */,
+				C10000060000000000000001 /* TelemetryDeck in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A50000010000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				A50000020000000000000001 /* ChloeApp */,
+				A50000030000000000000001 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A50000020000000000000001 /* ChloeApp */ = {
+			isa = PBXGroup;
+			children = (
+				A20000010000000000000001 /* ChloeApp.swift */,
+				A20000040000000000000001 /* Info.plist */,
+				A20000650000000000000001 /* Config.xcconfig */,
+				A20000030000000000000001 /* Assets.xcassets */,
+				A50000040000000000000001 /* Models */,
+				A50000050000000000000001 /* Views */,
+				A50000110000000000000001 /* ViewModels */,
+				A50000120000000000000001 /* Services */,
+				A50000130000000000000001 /* Theme */,
+				A50000140000000000000001 /* Constants */,
+				A50000150000000000000001 /* Resources */,
+				A50000170000000000000001 /* Extensions */,
+			);
+			path = ChloeApp;
+			sourceTree = "<group>";
+		};
+		A50000030000000000000001 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A30000010000000000000001 /* ChloeApp.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A50000040000000000000001 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A20000110000000000000001 /* Profile.swift */,
+				A20000120000000000000001 /* Conversation.swift */,
+				A20000130000000000000001 /* Message.swift */,
+				A20000140000000000000001 /* JournalEntry.swift */,
+				A20000150000000000000001 /* Goal.swift */,
+				A20000160000000000000001 /* Affirmation.swift */,
+				A20000170000000000000001 /* VisionItem.swift */,
+				A20000180000000000000001 /* OnboardingPreferences.swift */,
+				A20000190000000000000001 /* Archetype.swift */,
+				B8B72291CB2B25437CC979C4 /* DailyUsage.swift */,
+				09A0E1234B03A34F42572AE0 /* TopicCard.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		A50000050000000000000001 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				A50000060000000000000001 /* App */,
+				A50000070000000000000001 /* Auth */,
+				A50000080000000000000001 /* Onboarding */,
+				A50000090000000000000001 /* Main */,
+				A50000100000000000000001 /* Components */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		A50000060000000000000001 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				A20000020000000000000001 /* ContentView.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		A50000070000000000000001 /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				A20000320000000000000001 /* WelcomeView.swift */,
+				A20000330000000000000001 /* EmailLoginView.swift */,
+			);
+			path = Auth;
+			sourceTree = "<group>";
+		};
+		A50000080000000000000001 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				A20000340000000000000001 /* OnboardingContainerView.swift */,
+				A20000350000000000000001 /* NameStepView.swift */,
+				A20000360000000000000001 /* RelationshipStatusView.swift */,
+				A20000370000000000000001 /* PrimaryGoalView.swift */,
+				A20000380000000000000001 /* CoreDesireView.swift */,
+				A20000390000000000000001 /* PainPointView.swift */,
+				A20000400000000000000001 /* VibeCheckView.swift */,
+				A20000410000000000000001 /* ArchetypeQuizView.swift */,
+				A20000420000000000000001 /* OnboardingCompleteView.swift */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		A50000090000000000000001 /* Main */ = {
+			isa = PBXGroup;
+			children = (
+				A20000430000000000000001 /* MainTabView.swift */,
+				A20000440000000000000001 /* HomeView.swift */,
+				A20000450000000000000001 /* ChatView.swift */,
+				A20000460000000000000001 /* JournalView.swift */,
+				A20000470000000000000001 /* GoalsView.swift */,
+				A20000480000000000000001 /* VisionBoardView.swift */,
+				A20000490000000000000001 /* AffirmationsView.swift */,
+				A20000500000000000000001 /* SettingsView.swift */,
+				A20000510000000000000001 /* ProfileView.swift */,
+			);
+			path = Main;
+			sourceTree = "<group>";
+		};
+		A50000100000000000000001 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				A20000520000000000000001 /* ChatBubble.swift */,
+				A20000530000000000000001 /* ChatInputBar.swift */,
+				A20000540000000000000001 /* TypingIndicator.swift */,
+				A20000550000000000000001 /* ChloeAvatar.swift */,
+				A20000560000000000000001 /* SelectionChip.swift */,
+				A20000570000000000000001 /* GradientBackground.swift */,
+				A20000580000000000000001 /* DisclaimerText.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		A50000110000000000000001 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				A20000250000000000000001 /* AuthViewModel.swift */,
+				A20000260000000000000001 /* OnboardingViewModel.swift */,
+				A20000270000000000000001 /* ChatViewModel.swift */,
+				A20000280000000000000001 /* JournalViewModel.swift */,
+				A20000290000000000000001 /* GoalsViewModel.swift */,
+				A20000300000000000000001 /* VisionBoardViewModel.swift */,
+				A20000310000000000000001 /* AffirmationsViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		A50000120000000000000001 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				A20000200000000000000001 /* GeminiService.swift */,
+				A20000210000000000000001 /* StorageService.swift */,
+				A20000220000000000000001 /* ArchetypeService.swift */,
+				A20000230000000000000001 /* SafetyService.swift */,
+				A20000240000000000000001 /* AnalystService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		A50000130000000000000001 /* Theme */ = {
+			isa = PBXGroup;
+			children = (
+				A20000050000000000000001 /* Colors.swift */,
+				A20000060000000000000001 /* Fonts.swift */,
+				A20000070000000000000001 /* Spacing.swift */,
+			);
+			path = Theme;
+			sourceTree = "<group>";
+		};
+		A50000140000000000000001 /* Constants */ = {
+			isa = PBXGroup;
+			children = (
+				A20000590000000000000001 /* Prompts.swift */,
+				A20000600000000000000001 /* CrisisResponses.swift */,
+			);
+			path = Constants;
+			sourceTree = "<group>";
+		};
+		A50000150000000000000001 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A50000160000000000000001 /* Fonts */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		A50000160000000000000001 /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				A20000610000000000000001 /* Inter-Regular.ttf */,
+				A20000620000000000000001 /* Inter-Medium.ttf */,
+				A20000630000000000000001 /* PlayfairDisplay-Regular.ttf */,
+				A20000640000000000000001 /* PlayfairDisplay-Medium.ttf */,
+			);
+			path = Fonts;
+			sourceTree = "<group>";
+		};
+		A50000170000000000000001 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				A20000080000000000000001 /* Color+Theme.swift */,
+				A20000090000000000000001 /* Date+Formatting.swift */,
+				A20000100000000000000001 /* String+Utils.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A60000010000000000000001 /* ChloeApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A80000010000000000000001 /* Build configuration list for PBXNativeTarget "ChloeApp" */;
+			buildPhases = (
+				A70000010000000000000001 /* Sources */,
+				A40000010000000000000001 /* Frameworks */,
+				A70000020000000000000001 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ChloeApp;
+			packageProductDependencies = (
+				C20000010000000000000001 /* Lottie */,
+				C20000020000000000000001 /* Kingfisher */,
+				C20000030000000000000001 /* ExyteChat */,
+				C20000040000000000000001 /* ConfettiSwiftUI */,
+				C20000050000000000000001 /* MarkdownUI */,
+				C20000060000000000000001 /* TelemetryDeck */,
+			);
+			productName = ChloeApp;
+			productReference = A30000010000000000000001 /* ChloeApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A90000010000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1540;
+				LastUpgradeCheck = 1540;
+				TargetAttributes = {
+					A60000010000000000000001 = {
+						CreatedOnToolsVersion = 15.4;
+					};
+				};
+			};
+			buildConfigurationList = A80000020000000000000001 /* Build configuration list for PBXProject "ChloeApp" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A50000010000000000000001;
+			packageReferences = (
+				D10000010000000000000001 /* XCRemoteSwiftPackageReference "lottie-spm" */,
+				D10000020000000000000001 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				D10000030000000000000001 /* XCRemoteSwiftPackageReference "Chat" */,
+				D10000040000000000000001 /* XCRemoteSwiftPackageReference "ConfettiSwiftUI" */,
+				D10000050000000000000001 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */,
+				D10000060000000000000001 /* XCRemoteSwiftPackageReference "SwiftClient" */,
+			);
+			productRefGroup = A50000030000000000000001 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A60000010000000000000001 /* ChloeApp */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A70000020000000000000001 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000030000000000000001 /* Assets.xcassets in Resources */,
+				A10000610000000000000001 /* Inter-Regular.ttf in Resources */,
+				A10000620000000000000001 /* Inter-Medium.ttf in Resources */,
+				A10000630000000000000001 /* PlayfairDisplay-Regular.ttf in Resources */,
+				A10000640000000000000001 /* PlayfairDisplay-Medium.ttf in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A70000010000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000010000000000000001 /* ChloeApp.swift in Sources */,
+				A10000020000000000000001 /* ContentView.swift in Sources */,
+				A10000050000000000000001 /* Colors.swift in Sources */,
+				A10000060000000000000001 /* Fonts.swift in Sources */,
+				A10000070000000000000001 /* Spacing.swift in Sources */,
+				A10000080000000000000001 /* Color+Theme.swift in Sources */,
+				A10000090000000000000001 /* Date+Formatting.swift in Sources */,
+				A10000100000000000000001 /* String+Utils.swift in Sources */,
+				A10000110000000000000001 /* Profile.swift in Sources */,
+				A10000120000000000000001 /* Conversation.swift in Sources */,
+				A10000130000000000000001 /* Message.swift in Sources */,
+				A10000140000000000000001 /* JournalEntry.swift in Sources */,
+				A10000150000000000000001 /* Goal.swift in Sources */,
+				A10000160000000000000001 /* Affirmation.swift in Sources */,
+				A10000170000000000000001 /* VisionItem.swift in Sources */,
+				A10000180000000000000001 /* OnboardingPreferences.swift in Sources */,
+				A10000190000000000000001 /* Archetype.swift in Sources */,
+				A10000200000000000000001 /* GeminiService.swift in Sources */,
+				A10000210000000000000001 /* StorageService.swift in Sources */,
+				A10000220000000000000001 /* ArchetypeService.swift in Sources */,
+				A10000230000000000000001 /* SafetyService.swift in Sources */,
+				A10000240000000000000001 /* AnalystService.swift in Sources */,
+				A10000250000000000000001 /* AuthViewModel.swift in Sources */,
+				A10000260000000000000001 /* OnboardingViewModel.swift in Sources */,
+				A10000270000000000000001 /* ChatViewModel.swift in Sources */,
+				A10000280000000000000001 /* JournalViewModel.swift in Sources */,
+				A10000290000000000000001 /* GoalsViewModel.swift in Sources */,
+				A10000300000000000000001 /* VisionBoardViewModel.swift in Sources */,
+				A10000310000000000000001 /* AffirmationsViewModel.swift in Sources */,
+				A10000320000000000000001 /* WelcomeView.swift in Sources */,
+				A10000330000000000000001 /* EmailLoginView.swift in Sources */,
+				A10000340000000000000001 /* OnboardingContainerView.swift in Sources */,
+				A10000350000000000000001 /* NameStepView.swift in Sources */,
+				A10000360000000000000001 /* RelationshipStatusView.swift in Sources */,
+				A10000370000000000000001 /* PrimaryGoalView.swift in Sources */,
+				A10000380000000000000001 /* CoreDesireView.swift in Sources */,
+				A10000390000000000000001 /* PainPointView.swift in Sources */,
+				A10000400000000000000001 /* VibeCheckView.swift in Sources */,
+				A10000410000000000000001 /* ArchetypeQuizView.swift in Sources */,
+				A10000420000000000000001 /* OnboardingCompleteView.swift in Sources */,
+				A10000430000000000000001 /* MainTabView.swift in Sources */,
+				A10000440000000000000001 /* HomeView.swift in Sources */,
+				A10000450000000000000001 /* ChatView.swift in Sources */,
+				A10000460000000000000001 /* JournalView.swift in Sources */,
+				A10000470000000000000001 /* GoalsView.swift in Sources */,
+				A10000480000000000000001 /* VisionBoardView.swift in Sources */,
+				A10000490000000000000001 /* AffirmationsView.swift in Sources */,
+				A10000500000000000000001 /* SettingsView.swift in Sources */,
+				A10000510000000000000001 /* ProfileView.swift in Sources */,
+				A10000520000000000000001 /* ChatBubble.swift in Sources */,
+				A10000530000000000000001 /* ChatInputBar.swift in Sources */,
+				A10000540000000000000001 /* TypingIndicator.swift in Sources */,
+				A10000550000000000000001 /* ChloeAvatar.swift in Sources */,
+				A10000560000000000000001 /* SelectionChip.swift in Sources */,
+				A10000570000000000000001 /* GradientBackground.swift in Sources */,
+				A10000580000000000000001 /* DisclaimerText.swift in Sources */,
+				A10000590000000000000001 /* Prompts.swift in Sources */,
+				A10000600000000000000001 /* CrisisResponses.swift in Sources */,
+				3EF786585C46034254C21D71 /* DailyUsage.swift in Sources */,
+				CE6AF8EADDADE82FD8EDA73B /* TopicCard.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		B10000010000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A20000650000000000000001 /* Config.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		B10000020000000000000001 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A20000650000000000000001 /* Config.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		B10000030000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = ChloeApp/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Chloe;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chloepocket.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		B10000040000000000000001 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = ChloeApp/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Chloe;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chloepocket.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A80000010000000000000001 /* Build configuration list for PBXNativeTarget "ChloeApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B10000030000000000000001 /* Debug */,
+				B10000040000000000000001 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A80000020000000000000001 /* Build configuration list for PBXProject "ChloeApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B10000010000000000000001 /* Debug */,
+				B10000020000000000000001 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		D10000010000000000000001 /* XCRemoteSwiftPackageReference "lottie-spm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-spm.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.5.0;
+			};
+		};
+		D10000020000000000000001 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.0.0;
+			};
+		};
+		D10000030000000000000001 /* XCRemoteSwiftPackageReference "Chat" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/exyte/Chat.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+		D10000040000000000000001 /* XCRemoteSwiftPackageReference "ConfettiSwiftUI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/simibac/ConfettiSwiftUI.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
+		D10000050000000000000001 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/gonzalezreal/swift-markdown-ui.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+		D10000060000000000000001 /* XCRemoteSwiftPackageReference "SwiftClient" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/TelemetryDeck/SwiftClient.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C20000010000000000000001 /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D10000010000000000000001 /* XCRemoteSwiftPackageReference "lottie-spm" */;
+			productName = Lottie;
+		};
+		C20000020000000000000001 /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D10000020000000000000001 /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
+		};
+		C20000030000000000000001 /* ExyteChat */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D10000030000000000000001 /* XCRemoteSwiftPackageReference "Chat" */;
+			productName = ExyteChat;
+		};
+		C20000040000000000000001 /* ConfettiSwiftUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D10000040000000000000001 /* XCRemoteSwiftPackageReference "ConfettiSwiftUI" */;
+			productName = ConfettiSwiftUI;
+		};
+		C20000050000000000000001 /* MarkdownUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D10000050000000000000001 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */;
+			productName = MarkdownUI;
+		};
+		C20000060000000000000001 /* TelemetryDeck */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D10000060000000000000001 /* XCRemoteSwiftPackageReference "SwiftClient" */;
+			productName = TelemetryDeck;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = A90000010000000000000001 /* Project object */;
+}

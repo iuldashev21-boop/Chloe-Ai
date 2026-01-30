@@ -1,0 +1,52 @@
+import SwiftUI
+
+struct WelcomeView: View {
+    @EnvironmentObject var authVM: AuthViewModel
+
+    var body: some View {
+        ZStack {
+            GradientBackground()
+
+            VStack(spacing: Spacing.xl) {
+                Spacer()
+
+                ChloeAvatar(size: 100)
+
+                VStack(spacing: Spacing.xs) {
+                    Text("Chloe")
+                        .font(.chloeLargeTitle)
+                        .foregroundColor(.chloePrimary)
+
+                    Text("Your pocket feminine energy coach")
+                        .font(.chloeBodyDefault)
+                        .foregroundColor(.chloeTextSecondary)
+                }
+
+                Spacer()
+
+                NavigationLink(destination: EmailLoginView()) {
+                    Text("Get Started")
+                        .font(.chloeHeadline)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, Spacing.sm)
+                        .background(Color.chloePrimary)
+                        .cornerRadius(Spacing.cornerRadius)
+                }
+                .padding(.horizontal, Spacing.screenHorizontal)
+
+                DisclaimerText()
+
+                Spacer()
+                    .frame(height: Spacing.xl)
+            }
+        }
+    }
+}
+
+#Preview {
+    NavigationStack {
+        WelcomeView()
+            .environmentObject(AuthViewModel())
+    }
+}
