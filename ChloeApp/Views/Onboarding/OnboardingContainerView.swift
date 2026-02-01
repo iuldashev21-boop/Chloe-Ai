@@ -27,6 +27,7 @@ struct OnboardingContainerView: View {
     // Orb state
     @State private var orbAppeared = false
     @State private var orbNamePulse: CGFloat = 1.0
+    @State private var orbGlowRadius: CGFloat = 10
 
     var body: some View {
         ZStack {
@@ -63,12 +64,14 @@ struct OnboardingContainerView: View {
                 ChloeAvatar(size: 80)
                     .scaleEffect((orbAppeared ? 0.8 : 0.5) * orbNamePulse)
                     .opacity(orbAppeared ? 1 : 0)
+                    .shadow(color: Color(hex: "#B76E79").opacity(0.4), radius: orbGlowRadius)
                     .position(
                         x: geo.size.width / 2,
                         y: topY
                     )
                     .animation(.spring(response: 0.6, dampingFraction: 0.7), value: orbAppeared)
                     .animation(.easeOut(duration: 0.15), value: orbNamePulse)
+                    .animation(.easeInOut(duration: 0.3), value: orbGlowRadius)
                     .allowsHitTesting(false)
             }
         }
@@ -86,6 +89,26 @@ struct OnboardingContainerView: View {
             orbNamePulse = 1.08
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
                 orbNamePulse = 1.0
+            }
+        }
+        .onChange(of: viewModel.quizPage) { _, _ in
+            withAnimation(.easeInOut(duration: 0.5)) {
+                orbGlowRadius = 30
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                withAnimation(.easeInOut(duration: 0.5)) {
+                    orbGlowRadius = 10
+                }
+            }
+        }
+        .onChange(of: viewModel.currentStep) { _, _ in
+            withAnimation(.easeInOut(duration: 0.5)) {
+                orbGlowRadius = 30
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                withAnimation(.easeInOut(duration: 0.5)) {
+                    orbGlowRadius = 10
+                }
             }
         }
     }

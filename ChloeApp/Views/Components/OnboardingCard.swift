@@ -4,6 +4,7 @@ struct OnboardingCard: View {
     let title: String
     let description: String
     let isSelected: Bool
+    var anySelected: Bool = false
     var action: () -> Void
 
     var body: some View {
@@ -36,16 +37,17 @@ struct OnboardingCard: View {
                 RoundedRectangle(cornerRadius: 20)
                     .stroke(
                         isSelected ? Color(hex: "#B76E79") : Color.white.opacity(0.2),
-                        lineWidth: 0.5
+                        lineWidth: isSelected ? 2 : 0.5
                     )
             )
             .shadow(color: isSelected ? Color(hex: "#B76E79").opacity(0.3) : .clear, radius: 12)
         }
         .buttonStyle(.plain)
         .scaleEffect(isSelected ? 1.0 : 0.98)
-        .opacity(isSelected ? 1.0 : 0.85)
+        .opacity(isSelected ? 1.0 : (anySelected ? 0.4 : 0.85))
         .accessibilityAddTraits(isSelected ? [.isSelected] : [])
         .animation(.easeOut(duration: 0.2), value: isSelected)
+        .animation(.easeOut(duration: 0.2), value: anySelected)
     }
 }
 

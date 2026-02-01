@@ -7,6 +7,9 @@ struct ArchetypeQuizView: View {
     @State private var q3Answer: ArchetypeChoice? = nil
     @State private var q4Answer: ArchetypeChoice? = nil
 
+    @State private var wordRevealID = UUID()
+    @State private var cardsAppeared = false
+
     private let columns = [GridItem(.flexible(), spacing: Spacing.xs), GridItem(.flexible(), spacing: Spacing.xs)]
 
     // Q1 options
@@ -89,6 +92,18 @@ struct ArchetypeQuizView: View {
             .padding(.horizontal, Spacing.screenHorizontal)
             .padding(.bottom, Spacing.xl)
         }
+        .onChange(of: viewModel.quizPage) { _, _ in
+            cardsAppeared = false
+            wordRevealID = UUID()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                withAnimation {
+                    cardsAppeared = true
+                }
+            }
+        }
+        .onAppear {
+            cardsAppeared = true
+        }
     }
 
     // MARK: - Helpers
@@ -114,6 +129,7 @@ struct ArchetypeQuizView: View {
     }
 
     private func setAnswer(_ choice: ArchetypeChoice, for page: Int) {
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
         switch page {
         case 0: q1Answer = choice
         case 1: q2Answer = choice
@@ -132,9 +148,8 @@ struct ArchetypeQuizView: View {
         selected: ArchetypeChoice?,
         onSelect: @escaping (ArchetypeChoice) -> Void
     ) -> some View {
-        Text(question)
-            .chloeEditorialHeading()
-            .multilineTextAlignment(.center)
+        StaggeredWordReveal(text: question)
+            .id(wordRevealID)
             .padding(.horizontal, Spacing.screenHorizontal)
             .background(
                 RadialGradient(
@@ -147,16 +162,49 @@ struct ArchetypeQuizView: View {
             )
 
         LazyVGrid(columns: columns, spacing: Spacing.xs) {
-            ForEach(options, id: \.choice) { item in
+            ForEach(Array(options.enumerated()), id: \.element.choice) { index, item in
                 OnboardingCard(
                     title: item.title,
                     description: item.description,
                     isSelected: selected == item.choice,
+                    anySelected: selected != nil,
                     action: { onSelect(item.choice) }
+                )
+                .scaleEffect(cardsAppeared ? 1.0 : 0.85)
+                .opacity(cardsAppeared ? 1.0 : 0)
+                .animation(
+                    .spring(response: 0.8, dampingFraction: 0.7, blendDuration: 0)
+                        .delay(Double(index) * 0.15),
+                    value: cardsAppeared
                 )
             }
         }
         .padding(.horizontal, Spacing.screenHorizontal)
+    }
+}
+
+// MARK: - Staggered Word Reveal
+
+private struct StaggeredWordReveal: View {
+    let text: String
+    @State private var appeared = false
+
+    var body: some View {
+        let words = text.split(separator: " ").map(String.init)
+        FlowLayout(spacing: 6) {
+            ForEach(Array(words.enumerated()), id: \.offset) { index, word in
+                Text(word)
+                    .opacity(appeared ? 1 : 0)
+                    .offset(y: appeared ? 0 : 15)
+                    .animation(
+                        .easeOut(duration: 0.8).delay(Double(index) * 0.08),
+                        value: appeared
+                    )
+            }
+        }
+        .chloeEditorialHeading()
+        .multilineTextAlignment(.center)
+        .onAppear { appeared = true }
     }
 }
 
