@@ -33,6 +33,10 @@ struct OnboardingContainerView: View {
         ZStack {
             GradientBackground()
 
+            EtherealDustParticles()
+                .opacity(0.05)
+                .ignoresSafeArea()
+
             VStack(spacing: 0) {
                 // Navigation header — hidden on WelcomeIntro & Complete
                 if !isWelcomeIntro && !isComplete {
