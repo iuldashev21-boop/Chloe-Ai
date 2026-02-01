@@ -35,7 +35,7 @@ struct ChatInputBar: View {
                     Image(systemName: showBloomMenu ? "xmark" : "plus")
                         .font(.system(size: 18, weight: .light))
                         .foregroundColor(.chloeRosewood)
-                        .frame(width: 32, height: 32)
+                        .frame(width: 44, height: 44)
                         .contentTransition(.symbolEffect(.replace))
                 }
 
@@ -43,7 +43,7 @@ struct ChatInputBar: View {
                 TextField("", text: $text, axis: .vertical)
                     .font(.chloeInputPlaceholder(16))
                     .lineLimit(1...5)
-                    .placeholder(when: text.isEmpty) {
+                    .placeholder(when: text.isBlank) {
                         Text("Talk to Chloe...")
                             .font(.chloeInputPlaceholder(16))
                             .foregroundColor(.chloeTextTertiary)

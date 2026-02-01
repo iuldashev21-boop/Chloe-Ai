@@ -1,13 +1,18 @@
 import SwiftUI
 
 struct GradientBackground: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
     var body: some View {
-        LinearGradient(
-            colors: [.chloeGradientStart, .chloeGradientEnd],
-            startPoint: .top,
-            endPoint: .bottom
-        )
-        .ignoresSafeArea()
+        GeometryReader { geo in
+            let isLandscape = geo.size.width > geo.size.height
+            LinearGradient(
+                colors: [.chloeGradientStart, .chloeGradientEnd],
+                startPoint: isLandscape ? .leading : .top,
+                endPoint: isLandscape ? .trailing : .bottom
+            )
+            .ignoresSafeArea()
+        }
     }
 }
 

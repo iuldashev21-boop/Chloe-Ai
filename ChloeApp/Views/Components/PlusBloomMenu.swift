@@ -7,8 +7,9 @@ struct PlusBloomMenu: View {
     var onVisionBoard: () -> Void
 
     // Radial layout: 3 circles in a tight arc directly above the + button
-    private let circleSize: CGFloat = 40
+    private let circleSize: CGFloat = 44
     private let radius: CGFloat = 46
+    private let staggerDelay: Double = 0.05
 
     // Angles for the 3 circles (tight fan upward)
     private let angles: [Angle] = [
@@ -19,10 +20,11 @@ struct PlusBloomMenu: View {
 
     var body: some View {
         ZStack {
-            // Tap-outside dismissal — large enough to cover the screen
+            // Tap-outside dismissal — covers entire screen
             if isPresented {
                 Color.clear
-                    .frame(width: 2000, height: 2000)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .ignoresSafeArea()
                     .contentShape(Rectangle())
                     .onTapGesture { dismiss() }
             }
@@ -55,7 +57,13 @@ struct PlusBloomMenu: View {
                 )
                 .overlay(
                     Circle()
-                        .stroke(Color.chloeRosewood.opacity(0.4), lineWidth: 1)
+                        .strokeBorder(Color.white.opacity(0.2), lineWidth: 1)
+                )
+                .shadow(
+                    color: Color.chloeRosewood.opacity(0.12),
+                    radius: 8,
+                    x: 0,
+                    y: 3
                 )
         }
         .offset(x: xOffset, y: yOffset)
@@ -63,7 +71,7 @@ struct PlusBloomMenu: View {
         .opacity(isPresented ? 1 : 0)
         .animation(
             .spring(response: 0.35, dampingFraction: 0.75)
-                .delay(Double(index) * 0.05),
+                .delay(Double(index) * staggerDelay),
             value: isPresented
         )
     }

@@ -165,6 +165,12 @@ class StorageService {
     // MARK: - Clear All
 
     func clearAll() {
+        // Clear per-conversation message keys first
+        let conversations = loadConversations()
+        for convo in conversations {
+            defaults.removeObject(forKey: "messages_\(convo.id)")
+        }
+
         let keys = [
             "profile", "conversations", "journal_entries", "goals",
             "affirmations", "vision_items", "user_facts", "latest_vibe",

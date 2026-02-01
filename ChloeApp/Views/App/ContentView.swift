@@ -4,9 +4,16 @@ struct ContentView: View {
     @StateObject private var authVM = AuthViewModel()
     @State private var onboardingComplete = false
 
+    // TEMP: Set to true to bypass auth/onboarding for UI testing
+    private let debugSkipToMain = true
+
     var body: some View {
         Group {
-            if !authVM.isAuthenticated {
+            if debugSkipToMain {
+                NavigationStack {
+                    SanctuaryView()
+                }
+            } else if !authVM.isAuthenticated {
                 NavigationStack {
                     WelcomeView()
                 }
@@ -15,7 +22,9 @@ struct ContentView: View {
                     OnboardingContainerView()
                 }
             } else {
-                SanctuaryView()
+                NavigationStack {
+                    SanctuaryView()
+                }
             }
         }
         .environmentObject(authVM)

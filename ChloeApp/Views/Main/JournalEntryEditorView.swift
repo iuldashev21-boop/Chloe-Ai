@@ -8,6 +8,7 @@ struct JournalEntryEditorView: View {
     @State private var title = ""
     @State private var content = ""
     @State private var selectedMood: JournalMood?
+    @State private var showMoodPicker = false
 
     @FocusState private var titleFocused: Bool
     @FocusState private var contentFocused: Bool
@@ -17,91 +18,58 @@ struct JournalEntryEditorView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            ZStack {
-                Color.chloeBackground.ignoresSafeArea()
+        ZStack(alignment: .topTrailing) {
+            Color.chloeBackground.ignoresSafeArea()
 
-                ScrollView {
-                    VStack(alignment: .leading, spacing: Spacing.lg) {
-                        // Mood selector
-                        moodSelector
+            VStack(alignment: .leading, spacing: 0) {
+                // Top spacer for Done pill clearance
+                Spacer()
+                    .frame(height: Spacing.xxl)
 
-                        // Divider
-                        Rectangle()
-                            .fill(Color.chloeBorderWarm)
-                            .frame(height: 1)
-                            .padding(.horizontal, Spacing.screenHorizontal)
+                // Title
+                titleField
+                    .padding(.bottom, Spacing.sm)
 
-                        // Title
-                        titleField
+                // Content
+                contentField
 
-                        // Content
-                        contentField
-                    }
-                    .padding(.top, Spacing.md)
-                    .padding(.bottom, Spacing.xxxl)
-                }
-                .scrollDismissesKeyboard(.interactively)
+                // Mood selector at bottom
+                moodSection
+                    .padding(.top, Spacing.sm)
+                    .padding(.bottom, Spacing.md)
             }
-            .navigationTitle("New Entry")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                    .font(.chloeBodyDefault)
-                    .foregroundColor(.chloeTextSecondary)
-                }
+            .padding(.horizontal, Spacing.screenHorizontal)
 
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Save") {
-                        let entry = JournalEntry(
-                            title: title.trimmingCharacters(in: .whitespacesAndNewlines),
-                            content: content.trimmingCharacters(in: .whitespacesAndNewlines),
-                            mood: selectedMood?.rawValue ?? ""
-                        )
-                        onSave(entry)
-                        dismiss()
-                    }
-                    .font(.chloeHeadline)
-                    .foregroundColor(canSave ? .chloePrimary : .chloeTextTertiary)
-                    .disabled(!canSave)
-                    .animation(.easeInOut(duration: 0.2), value: canSave)
-                }
-            }
+            // Floating Done pill
+            donePill
+                .padding(.top, Spacing.sm)
+                .padding(.trailing, Spacing.screenHorizontal)
         }
+        .scrollDismissesKeyboard(.interactively)
     }
 
-    // MARK: - Mood Selector
+    // MARK: - Done Pill
 
-    private var moodSelector: some View {
-        VStack(alignment: .leading, spacing: Spacing.xs) {
-            Text("How are you feeling?")
-                .font(.chloeSubheadline)
-                .foregroundColor(.chloeTextSecondary)
-                .padding(.horizontal, Spacing.screenHorizontal)
-
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: Spacing.xxs) {
-                    ForEach(JournalMood.allCases, id: \.self) { mood in
-                        MoodPill(
-                            mood: mood,
-                            isSelected: selectedMood == mood
-                        ) {
-                            withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
-                                if selectedMood == mood {
-                                    selectedMood = nil
-                                } else {
-                                    selectedMood = mood
-                                }
-                            }
-                        }
-                    }
-                }
-                .padding(.horizontal, Spacing.screenHorizontal)
-            }
+    private var donePill: some View {
+        Button {
+            let entry = JournalEntry(
+                title: title.trimmingCharacters(in: .whitespacesAndNewlines),
+                content: content.trimmingCharacters(in: .whitespacesAndNewlines),
+                mood: selectedMood?.rawValue ?? ""
+            )
+            onSave(entry)
+            dismiss()
+        } label: {
+            Text("Done")
+                .font(.chloeCaption)
+                .foregroundColor(canSave ? .white : .chloeTextTertiary)
+                .padding(.horizontal, Spacing.sm)
+                .padding(.vertical, Spacing.xxs)
+                .background(canSave ? Color.chloePrimary : Color.chloeSurface)
+                .cornerRadius(Spacing.cornerRadiusLarge)
         }
+        .disabled(!canSave)
+        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: canSave)
     }
 
     // MARK: - Title Field
@@ -111,11 +79,13 @@ struct JournalEntryEditorView: View {
             .font(.chloeTitle)
             .foregroundColor(.chloeTextPrimary)
             .focused($titleFocused)
-            .padding(.horizontal, Spacing.screenHorizontal)
-            .onAppear {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                    titleFocused = true
+            .onChange(of: title) {
+                if title.count > 200 {
+                    title = String(title.prefix(200))
                 }
+            }
+            .onAppear {
+                titleFocused = true
             }
     }
 
@@ -135,11 +105,71 @@ struct JournalEntryEditorView: View {
                 .font(.chloeBodyDefault)
                 .foregroundColor(.chloeTextPrimary)
                 .focused($contentFocused)
-                .frame(minHeight: 240)
                 .scrollContentBackground(.hidden)
                 .background(Color.clear)
+                .onChange(of: content) {
+                    if content.count > 10000 {
+                        content = String(content.prefix(10000))
+                    }
+                }
         }
-        .padding(.horizontal, Spacing.screenHorizontal)
+        .frame(maxHeight: .infinity)
+    }
+
+    // MARK: - Mood Section
+
+    private var moodSection: some View {
+        VStack(alignment: .leading, spacing: Spacing.xs) {
+            if showMoodPicker {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: Spacing.xxs) {
+                        ForEach(JournalMood.allCases, id: \.self) { mood in
+                            MoodPill(
+                                mood: mood,
+                                isSelected: selectedMood == mood
+                            ) {
+                                withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                                    if selectedMood == mood {
+                                        selectedMood = nil
+                                    } else {
+                                        selectedMood = mood
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                Button {
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                        showMoodPicker = true
+                    }
+                } label: {
+                    HStack(spacing: Spacing.xxxs) {
+                        if let mood = selectedMood {
+                            Text(mood.emoji)
+                                .font(.system(size: 18))
+                            Text(mood.label)
+                                .font(.chloeCaption)
+                                .foregroundColor(.chloeTextPrimary)
+                        } else {
+                            Text("Add mood")
+                                .font(.chloeCaption)
+                                .foregroundColor(.chloeTextSecondary)
+                        }
+                    }
+                    .padding(.horizontal, Spacing.sm)
+                    .padding(.vertical, Spacing.xxs)
+                    .background(Color.chloeSurface)
+                    .cornerRadius(Spacing.cornerRadiusLarge)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: Spacing.cornerRadiusLarge)
+                            .stroke(Color.chloeBorderWarm, lineWidth: 1)
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+        }
     }
 }
 

@@ -15,7 +15,7 @@ struct SidebarView: View {
     private var sidebarWidth: CGFloat {
         (UIApplication.shared.connectedScenes
             .compactMap { $0 as? UIWindowScene }
-            .first?.screen.bounds.width ?? 390) * 0.8
+            .first?.screen.bounds.width ?? UIScreen.main.bounds.width) * 0.8
     }
 
     var body: some View {

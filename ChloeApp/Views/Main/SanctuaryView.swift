@@ -87,7 +87,7 @@ struct SanctuaryView: View {
             // Layer 1: Main content
             mainContentWrapper
                 .scaleEffect(sidebarOpen ? 0.9 : 1.0)
-                .offset(x: sidebarOpen ? 300 : 0)
+                .offset(x: sidebarOpen ? screenWidth * 0.8 : 0)
                 .cornerRadius(sidebarOpen ? 32 : 0)
                 .shadow(color: .black.opacity(sidebarOpen ? 0.1 : 0), radius: 20)
                 .disabled(sidebarOpen)
@@ -127,8 +127,19 @@ struct SanctuaryView: View {
                 if let data = try? await item.loadTransferable(type: Data.self),
                    let image = UIImage(data: data) {
                     selectedImage = image
+                    if !chatActive { activateChat() }
+                    chatVM.inputText = chatVM.inputText.isEmpty ? "What do you think of this?" : chatVM.inputText
                 }
                 selectedPhotoItem = nil
+            }
+        }
+        .onChange(of: selectedImage) {
+            // Also handle camera-picked images
+            if selectedImage != nil && !chatActive {
+                activateChat()
+                if chatVM.inputText.isEmpty {
+                    chatVM.inputText = "What do you think of this?"
+                }
             }
         }
         .onChange(of: chatVM.messages.count) {
@@ -174,7 +185,7 @@ struct SanctuaryView: View {
                     Image(systemName: "line.3.horizontal")
                         .font(.system(size: 18, weight: .medium))
                         .foregroundColor(.chloeTextSecondary)
-                        .frame(width: 40, height: 40)
+                        .frame(width: 44, height: 44)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(.ultraThinMaterial)
@@ -265,7 +276,7 @@ struct SanctuaryView: View {
                         Image(systemName: "chevron.left")
                             .font(.system(size: 16, weight: .medium))
                             .foregroundColor(.chloePrimary)
-                            .frame(width: 40, height: 40)
+                            .frame(width: 44, height: 44)
                     }
 
                     Spacer()
@@ -280,7 +291,7 @@ struct SanctuaryView: View {
                     Spacer()
 
                     // Invisible spacer to balance the back button
-                    Color.clear.frame(width: 40, height: 40)
+                    Color.clear.frame(width: 44, height: 44)
                 }
                 .padding(.horizontal, Spacing.screenHorizontal)
                 .padding(.top, geo.safeAreaInsets.top)
@@ -306,21 +317,70 @@ struct SanctuaryView: View {
                         .padding(.vertical, Spacing.sm)
                     }
                     .scrollDismissesKeyboard(.interactively)
+                    .defaultScrollAnchor(.bottom)
                     .onChange(of: chatVM.messages.count) {
                         if let last = chatVM.messages.last {
-                            withAnimation {
-                                proxy.scrollTo(last.id, anchor: .bottom)
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                                withAnimation {
+                                    proxy.scrollTo(last.id, anchor: .bottom)
+                                }
+                            }
+                        }
+                    }
+                    .onChange(of: chatVM.isTyping) {
+                        if chatVM.isTyping, let last = chatVM.messages.last {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                                withAnimation {
+                                    proxy.scrollTo(last.id, anchor: .bottom)
+                                }
                             }
                         }
                     }
                 }
 
                 if let error = chatVM.errorMessage {
-                    Text(error)
-                        .font(.chloeCaption)
-                        .foregroundColor(.chloeRosewood)
-                        .padding(.horizontal, Spacing.screenHorizontal)
-                        .padding(.bottom, Spacing.xxxs)
+                    HStack {
+                        if chatVM.lastFailedText != nil {
+                            Button {
+                                Task { await chatVM.retryLastMessage() }
+                            } label: {
+                                HStack(spacing: Spacing.xxxs) {
+                                    Image(systemName: "arrow.clockwise")
+                                        .font(.system(size: 12, weight: .medium))
+                                    Text(error)
+                                        .font(.chloeCaption)
+                                }
+                                .foregroundColor(.chloeRosewood)
+                            }
+                        } else {
+                            Text(error)
+                                .font(.chloeCaption)
+                                .foregroundColor(.chloeRosewood)
+                        }
+
+                        Spacer()
+
+                        Button {
+                            chatVM.errorMessage = nil
+                            chatVM.lastFailedText = nil
+                        } label: {
+                            Image(systemName: "xmark")
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundColor(.chloeTextTertiary)
+                                .frame(width: 24, height: 24)
+                        }
+                    }
+                    .padding(.horizontal, Spacing.screenHorizontal)
+                    .padding(.bottom, Spacing.xxxs)
+                    .onAppear {
+                        if chatVM.lastFailedText == nil {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                                withAnimation {
+                                    chatVM.errorMessage = nil
+                                }
+                            }
+                        }
+                    }
                 }
 
                 chatInputBar
@@ -335,6 +395,7 @@ struct SanctuaryView: View {
         ChatInputBar(
             text: $chatVM.inputText,
             onSend: {
+                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                 if !chatActive { activateChat() }
                 Task { await chatVM.sendMessage() }
             },
@@ -440,9 +501,14 @@ struct SanctuaryView: View {
 
     // MARK: - Edge Swipe Gesture
 
+    private var isInNestedScreen: Bool {
+        showJournal || showHistory || showVisionBoard || showSettings
+    }
+
     private var edgeSwipeDragGesture: some Gesture {
         DragGesture(minimumDistance: 20)
             .onEnded { value in
+                guard !isInNestedScreen else { return }
                 let horizontal = value.translation.width
                 if !sidebarOpen && horizontal > 80 && value.startLocation.x < 30 {
                     openSidebar()
@@ -463,6 +529,7 @@ struct SanctuaryView: View {
     private func openSidebar() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
         UISelectionFeedbackGenerator().selectionChanged()
+        loadConversations()
         sidebarOpen = true
     }
 
@@ -482,9 +549,16 @@ struct SanctuaryView: View {
     }
 
     private func loadGhostMessages() {
-        let convos = StorageService.shared.loadConversations()
-        guard let lastConvo = convos.sorted(by: { $0.createdAt > $1.createdAt }).first else { return }
-        let messages = StorageService.shared.loadMessages(forConversation: lastConvo.id)
+        // Load ghost messages from the current conversation if available,
+        // otherwise fall back to the most recently updated conversation
+        let targetId: String? = chatVM.conversationId ?? StorageService.shared.loadConversations()
+            .sorted(by: { $0.updatedAt > $1.updatedAt })
+            .first?.id
+        guard let id = targetId else {
+            ghostMessages = []
+            return
+        }
+        let messages = StorageService.shared.loadMessages(forConversation: id)
         ghostMessages = Array(messages.suffix(2))
     }
 

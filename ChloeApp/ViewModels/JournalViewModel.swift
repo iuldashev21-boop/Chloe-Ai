@@ -5,6 +5,11 @@ import SwiftUI
 class JournalViewModel: ObservableObject {
     @Published var entries: [JournalEntry] = []
     @Published var isLoading = false
+    @Published var saveError: String?
+
+    init() {
+        entries = StorageService.shared.loadJournalEntries()
+    }
 
     func loadEntries() {
         entries = StorageService.shared.loadJournalEntries()
@@ -12,11 +17,20 @@ class JournalViewModel: ObservableObject {
 
     func addEntry(_ entry: JournalEntry) {
         entries.insert(entry, at: 0)
-        try? StorageService.shared.saveJournalEntries(entries)
+        persistEntries()
     }
 
     func deleteEntry(at offsets: IndexSet) {
         entries.remove(atOffsets: offsets)
-        try? StorageService.shared.saveJournalEntries(entries)
+        persistEntries()
+    }
+
+    private func persistEntries() {
+        do {
+            try StorageService.shared.saveJournalEntries(entries)
+            saveError = nil
+        } catch {
+            saveError = "Failed to save journal: \(error.localizedDescription)"
+        }
     }
 }

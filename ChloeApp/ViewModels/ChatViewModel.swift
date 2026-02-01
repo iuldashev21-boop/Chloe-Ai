@@ -90,10 +90,24 @@ class ChatViewModel: ObservableObject {
                 }
             }
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = "Message failed to send. Tap to retry."
+            lastFailedText = text
         }
 
         isTyping = false
+    }
+
+    var lastFailedText: String?
+
+    func retryLastMessage() async {
+        guard let text = lastFailedText else { return }
+        lastFailedText = nil
+        // Remove the user message that had no response
+        if let last = messages.last, last.role == .user {
+            messages.removeLast()
+        }
+        inputText = text
+        await sendMessage()
     }
 
     func startNewChat() {

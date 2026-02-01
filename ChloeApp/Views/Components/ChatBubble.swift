@@ -13,7 +13,7 @@ struct ChatBubble: View {
 
             Text(message.text)
                 .font(.chloeBodyDefault)
-                .foregroundColor(isUser ? .chloeTextPrimary : .chloeTextPrimary)
+                .foregroundColor(.chloeTextPrimary)
                 .padding(.horizontal, Spacing.sm)
                 .padding(.vertical, Spacing.xs)
                 .background(isUser ? Color.chloeUserBubble : Color.chloePrimaryLight)

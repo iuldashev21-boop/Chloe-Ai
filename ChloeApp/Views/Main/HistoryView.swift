@@ -39,18 +39,7 @@ struct HistoryView: View {
         .navigationTitle("History")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.visible, for: .navigationBar)
-        .navigationBarBackButtonHidden(true)
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.chloePrimary)
-                }
-            }
-        }
+        .toolbarRole(.editor)
         .onAppear {
             conversations = StorageService.shared.loadConversations()
                 .sorted(by: { $0.updatedAt > $1.updatedAt })
@@ -76,8 +65,18 @@ struct HistoryView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(Spacing.sm)
         .background(
-            RoundedRectangle(cornerRadius: Spacing.cornerRadius)
+            RoundedRectangle(cornerRadius: Spacing.cornerRadiusLarge)
                 .fill(.ultraThinMaterial)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: Spacing.cornerRadiusLarge)
+                .strokeBorder(Color.white.opacity(0.2), lineWidth: 1)
+        )
+        .shadow(
+            color: Color.chloeRosewood.opacity(0.12),
+            radius: 16,
+            x: 0,
+            y: 6
         )
     }
 }

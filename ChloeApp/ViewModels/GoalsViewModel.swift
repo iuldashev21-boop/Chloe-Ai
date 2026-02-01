@@ -5,6 +5,7 @@ import SwiftUI
 class GoalsViewModel: ObservableObject {
     @Published var goals: [Goal] = []
     @Published var isLoading = false
+    @Published var saveError: String?
 
     func loadGoals() {
         goals = StorageService.shared.loadGoals()
@@ -12,7 +13,12 @@ class GoalsViewModel: ObservableObject {
 
     func addGoal(_ goal: Goal) {
         goals.append(goal)
-        try? StorageService.shared.saveGoals(goals)
+        persistGoals()
+    }
+
+    func deleteGoal(at offsets: IndexSet) {
+        goals.remove(atOffsets: offsets)
+        persistGoals()
     }
 
     func toggleGoalStatus(goalId: String) {
@@ -28,6 +34,15 @@ class GoalsViewModel: ObservableObject {
             goals[index].status = .active
             goals[index].completedAt = nil
         }
-        try? StorageService.shared.saveGoals(goals)
+        persistGoals()
+    }
+
+    private func persistGoals() {
+        do {
+            try StorageService.shared.saveGoals(goals)
+            saveError = nil
+        } catch {
+            saveError = "Failed to save goals: \(error.localizedDescription)"
+        }
     }
 }
