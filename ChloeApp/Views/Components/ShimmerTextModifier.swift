@@ -15,7 +15,7 @@ struct LuminousBloomModifier: ViewModifier {
             .scaleEffect(scale)
             .blur(radius: blurRadius)
             .overlay {
-                if !shimmerDone {
+                if !shimmerDone && opacity > 0 {
                     GeometryReader { geo in
                         LinearGradient(
                             stops: [
