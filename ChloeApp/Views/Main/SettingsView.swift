@@ -15,13 +15,6 @@ struct SettingsView: View {
 
             ScrollView {
                 VStack(spacing: Spacing.lg) {
-                    // Navigation title
-                    Text("Settings")
-                        .font(.chloeTitle)
-                        .foregroundColor(.chloeTextPrimary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, Spacing.screenHorizontal)
-
                     // Account Section
                     settingsSection("ACCOUNT") {
                         HStack(spacing: Spacing.sm) {
@@ -130,7 +123,9 @@ struct SettingsView: View {
             .opacity(appeared ? 1 : 0)
             .offset(y: appeared ? 0 : 12)
         }
-        .navigationBarHidden(true)
+        .navigationTitle("Settings")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.visible, for: .navigationBar)
         .alert("Clear All Data?", isPresented: $showClearDataAlert) {
             Button("Clear Everything", role: .destructive) {
                 UIImpactFeedbackGenerator(style: .medium).impactOccurred()
