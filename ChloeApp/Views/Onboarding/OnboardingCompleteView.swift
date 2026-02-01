@@ -10,11 +10,11 @@ struct OnboardingCompleteView: View {
             ChloeAvatar(size: 80)
 
             Text("You're all set!")
-                .font(.chloeLargeTitle)
+                .font(.chloeGreeting)
                 .foregroundColor(.chloePrimary)
 
             Text("I can't wait to get to know you better.\nLet's start your journey together.")
-                .font(.chloeBodyDefault)
+                .font(.chloeBodyLight)
                 .foregroundColor(.chloeTextSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, Spacing.screenHorizontal)

@@ -9,7 +9,7 @@ struct ChloeButtonLabel: View {
     var body: some View {
         Text(title.uppercased())
             .font(.chloeButton)
-            .tracking(1.5)
+            .tracking(3)
             .foregroundColor(.white)
             .frame(maxWidth: .infinity)
             .padding(.vertical, Spacing.sm)

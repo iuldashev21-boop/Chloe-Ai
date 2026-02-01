@@ -28,8 +28,10 @@ extension Font {
     static let chloeHeadline = Font.system(size: 17, weight: .medium)
     static let chloeSubheadline = Font.system(size: 15, weight: .medium)
     static let chloeBodyDefault = Font.system(size: 17, weight: .regular)
+    static let chloeBodyLight = Font.system(size: 17, weight: .light)
     static let chloeCaption = Font.system(size: 14, weight: .regular)
-    static let chloeButton = Font.system(size: 15, weight: .medium)
+    static let chloeCaptionLight = Font.system(size: 14, weight: .light)
+    static let chloeButton = Font.custom(ChloeFont.headerDisplay, size: 15)
     static let chloeGreeting = Font.custom(ChloeFont.heroBoldItalic, size: 34)
     static let chloeStatus = Font.system(size: 11, weight: .light)
     static let chloeProgressLabel = Font.system(size: 11, weight: .light)
@@ -83,7 +85,7 @@ struct ChloeButtonTextStyle: ViewModifier {
     func body(content: Content) -> some View {
         content
             .font(.chloeButton)
-            .tracking(1.5)
+            .tracking(3)
     }
 }
 

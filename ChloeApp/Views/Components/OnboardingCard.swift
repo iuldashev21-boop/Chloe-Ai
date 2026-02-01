@@ -14,7 +14,7 @@ struct OnboardingCard: View {
                     .foregroundColor(isSelected ? .chloePrimary : .chloeTextPrimary)
 
                 Text(description)
-                    .font(.chloeCaption)
+                    .font(.chloeCaptionLight)
                     .foregroundColor(isSelected ? .chloePrimary.opacity(0.8) : .chloeTextSecondary)
                     .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)

@@ -16,12 +16,12 @@ struct EmailLoginView: View {
                 // MARK: - Header
                 VStack(spacing: Spacing.xs) {
                     Text("Welcome back")
-                        .font(.chloeTitle)
+                        .font(.chloeGreeting)
                         .foregroundColor(.chloeTextPrimary)
 
                     Text("Enter your email to continue")
-                        .font(.chloeBodyDefault)
-                        .foregroundColor(.chloeTextSecondary)
+                        .font(.chloeBodyLight)
+                        .foregroundColor(.chloeRosewood)
                 }
 
                 // MARK: - Email field
