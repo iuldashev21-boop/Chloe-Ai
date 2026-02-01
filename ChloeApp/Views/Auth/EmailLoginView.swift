@@ -43,8 +43,15 @@ struct EmailLoginView: View {
                 // MARK: - Header
                 VStack(spacing: Spacing.xs) {
                     Text("Welcome home")
-                        .font(.custom(ChloeFont.heroBoldItalic, size: 36))
-                        .foregroundColor(.chloeTextPrimary)
+                        .font(.custom(ChloeFont.heroBoldItalic, size: 40))
+                        .tracking(-0.5)
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [Color(hex: "#2D2324"), Color(hex: "#8E5A5E")],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
 
                     Text("ENTER YOUR SANCTUARY")
                         .font(.custom(ChloeFont.headerDisplay, size: 11))
@@ -112,6 +119,21 @@ struct EmailLoginView: View {
                                     )
                                     .offset(x: shimmerOffset)
                                     .mask(Capsule())
+                                    // Inner glow — top edge catch light
+                                    VStack {
+                                        Capsule()
+                                            .fill(
+                                                LinearGradient(
+                                                    colors: [.white.opacity(0.35), .clear],
+                                                    startPoint: .top,
+                                                    endPoint: .center
+                                                )
+                                            )
+                                            .frame(height: 1)
+                                            .padding(.horizontal, 1)
+                                        Spacer()
+                                    }
+                                    .clipShape(Capsule())
                                 }
                             )
                             .clipShape(Capsule())

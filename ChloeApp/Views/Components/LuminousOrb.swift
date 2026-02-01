@@ -38,11 +38,10 @@ struct LuminousOrb: View {
 
                 // Radial gradient fill: ethereal gold center → accent edge
                 let gradient = Gradient(stops: [
-                    .init(color: Color.chloeEtherealGold, location: 0.0),
-                    .init(color: Color.chloeEtherealGold.opacity(0.9), location: 0.25),
-                    .init(color: Color.chloeEtherealGold.opacity(0.6), location: 0.45),
-                    .init(color: Color.chloePrimary.opacity(0.8), location: 0.7),
-                    .init(color: Color.chloePrimary.opacity(0.4), location: 1.0)
+                    .init(color: .white, location: 0.0),
+                    .init(color: Color(hex: "#F3E5AB"), location: 0.3),
+                    .init(color: Color(hex: "#FFD700").opacity(0.8), location: 0.6),
+                    .init(color: Color(hex: "#FFD700").opacity(0.4), location: 1.0)
                 ])
                 let shading = GraphicsContext.Shading.radialGradient(
                     gradient,
@@ -59,8 +58,8 @@ struct LuminousOrb: View {
                     .fill(
                         RadialGradient(
                             colors: [
-                                Color.chloePrimary.opacity(0.4),
-                                Color.chloePrimary.opacity(0.0)
+                                Color(hex: "#FFD700").opacity(0.4),
+                                Color(hex: "#FFD700").opacity(0.0)
                             ],
                             center: .center,
                             startRadius: size * 0.25,
@@ -68,7 +67,7 @@ struct LuminousOrb: View {
                         )
                     )
                     .frame(width: size * 1.6, height: size * 1.6)
-                    .blur(radius: size * 0.2)
+                    .blur(radius: size * 0.5)
                     .allowsHitTesting(false)
             }
         }
