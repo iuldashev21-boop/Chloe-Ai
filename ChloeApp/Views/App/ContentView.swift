@@ -15,7 +15,7 @@ struct ContentView: View {
                 }
             } else if !authVM.isAuthenticated {
                 NavigationStack {
-                    WelcomeView()
+                    EmailLoginView()
                 }
             } else if !onboardingComplete {
                 NavigationStack {

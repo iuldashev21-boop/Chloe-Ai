@@ -38,7 +38,6 @@
 		A10000290000000000000001 /* GoalsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000290000000000000001 /* GoalsViewModel.swift */; };
 		A10000300000000000000001 /* VisionBoardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000300000000000000001 /* VisionBoardViewModel.swift */; };
 		A10000310000000000000001 /* AffirmationsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000310000000000000001 /* AffirmationsViewModel.swift */; };
-		A10000320000000000000001 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000320000000000000001 /* WelcomeView.swift */; };
 		A10000330000000000000001 /* EmailLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000330000000000000001 /* EmailLoginView.swift */; };
 		A10000340000000000000001 /* OnboardingContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000340000000000000001 /* OnboardingContainerView.swift */; };
 		A10000350000000000000001 /* NameStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000350000000000000001 /* NameStepView.swift */; };
@@ -140,7 +139,6 @@
 		A20000290000000000000001 /* GoalsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalsViewModel.swift; sourceTree = "<group>"; };
 		A20000300000000000000001 /* VisionBoardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionBoardViewModel.swift; sourceTree = "<group>"; };
 		A20000310000000000000001 /* AffirmationsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AffirmationsViewModel.swift; sourceTree = "<group>"; };
-		A20000320000000000000001 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
 		A20000330000000000000001 /* EmailLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailLoginView.swift; sourceTree = "<group>"; };
 		A20000340000000000000001 /* OnboardingContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingContainerView.swift; sourceTree = "<group>"; };
 		A20000350000000000000001 /* NameStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NameStepView.swift; sourceTree = "<group>"; };
@@ -298,7 +296,6 @@
 		A50000070000000000000001 /* Auth */ = {
 			isa = PBXGroup;
 			children = (
-				A20000320000000000000001 /* WelcomeView.swift */,
 				A20000330000000000000001 /* EmailLoginView.swift */,
 			);
 			path = Auth;
@@ -573,7 +570,6 @@
 				A10000290000000000000001 /* GoalsViewModel.swift in Sources */,
 				A10000300000000000000001 /* VisionBoardViewModel.swift in Sources */,
 				A10000310000000000000001 /* AffirmationsViewModel.swift in Sources */,
-				A10000320000000000000001 /* WelcomeView.swift in Sources */,
 				A10000330000000000000001 /* EmailLoginView.swift in Sources */,
 				A10000340000000000000001 /* OnboardingContainerView.swift in Sources */,
 				A10000350000000000000001 /* NameStepView.swift in Sources */,
