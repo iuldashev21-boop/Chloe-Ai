@@ -36,8 +36,9 @@ extension Font {
     static let chloeGreeting = Font.custom(ChloeFont.heroBoldItalic, size: 38)
     static let chloeStatus = Font.custom(ChloeFont.headerDisplay, size: 11)
     static let chloeProgressLabel = Font.system(size: 11, weight: .light)
-    static let chloeSidebarSectionHeader = Font.custom(ChloeFont.headerDisplay, size: 12)
-    static let chloeSidebarMenuItem = Font.system(size: 15, weight: .regular)
+    static let chloeSidebarAppName = Font.custom(ChloeFont.heroBoldItalic, size: 24)
+    static let chloeSidebarSectionHeader = Font.custom(ChloeFont.headerDisplay, size: 11)
+    static let chloeSidebarMenuItem = Font.custom(ChloeFont.headerDisplay, size: 14)
     static let chloeSidebarChatItem = Font.system(size: 14, weight: .regular)
 
     static let chloeOnboardingQuestion = Font.custom(ChloeFont.heroBoldItalic, size: 40)

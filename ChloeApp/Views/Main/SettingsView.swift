@@ -1,4 +1,5 @@
 import SwiftUI
+import PhotosUI
 
 struct SettingsView: View {
     @EnvironmentObject var authVM: AuthViewModel
@@ -8,6 +9,10 @@ struct SettingsView: View {
     @State private var appeared = false
     @State private var showClearDataAlert = false
     @State private var showResetAlert = false
+    @State private var selectedPhotoItem: PhotosPickerItem?
+    @State private var profileImage: UIImage?
+    @State private var showImageOptions = false
+    @State private var showPhotoPicker = false
 
     var body: some View {
         ZStack {
@@ -18,15 +23,11 @@ struct SettingsView: View {
                     // Account Section
                     settingsSection("ACCOUNT") {
                         HStack(spacing: Spacing.sm) {
-                            // Avatar circle
-                            Circle()
-                                .fill(Color.chloePrimary.opacity(0.15))
-                                .frame(width: 48, height: 48)
-                                .overlay(
-                                    Text(avatarInitial)
-                                        .font(.chloeHeadline)
-                                        .foregroundColor(.chloePrimary)
-                                )
+                            // Tappable avatar
+                            Button { showImageOptions = true } label: {
+                                avatarView
+                            }
+                            .buttonStyle(.plain)
 
                             VStack(alignment: .leading, spacing: Spacing.xxxs) {
                                 Text(profile?.displayName ?? "Chloe User")
@@ -148,13 +149,74 @@ struct SettingsView: View {
         }
         .onAppear {
             profile = StorageService.shared.loadProfile()
+            if let data = StorageService.shared.loadProfileImage() {
+                profileImage = UIImage(data: data)
+            }
             withAnimation(Spacing.chloeSpring) {
                 appeared = true
+            }
+        }
+        .confirmationDialog("Profile Photo", isPresented: $showImageOptions, titleVisibility: .visible) {
+            Button("Choose Photo") { showPhotoPicker = true }
+            if profileImage != nil {
+                Button("Remove Photo", role: .destructive) {
+                    try? StorageService.shared.deleteProfileImage()
+                    profileImage = nil
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        }
+        .photosPicker(isPresented: $showPhotoPicker, selection: $selectedPhotoItem, matching: .images)
+        .onChange(of: selectedPhotoItem) {
+            guard let item = selectedPhotoItem else { return }
+            Task {
+                if let data = try? await item.loadTransferable(type: Data.self),
+                   let uiImage = UIImage(data: data),
+                   let jpegData = uiImage.jpegData(compressionQuality: 0.8) {
+                    do {
+                        let path = try StorageService.shared.saveProfileImage(jpegData)
+                        var updated = profile ?? Profile()
+                        updated.profileImageUri = path
+                        updated.updatedAt = Date()
+                        try StorageService.shared.saveProfile(updated)
+                        profile = updated
+                        profileImage = uiImage
+                    } catch {}
+                }
+                selectedPhotoItem = nil
             }
         }
     }
 
     // MARK: - Helpers
+
+    @ViewBuilder
+    private var avatarView: some View {
+        let cameraBadge = Image(systemName: "camera.fill")
+            .font(.system(size: 9, weight: .bold))
+            .foregroundColor(.white)
+            .frame(width: 18, height: 18)
+            .background(Circle().fill(Color.chloePrimary))
+
+        if let profileImage {
+            Image(uiImage: profileImage)
+                .resizable()
+                .scaledToFill()
+                .frame(width: 48, height: 48)
+                .clipShape(Circle())
+                .overlay(alignment: .bottomTrailing) { cameraBadge }
+        } else {
+            Circle()
+                .fill(Color.chloePrimary.opacity(0.15))
+                .frame(width: 48, height: 48)
+                .overlay(
+                    Text(avatarInitial)
+                        .font(.chloeHeadline)
+                        .foregroundColor(.chloePrimary)
+                )
+                .overlay(alignment: .bottomTrailing) { cameraBadge }
+        }
+    }
 
     private var avatarInitial: String {
         let name = profile?.displayName ?? ""

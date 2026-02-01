@@ -31,6 +31,7 @@ struct SanctuaryView: View {
     @State private var selectedImage: UIImage? = nil
     @State private var selectedPhotoItem: PhotosPickerItem? = nil
     @State private var showFileImporter = false
+    @State private var profileImageData: Data?
 
     private var screenWidth: CGFloat {
         UIApplication.shared.connectedScenes
@@ -51,6 +52,9 @@ struct SanctuaryView: View {
                 isOpen: $sidebarOpen,
                 conversations: conversations,
                 latestVibe: latestVibe,
+                currentConversationId: chatVM.conversationId,
+                displayName: displayName,
+                profileImageData: profileImageData,
                 onNewChat: {
                     chatVM.startNewChat()
                     ghostMessages = []
@@ -81,6 +85,28 @@ struct SanctuaryView: View {
                     case .visionBoard: showVisionBoard = true
                     case .settings: showSettings = true
                     }
+                },
+                onRenameConversation: { id, newTitle in
+                    try? StorageService.shared.renameConversation(id: id, newTitle: newTitle)
+                    loadConversations()
+                    if chatVM.conversationId == id {
+                        chatVM.conversationTitle = newTitle
+                    }
+                },
+                onDeleteConversation: { id in
+                    StorageService.shared.deleteConversation(id: id)
+                    loadConversations()
+                    if chatVM.conversationId == id {
+                        chatVM.startNewChat()
+                        ghostMessages = []
+                        withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
+                            chatActive = false
+                        }
+                    }
+                },
+                onToggleStarConversation: { id in
+                    try? StorageService.shared.toggleConversationStar(id: id)
+                    loadConversations()
                 }
             )
             .frame(width: screenWidth * 0.8)
@@ -159,6 +185,11 @@ struct SanctuaryView: View {
                 if chatVM.inputText.isEmpty {
                     chatVM.inputText = "What do you think of this?"
                 }
+            }
+        }
+        .onChange(of: showSettings) {
+            if !showSettings {
+                profileImageData = StorageService.shared.loadProfileImage()
             }
         }
         .onChange(of: chatVM.messages.count) {
@@ -566,6 +597,7 @@ struct SanctuaryView: View {
         if let profile = StorageService.shared.loadProfile() {
             displayName = profile.displayName.isEmpty ? "babe" : profile.displayName
         }
+        profileImageData = StorageService.shared.loadProfileImage()
     }
 
     private func loadGhostMessages() {

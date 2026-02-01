@@ -24,6 +24,30 @@ class StorageService {
         return try? decoder.decode(Profile.self, from: data)
     }
 
+    // MARK: - Profile Image
+
+    func saveProfileImage(_ imageData: Data) throws -> String {
+        let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let url = dir.appendingPathComponent("profile_image.jpg")
+        try imageData.write(to: url)
+        return url.path
+    }
+
+    func loadProfileImage() -> Data? {
+        guard let profile = loadProfile(),
+              let path = profile.profileImageUri else { return nil }
+        return FileManager.default.contents(atPath: path)
+    }
+
+    func deleteProfileImage() throws {
+        guard var profile = loadProfile(),
+              let path = profile.profileImageUri else { return }
+        try? FileManager.default.removeItem(atPath: path)
+        profile.profileImageUri = nil
+        profile.updatedAt = Date()
+        try saveProfile(profile)
+    }
+
     // MARK: - Conversations (metadata only, messages stored separately)
 
     func saveConversations(_ conversations: [Conversation]) throws {
@@ -48,6 +72,27 @@ class StorageService {
 
     func loadConversation(id: String) -> Conversation? {
         return loadConversations().first { $0.id == id }
+    }
+
+    func renameConversation(id: String, newTitle: String) throws {
+        guard var convo = loadConversation(id: id) else { return }
+        convo.title = newTitle
+        convo.updatedAt = Date()
+        try saveConversation(convo)
+    }
+
+    func toggleConversationStar(id: String) throws {
+        guard var convo = loadConversation(id: id) else { return }
+        convo.starred.toggle()
+        convo.updatedAt = Date()
+        try saveConversation(convo)
+    }
+
+    func deleteConversation(id: String) {
+        defaults.removeObject(forKey: "messages_\(id)")
+        var conversations = loadConversations()
+        conversations.removeAll { $0.id == id }
+        try? saveConversations(conversations)
     }
 
     // MARK: - Messages (stored per conversation)
