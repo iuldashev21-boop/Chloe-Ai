@@ -34,7 +34,7 @@ enum Spacing {
     /// Orb default size
     static let orbSize: CGFloat = 80
     /// Orb size on Sanctuary screen
-    static let orbSizeSanctuary: CGFloat = 140
+    static let orbSizeSanctuary: CGFloat = 120
     /// Sanctuary orb vertical position (fraction of screen height)
     static let sanctuaryOrbY: CGFloat = 0.25
 }

@@ -12,7 +12,7 @@ struct LuminousOrb: View {
                 let baseRadius = min(canvasSize.width, canvasSize.height) / 2 * 0.75
 
                 // Breathing scale: pulses at ~1Hz (60bpm)
-                let breathe = sin(time * 2 * .pi) * 0.04 + 1.0
+                let breathe = sin(time * 2 * .pi) * 0.05 + 1.0
                 let radius = baseRadius * breathe
 
                 // Build fluid blob path with sine-wave distortion
@@ -41,8 +41,8 @@ struct LuminousOrb: View {
                     .init(color: Color.chloeEtherealGold, location: 0.0),
                     .init(color: Color.chloeEtherealGold.opacity(0.9), location: 0.25),
                     .init(color: Color.chloeEtherealGold.opacity(0.6), location: 0.45),
-                    .init(color: Color.chloeAccent.opacity(0.8), location: 0.7),
-                    .init(color: Color.chloeAccent.opacity(0.4), location: 1.0)
+                    .init(color: Color.chloePrimary.opacity(0.8), location: 0.7),
+                    .init(color: Color.chloePrimary.opacity(0.4), location: 1.0)
                 ])
                 let shading = GraphicsContext.Shading.radialGradient(
                     gradient,
@@ -59,8 +59,8 @@ struct LuminousOrb: View {
                     .fill(
                         RadialGradient(
                             colors: [
-                                Color.chloeEtherealGold.opacity(0.3),
-                                Color.chloeEtherealGold.opacity(0.0)
+                                Color.chloePrimary.opacity(0.25),
+                                Color.chloePrimary.opacity(0.0)
                             ],
                             center: .center,
                             startRadius: size * 0.25,
