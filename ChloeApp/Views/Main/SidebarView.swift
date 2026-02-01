@@ -64,9 +64,8 @@ struct SidebarView: View {
         .background(
             ZStack {
                 Rectangle()
-                    .fill(.regularMaterial)
-                Color.white.opacity(0.15)
-                Color.chloeRosewood.opacity(0.05)
+                    .fill(.ultraThinMaterial)
+                Color.chloePrimary.opacity(0.06)
             }
         )
         .overlay(alignment: .trailing) {

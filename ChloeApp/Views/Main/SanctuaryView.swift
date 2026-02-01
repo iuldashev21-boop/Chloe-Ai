@@ -38,7 +38,13 @@ struct SanctuaryView: View {
 
     var body: some View {
         ZStack(alignment: .leading) {
-            // Layer 0: Sidebar
+            // Layer 0: Background
+            Color.chloeBackground
+                .ignoresSafeArea()
+            EtherealDustParticles()
+                .ignoresSafeArea()
+
+            // Layer 1: Sidebar
             SidebarView(
                 isOpen: $sidebarOpen,
                 conversations: conversations,

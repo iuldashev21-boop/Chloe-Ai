@@ -78,29 +78,6 @@
 		C10000050000000000000001 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = C20000050000000000000001 /* MarkdownUI */; };
 		C10000060000000000000001 /* TelemetryDeck in Frameworks */ = {isa = PBXBuildFile; productRef = C20000060000000000000001 /* TelemetryDeck */; };
 		CE6AF8EADDADE82FD8EDA73B /* TopicCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09A0E1234B03A34F42572AE0 /* TopicCard.swift */; };
-		F10000010000000000000001 /* CameraPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000010000000000000001 /* CameraPickerView.swift */; };
-		F10000020000000000000001 /* ChloeButtonLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000020000000000000001 /* ChloeButtonLabel.swift */; };
-		F10000030000000000000001 /* InputStardustParticles.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000030000000000000001 /* InputStardustParticles.swift */; };
-		F10000040000000000000001 /* LuminousOrb.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000040000000000000001 /* LuminousOrb.swift */; };
-		F10000050000000000000001 /* OrbStardustEmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000050000000000000001 /* OrbStardustEmitter.swift */; };
-		F10000060000000000000001 /* PlusBloomMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000060000000000000001 /* PlusBloomMenu.swift */; };
-		F10000070000000000000001 /* PressableButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000070000000000000001 /* PressableButtonStyle.swift */; };
-		F10000080000000000000001 /* SelectionCardStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000080000000000000001 /* SelectionCardStyle.swift */; };
-		F10000090000000000000001 /* ShimmerTextModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000090000000000000001 /* ShimmerTextModifier.swift */; };
-		F10000100000000000000001 /* StardustParticles.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000100000000000000001 /* StardustParticles.swift */; };
-		F10000240000000000000001 /* EtherealDustParticles.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000240000000000000001 /* EtherealDustParticles.swift */; };
-		F10000110000000000000001 /* AddVisionSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000110000000000000001 /* AddVisionSheet.swift */; };
-		F10000120000000000000001 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000120000000000000001 /* HistoryView.swift */; };
-		F10000130000000000000001 /* JournalDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000130000000000000001 /* JournalDetailView.swift */; };
-		F10000140000000000000001 /* JournalEntryEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000140000000000000001 /* JournalEntryEditorView.swift */; };
-		F10000150000000000000001 /* SanctuaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000150000000000000001 /* SanctuaryView.swift */; };
-		F10000160000000000000001 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000160000000000000001 /* SidebarView.swift */; };
-		F10000170000000000000001 /* WelcomeIntroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000170000000000000001 /* WelcomeIntroView.swift */; };
-		F10000180000000000000001 /* OnboardingCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000180000000000000001 /* OnboardingCard.swift */; };
-		F10000190000000000000001 /* CormorantGaramond-Italic-VF.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F20000190000000000000001 /* CormorantGaramond-Italic-VF.ttf */; };
-		F10000210000000000000001 /* TenorSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F20000210000000000000001 /* TenorSans-Regular.ttf */; };
-		F10000220000000000000001 /* Cinzel-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F20000220000000000000001 /* Cinzel-Regular.ttf */; };
-		F10000230000000000000001 /* CormorantGaramond-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F20000230000000000000001 /* CormorantGaramond-BoldItalic.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -172,29 +149,6 @@
 		A20000650000000000000001 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 		A30000010000000000000001 /* ChloeApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChloeApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B8B72291CB2B25437CC979C4 /* DailyUsage.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DailyUsage.swift; sourceTree = "<group>"; };
-		F20000010000000000000001 /* CameraPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPickerView.swift; sourceTree = "<group>"; };
-		F20000020000000000000001 /* ChloeButtonLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChloeButtonLabel.swift; sourceTree = "<group>"; };
-		F20000030000000000000001 /* InputStardustParticles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputStardustParticles.swift; sourceTree = "<group>"; };
-		F20000040000000000000001 /* LuminousOrb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LuminousOrb.swift; sourceTree = "<group>"; };
-		F20000050000000000000001 /* OrbStardustEmitter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrbStardustEmitter.swift; sourceTree = "<group>"; };
-		F20000060000000000000001 /* PlusBloomMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlusBloomMenu.swift; sourceTree = "<group>"; };
-		F20000070000000000000001 /* PressableButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PressableButtonStyle.swift; sourceTree = "<group>"; };
-		F20000080000000000000001 /* SelectionCardStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionCardStyle.swift; sourceTree = "<group>"; };
-		F20000090000000000000001 /* ShimmerTextModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShimmerTextModifier.swift; sourceTree = "<group>"; };
-		F20000100000000000000001 /* StardustParticles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StardustParticles.swift; sourceTree = "<group>"; };
-		F20000240000000000000001 /* EtherealDustParticles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EtherealDustParticles.swift; sourceTree = "<group>"; };
-		F20000110000000000000001 /* AddVisionSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddVisionSheet.swift; sourceTree = "<group>"; };
-		F20000120000000000000001 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
-		F20000130000000000000001 /* JournalDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JournalDetailView.swift; sourceTree = "<group>"; };
-		F20000140000000000000001 /* JournalEntryEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JournalEntryEditorView.swift; sourceTree = "<group>"; };
-		F20000150000000000000001 /* SanctuaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SanctuaryView.swift; sourceTree = "<group>"; };
-		F20000160000000000000001 /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
-		F20000170000000000000001 /* WelcomeIntroView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeIntroView.swift; sourceTree = "<group>"; };
-		F20000180000000000000001 /* OnboardingCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCard.swift; sourceTree = "<group>"; };
-		F20000190000000000000001 /* CormorantGaramond-Italic-VF.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "CormorantGaramond-Italic-VF.ttf"; sourceTree = "<group>"; };
-		F20000210000000000000001 /* TenorSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "TenorSans-Regular.ttf"; sourceTree = "<group>"; };
-		F20000220000000000000001 /* Cinzel-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Cinzel-Regular.ttf"; sourceTree = "<group>"; };
-		F20000230000000000000001 /* CormorantGaramond-BoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "CormorantGaramond-BoldItalic.ttf"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -308,7 +262,6 @@
 				A20000400000000000000001 /* VibeCheckView.swift */,
 				A20000410000000000000001 /* ArchetypeQuizView.swift */,
 				A20000420000000000000001 /* OnboardingCompleteView.swift */,
-				F20000170000000000000001 /* WelcomeIntroView.swift */,
 			);
 			path = Onboarding;
 			sourceTree = "<group>";
@@ -316,21 +269,15 @@
 		A50000090000000000000001 /* Main */ = {
 			isa = PBXGroup;
 			children = (
-				F20000110000000000000001 /* AddVisionSheet.swift */,
-				A20000490000000000000001 /* AffirmationsView.swift */,
-				A20000450000000000000001 /* ChatView.swift */,
-				A20000470000000000000001 /* GoalsView.swift */,
-				F20000120000000000000001 /* HistoryView.swift */,
-				A20000440000000000000001 /* HomeView.swift */,
-				F20000130000000000000001 /* JournalDetailView.swift */,
-				F20000140000000000000001 /* JournalEntryEditorView.swift */,
-				A20000460000000000000001 /* JournalView.swift */,
 				A20000430000000000000001 /* MainTabView.swift */,
-				A20000510000000000000001 /* ProfileView.swift */,
-				F20000150000000000000001 /* SanctuaryView.swift */,
-				A20000500000000000000001 /* SettingsView.swift */,
-				F20000160000000000000001 /* SidebarView.swift */,
+				A20000440000000000000001 /* HomeView.swift */,
+				A20000450000000000000001 /* ChatView.swift */,
+				A20000460000000000000001 /* JournalView.swift */,
+				A20000470000000000000001 /* GoalsView.swift */,
 				A20000480000000000000001 /* VisionBoardView.swift */,
+				A20000490000000000000001 /* AffirmationsView.swift */,
+				A20000500000000000000001 /* SettingsView.swift */,
+				A20000510000000000000001 /* ProfileView.swift */,
 			);
 			path = Main;
 			sourceTree = "<group>";
@@ -338,25 +285,13 @@
 		A50000100000000000000001 /* Components */ = {
 			isa = PBXGroup;
 			children = (
-				F20000010000000000000001 /* CameraPickerView.swift */,
 				A20000520000000000000001 /* ChatBubble.swift */,
 				A20000530000000000000001 /* ChatInputBar.swift */,
-				A20000550000000000000001 /* ChloeAvatar.swift */,
-				F20000020000000000000001 /* ChloeButtonLabel.swift */,
-				A20000580000000000000001 /* DisclaimerText.swift */,
-				F20000240000000000000001 /* EtherealDustParticles.swift */,
-				A20000570000000000000001 /* GradientBackground.swift */,
-				F20000030000000000000001 /* InputStardustParticles.swift */,
-				F20000040000000000000001 /* LuminousOrb.swift */,
-				F20000050000000000000001 /* OrbStardustEmitter.swift */,
-				F20000180000000000000001 /* OnboardingCard.swift */,
-				F20000060000000000000001 /* PlusBloomMenu.swift */,
-				F20000070000000000000001 /* PressableButtonStyle.swift */,
-				F20000080000000000000001 /* SelectionCardStyle.swift */,
-				A20000560000000000000001 /* SelectionChip.swift */,
-				F20000090000000000000001 /* ShimmerTextModifier.swift */,
-				F20000100000000000000001 /* StardustParticles.swift */,
 				A20000540000000000000001 /* TypingIndicator.swift */,
+				A20000550000000000000001 /* ChloeAvatar.swift */,
+				A20000560000000000000001 /* SelectionChip.swift */,
+				A20000570000000000000001 /* GradientBackground.swift */,
+				A20000580000000000000001 /* DisclaimerText.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -421,10 +356,6 @@
 				A20000620000000000000001 /* Inter-Medium.ttf */,
 				A20000630000000000000001 /* PlayfairDisplay-Regular.ttf */,
 				A20000640000000000000001 /* PlayfairDisplay-Medium.ttf */,
-				F20000190000000000000001 /* CormorantGaramond-Italic-VF.ttf */,
-				F20000210000000000000001 /* TenorSans-Regular.ttf */,
-				F20000220000000000000001 /* Cinzel-Regular.ttf */,
-				F20000230000000000000001 /* CormorantGaramond-BoldItalic.ttf */,
 			);
 			path = Fonts;
 			sourceTree = "<group>";
@@ -518,10 +449,6 @@
 				A10000620000000000000001 /* Inter-Medium.ttf in Resources */,
 				A10000630000000000000001 /* PlayfairDisplay-Regular.ttf in Resources */,
 				A10000640000000000000001 /* PlayfairDisplay-Medium.ttf in Resources */,
-				F10000190000000000000001 /* CormorantGaramond-Italic-VF.ttf in Resources */,
-				F10000210000000000000001 /* TenorSans-Regular.ttf in Resources */,
-				F10000220000000000000001 /* Cinzel-Regular.ttf in Resources */,
-				F10000230000000000000001 /* CormorantGaramond-BoldItalic.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -592,25 +519,6 @@
 				A10000600000000000000001 /* CrisisResponses.swift in Sources */,
 				3EF786585C46034254C21D71 /* DailyUsage.swift in Sources */,
 				CE6AF8EADDADE82FD8EDA73B /* TopicCard.swift in Sources */,
-				F10000010000000000000001 /* CameraPickerView.swift in Sources */,
-				F10000020000000000000001 /* ChloeButtonLabel.swift in Sources */,
-				F10000030000000000000001 /* InputStardustParticles.swift in Sources */,
-				F10000040000000000000001 /* LuminousOrb.swift in Sources */,
-				F10000050000000000000001 /* OrbStardustEmitter.swift in Sources */,
-				F10000060000000000000001 /* PlusBloomMenu.swift in Sources */,
-				F10000070000000000000001 /* PressableButtonStyle.swift in Sources */,
-				F10000080000000000000001 /* SelectionCardStyle.swift in Sources */,
-				F10000090000000000000001 /* ShimmerTextModifier.swift in Sources */,
-				F10000100000000000000001 /* StardustParticles.swift in Sources */,
-				F10000240000000000000001 /* EtherealDustParticles.swift in Sources */,
-				F10000110000000000000001 /* AddVisionSheet.swift in Sources */,
-				F10000120000000000000001 /* HistoryView.swift in Sources */,
-				F10000130000000000000001 /* JournalDetailView.swift in Sources */,
-				F10000140000000000000001 /* JournalEntryEditorView.swift in Sources */,
-				F10000150000000000000001 /* SanctuaryView.swift in Sources */,
-				F10000160000000000000001 /* SidebarView.swift in Sources */,
-				F10000170000000000000001 /* WelcomeIntroView.swift in Sources */,
-				F10000180000000000000001 /* OnboardingCard.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
