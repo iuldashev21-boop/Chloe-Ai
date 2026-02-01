@@ -5,6 +5,7 @@ struct EmailLoginView: View {
     @EnvironmentObject var authVM: AuthViewModel
     @State private var email = ""
     @State private var password = ""
+    @State private var shimmerOffset: CGFloat = -200
 
     var body: some View {
         ZStack {
@@ -73,18 +74,32 @@ struct EmailLoginView: View {
                 Button {
                     Task { await authVM.signIn(email: email) }
                 } label: {
-                    Text("SIGN IN")
-                        .font(.custom(ChloeFont.headerDisplay, size: 15))
-                        .tracking(3)
+                    Text("Sign In")
+                        .font(.system(size: 17, weight: .medium))
+                        .tracking(1.5)
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, Spacing.sm)
-                        .background(Color.chloePrimary.opacity(email.isBlank ? 0.45 : 1.0))
-                        .clipShape(RoundedRectangle(cornerRadius: 28))
+                        .frame(height: 52)
+                        .background(
+                            ZStack {
+                                Capsule().fill(.ultraThinMaterial)
+                                Capsule().fill(Color.chloePrimary.opacity(email.isBlank ? 0.3 : 0.6))
+                                LinearGradient(
+                                    colors: [.clear, .white.opacity(0.25), .clear],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                                .offset(x: shimmerOffset)
+                                .mask(Capsule())
+                            }
+                        )
+                        .clipShape(Capsule())
+                        .shadow(color: .chloePrimary.opacity(0.15), radius: 20, y: 10)
                 }
                 .disabled(email.isBlank)
                 .buttonStyle(PressableButtonStyle())
                 .padding(.horizontal, Spacing.screenHorizontal)
+                .onAppear { startShimmerLoop() }
 
                 // MARK: - Sign Up link
                 Button {
@@ -141,6 +156,15 @@ struct EmailLoginView: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private func startShimmerLoop() {
+        Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { _ in
+            shimmerOffset = -200
+            withAnimation(.easeInOut(duration: 0.8)) {
+                shimmerOffset = 200
+            }
+        }
     }
 
     // MARK: - Dev skip (mirrors SettingsView.skipToMain)
