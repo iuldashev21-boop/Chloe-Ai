@@ -37,6 +37,11 @@ struct ContentView: View {
         .onReceive(NotificationCenter.default.publisher(for: .onboardingDidComplete)) { _ in
             onboardingComplete = true
         }
+        .onChange(of: authVM.isAuthenticated) { _, newValue in
+            if !newValue {
+                onboardingComplete = false
+            }
+        }
     }
 }
 
