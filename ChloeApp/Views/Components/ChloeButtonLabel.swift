@@ -7,15 +7,24 @@ struct ChloeButtonLabel: View {
     @State private var pulseOpacity: Double = 1.0
 
     var body: some View {
-        Text(title.uppercased())
-            .font(.chloeButton)
-            .tracking(3)
+        Text(title)
+            .font(.system(size: 15, weight: .medium))
+            .tracking(2)
             .foregroundColor(.white)
             .frame(maxWidth: .infinity)
             .padding(.vertical, Spacing.sm)
-            .background(Color.chloePrimary.opacity(isEnabled ? 1.0 : 0.45))
+            .background(
+                ZStack {
+                    Capsule().fill(.ultraThinMaterial)
+                    Capsule().fill(Color(hex: "#B76E79").opacity(isEnabled ? 0.2 : 0.1))
+                }
+            )
             .clipShape(Capsule())
-            .shadow(color: .black.opacity(0.15), radius: 20, x: 0, y: 10)
+            .overlay(
+                Capsule()
+                    .stroke(Color.white.opacity(0.4), lineWidth: 0.5)
+            )
+            .shadow(color: Color(hex: "#B76E79").opacity(0.2), radius: 20)
             .opacity(isEnabled ? 1.0 : pulseOpacity)
             .animation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true), value: pulseOpacity)
             .onAppear {
@@ -34,9 +43,12 @@ struct ChloeButtonLabel: View {
 }
 
 #Preview {
-    VStack(spacing: 20) {
-        ChloeButtonLabel(title: "Continue", isEnabled: true)
-        ChloeButtonLabel(title: "Waiting...", isEnabled: false)
+    ZStack {
+        Color.chloeBackground.ignoresSafeArea()
+        VStack(spacing: 20) {
+            ChloeButtonLabel(title: "Begin My Journey", isEnabled: true)
+            ChloeButtonLabel(title: "Continue", isEnabled: false)
+        }
+        .padding()
     }
-    .padding()
 }
