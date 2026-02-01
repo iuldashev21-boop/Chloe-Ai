@@ -79,6 +79,7 @@
 		C10000060000000000000001 /* TelemetryDeck in Frameworks */ = {isa = PBXBuildFile; productRef = C20000060000000000000001 /* TelemetryDeck */; };
 		CE6AF8EADDADE82FD8EDA73B /* TopicCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09A0E1234B03A34F42572AE0 /* TopicCard.swift */; };
 		F10000010000000000000001 /* CameraPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000010000000000000001 /* CameraPickerView.swift */; };
+		F10000020000000000000099 /* BentoGridCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000020000000000000099 /* BentoGridCard.swift */; };
 		F10000020000000000000001 /* ChloeButtonLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000020000000000000001 /* ChloeButtonLabel.swift */; };
 		F10000030000000000000001 /* InputStardustParticles.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000030000000000000001 /* InputStardustParticles.swift */; };
 		F10000040000000000000001 /* LuminousOrb.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000040000000000000001 /* LuminousOrb.swift */; };
@@ -176,6 +177,7 @@
 		A30000010000000000000001 /* ChloeApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChloeApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B8B72291CB2B25437CC979C4 /* DailyUsage.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DailyUsage.swift; sourceTree = "<group>"; };
 		F20000010000000000000001 /* CameraPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPickerView.swift; sourceTree = "<group>"; };
+		F20000020000000000000099 /* BentoGridCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BentoGridCard.swift; sourceTree = "<group>"; };
 		F20000020000000000000001 /* ChloeButtonLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChloeButtonLabel.swift; sourceTree = "<group>"; };
 		F20000030000000000000001 /* InputStardustParticles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputStardustParticles.swift; sourceTree = "<group>"; };
 		F20000040000000000000001 /* LuminousOrb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LuminousOrb.swift; sourceTree = "<group>"; };
@@ -349,6 +351,7 @@
 				A20000520000000000000001 /* ChatBubble.swift */,
 				A20000530000000000000001 /* ChatInputBar.swift */,
 				A20000550000000000000001 /* ChloeAvatar.swift */,
+				F20000020000000000000099 /* BentoGridCard.swift */,
 				F20000020000000000000001 /* ChloeButtonLabel.swift */,
 				A20000580000000000000001 /* DisclaimerText.swift */,
 				F20000240000000000000001 /* EtherealDustParticles.swift */,
@@ -602,6 +605,7 @@
 				3EF786585C46034254C21D71 /* DailyUsage.swift in Sources */,
 				CE6AF8EADDADE82FD8EDA73B /* TopicCard.swift in Sources */,
 				F10000010000000000000001 /* CameraPickerView.swift in Sources */,
+				F10000020000000000000099 /* BentoGridCard.swift in Sources */,
 				F10000020000000000000001 /* ChloeButtonLabel.swift in Sources */,
 				F10000030000000000000001 /* InputStardustParticles.swift in Sources */,
 				F10000040000000000000001 /* LuminousOrb.swift in Sources */,
