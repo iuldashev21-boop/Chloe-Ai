@@ -50,22 +50,21 @@ struct WelcomeIntroView: View {
         }
     }
 
-    // MARK: - Kinetic Text
+    // MARK: - Kinetic Text (per-word fade + rise)
 
     private var kineticText: some View {
-        // Build text with per-word opacity
-        var result = Text("")
-        for (index, word) in words.enumerated() {
-            let isVisible = index < revealedWordCount
-            let separator = index > 0 ? Text(" ") : Text("")
-            result = result + separator + Text(word)
-                .foregroundColor(Color.chloeTextPrimary.opacity(isVisible ? 1 : 0))
+        FlowLayout(spacing: 6, lineSpacing: 8) {
+            ForEach(Array(words.enumerated()), id: \.offset) { index, word in
+                let isVisible = index < revealedWordCount
+                Text(word)
+                    .font(.chloeOnboardingQuestion)
+                    .tracking(26 * 0.03)
+                    .foregroundColor(.chloeTextPrimary)
+                    .opacity(isVisible ? 1 : 0)
+                    .offset(y: isVisible ? 0 : 5)
+                    .animation(.easeOut(duration: 0.3), value: revealedWordCount)
+            }
         }
-        return result
-            .font(.chloeOnboardingQuestion)
-            .tracking(26 * 0.03)
-            .multilineTextAlignment(.center)
-            .lineSpacing(8)
     }
 
     // MARK: - Animation Sequence
@@ -77,19 +76,17 @@ struct WelcomeIntroView: View {
                 orbAppeared = true
             }
 
-            try? await Task.sleep(for: .milliseconds(600))
+            try? await Task.sleep(for: .milliseconds(500))
             guard !Task.isCancelled else { return }
 
-            // Phase 2: Words reveal one-by-one
+            // Phase 2: Words reveal one-by-one (0.3s per word)
             for i in 1...words.count {
-                withAnimation(.easeOut(duration: 0.15)) {
-                    revealedWordCount = i
-                }
-                try? await Task.sleep(for: .milliseconds(130))
+                revealedWordCount = i
+                try? await Task.sleep(for: .milliseconds(300))
                 guard !Task.isCancelled else { return }
             }
 
-            try? await Task.sleep(for: .milliseconds(200))
+            try? await Task.sleep(for: .milliseconds(300))
             guard !Task.isCancelled else { return }
 
             // Phase 3: Button slides up
