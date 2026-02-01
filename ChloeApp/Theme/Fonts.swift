@@ -1,49 +1,110 @@
 import SwiftUI
 
 enum ChloeFont {
-    static let headingRegular = "PlayfairDisplay-Regular"
-    static let headingMedium = "PlayfairDisplay-Medium"
-    static let bodyRegular = "Inter-Regular"
-    static let bodyMedium = "Inter-Medium"
-    static let serifItalic = "CormorantGaramond-Italic"
-    static let sidebarDisplay = "TenorSans-Regular"
+    static let heroBoldItalic = "CormorantGaramond-BoldItalic"
+    static let headerDisplay = "Cinzel-Regular"
 }
 
 extension Font {
     static func chloeHeading(_ size: CGFloat) -> Font {
-        .custom(ChloeFont.headingRegular, size: size)
+        .system(size: size, weight: .regular)
     }
 
     static func chloeHeadingMedium(_ size: CGFloat) -> Font {
-        .custom(ChloeFont.headingMedium, size: size)
+        .system(size: size, weight: .medium)
     }
 
     static func chloeBody(_ size: CGFloat) -> Font {
-        .custom(ChloeFont.bodyRegular, size: size)
+        .system(size: size, weight: .regular)
     }
 
     static func chloeBodyMedium(_ size: CGFloat) -> Font {
-        .custom(ChloeFont.bodyMedium, size: size)
+        .system(size: size, weight: .medium)
     }
 
-    static let chloeLargeTitle = Font.custom(ChloeFont.headingMedium, size: 28)
-    static let chloeTitle = Font.custom(ChloeFont.headingMedium, size: 22)
-    static let chloeTitle2 = Font.custom(ChloeFont.headingRegular, size: 20)
-    static let chloeHeadline = Font.custom(ChloeFont.bodyMedium, size: 17)
-    static let chloeSubheadline = Font.custom(ChloeFont.bodyMedium, size: 15)
-    static let chloeBodyDefault = Font.custom(ChloeFont.bodyRegular, size: 16)
-    static let chloeCaption = Font.custom(ChloeFont.bodyRegular, size: 13)
-    static let chloeButton = Font.custom(ChloeFont.bodyMedium, size: 15)
-    static let chloeGreeting = Font.custom(ChloeFont.headingRegular, size: 36)
-    static let chloeStatus = Font.custom(ChloeFont.bodyRegular, size: 11)
-    static let chloeProgressLabel = Font.custom(ChloeFont.bodyRegular, size: 11)
-    static let chloeSidebarSectionHeader = Font.custom(ChloeFont.bodyMedium, size: 11)
-    static let chloeSidebarMenuItem = Font.custom(ChloeFont.bodyRegular, size: 15)
-    static let chloeSidebarChatItem = Font.custom(ChloeFont.bodyRegular, size: 14)
+    static let chloeLargeTitle = Font.system(size: 28, weight: .medium)
+    static let chloeTitle = Font.system(size: 22, weight: .medium)
+    static let chloeTitle2 = Font.system(size: 20, weight: .regular)
+    static let chloeHeadline = Font.system(size: 17, weight: .medium)
+    static let chloeSubheadline = Font.system(size: 15, weight: .medium)
+    static let chloeBodyDefault = Font.system(size: 17, weight: .regular)
+    static let chloeCaption = Font.system(size: 14, weight: .regular)
+    static let chloeButton = Font.system(size: 15, weight: .medium)
+    static let chloeGreeting = Font.custom(ChloeFont.heroBoldItalic, size: 34)
+    static let chloeStatus = Font.system(size: 11, weight: .light)
+    static let chloeProgressLabel = Font.system(size: 11, weight: .light)
+    static let chloeSidebarSectionHeader = Font.custom(ChloeFont.headerDisplay, size: 12)
+    static let chloeSidebarMenuItem = Font.system(size: 15, weight: .regular)
+    static let chloeSidebarChatItem = Font.system(size: 14, weight: .regular)
 
-    static let chloeOnboardingQuestion = Font.custom(ChloeFont.serifItalic, size: 26)
+    static let chloeOnboardingQuestion = Font.custom(ChloeFont.heroBoldItalic, size: 34)
 
     static func chloeInputPlaceholder(_ size: CGFloat) -> Font {
-        .custom(ChloeFont.bodyRegular, size: size)
+        .system(size: size, weight: .regular)
+    }
+}
+
+// MARK: - Typography Style Modifiers
+
+struct ChloeHeroStyle: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .font(.chloeGreeting)
+            .tracking(34 * -0.02)
+    }
+}
+
+struct ChloeSecondaryHeaderStyle: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .font(.chloeSidebarSectionHeader)
+            .tracking(3)
+            .textCase(.uppercase)
+    }
+}
+
+struct ChloeBodyStyle: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .font(.chloeBodyDefault)
+            .lineSpacing(17 * 0.5)
+    }
+}
+
+struct ChloeCaptionStyle: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .font(.chloeCaption)
+            .lineSpacing(14 * 0.5)
+    }
+}
+
+struct ChloeButtonTextStyle: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .font(.chloeButton)
+            .tracking(1.5)
+    }
+}
+
+extension View {
+    func chloeHeroStyle() -> some View {
+        modifier(ChloeHeroStyle())
+    }
+
+    func chloeSecondaryHeaderStyle() -> some View {
+        modifier(ChloeSecondaryHeaderStyle())
+    }
+
+    func chloeBodyStyle() -> some View {
+        modifier(ChloeBodyStyle())
+    }
+
+    func chloeCaptionStyle() -> some View {
+        modifier(ChloeCaptionStyle())
+    }
+
+    func chloeButtonTextStyle() -> some View {
+        modifier(ChloeButtonTextStyle())
     }
 }
