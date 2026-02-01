@@ -50,6 +50,9 @@ struct NameStepView: View {
                 .frame(minHeight: geometry.size.height)
             }
             .scrollDismissesKeyboard(.interactively)
+            .onTapGesture {
+                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+            }
         }
     }
 }

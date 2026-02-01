@@ -46,6 +46,9 @@ struct OnboardingContainerView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
+        .onChange(of: viewModel.currentStep) {
+            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+        }
     }
 
     // MARK: - Header
