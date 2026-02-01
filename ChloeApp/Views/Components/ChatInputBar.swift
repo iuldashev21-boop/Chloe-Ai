@@ -48,7 +48,7 @@ struct ChatInputBar: View {
         .padding(.vertical, Spacing.xs)
         .background(
             Capsule()
-                .fill(.ultraThinMaterial)
+                .fill(Color.clear)
         )
         .overlay(
             Capsule()
@@ -56,7 +56,7 @@ struct ChatInputBar: View {
         )
         .padding(.horizontal, Spacing.screenHorizontal)
         .padding(.vertical, Spacing.xs)
-        .background(.ultraThinMaterial)
+        .background(Color.clear)
         .shadow(color: Color.chloePrimary.opacity(0.1), radius: 15, y: -5)
         .sheet(isPresented: $showAddSheet) {
             AddToChatSheet(

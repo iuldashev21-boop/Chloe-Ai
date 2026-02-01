@@ -219,7 +219,7 @@ struct SanctuaryView: View {
     private var mainContentWrapper: some View {
         ZStack {
             LinearGradient(
-                colors: [Color(hex: "#FFF8F0"), Color(hex: "#FDF2E9")],
+                colors: [.chloeGradientStart, .chloeGradientEnd],
                 startPoint: .top,
                 endPoint: .bottom
             )
@@ -421,6 +421,7 @@ struct SanctuaryView: View {
 
                     chatInputBar
                 }
+                .background(Color.clear)
             }
             .onChange(of: chatVM.messages.count) {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {

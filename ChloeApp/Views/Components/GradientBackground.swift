@@ -2,6 +2,7 @@ import SwiftUI
 
 struct GradientBackground: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         GeometryReader { geo in

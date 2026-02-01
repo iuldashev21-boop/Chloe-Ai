@@ -5,6 +5,7 @@ struct SettingsView: View {
     @EnvironmentObject var authVM: AuthViewModel
     @AppStorage("notificationsEnabled") private var notificationsEnabled = true
     @AppStorage("hapticFeedbackEnabled") private var hapticFeedbackEnabled = true
+    @AppStorage("isDarkMode") private var isDarkMode = false
     @State private var profile: Profile?
     @State private var appeared = false
     @State private var showClearDataAlert = false
@@ -72,6 +73,15 @@ struct SettingsView: View {
                                 icon: "hand.tap",
                                 label: "Haptic Feedback",
                                 isOn: $hapticFeedbackEnabled
+                            )
+
+                            Divider()
+                                .padding(.leading, 40)
+
+                            settingsToggleRow(
+                                icon: "moon.stars",
+                                label: "Dark Mode",
+                                isOn: $isDarkMode
                             )
                         }
                     }

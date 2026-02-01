@@ -17,7 +17,7 @@ struct ChatBubble: View {
                 .lineSpacing(8.5)
                 .padding(.horizontal, Spacing.sm)
                 .padding(.vertical, Spacing.xs)
-                .background(isUser ? Color.chloePrimary.opacity(0.12) : Color.white)
+                .background(isUser ? Color.chloeUserBubble : Color.chloePrimaryLight)
                 .cornerRadius(16)
                 .overlay(
                     RoundedRectangle(cornerRadius: 16)
