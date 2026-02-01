@@ -21,15 +21,29 @@ struct OnboardingCard: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(Spacing.sm)
-            .background(isSelected ? Color.chloePrimary : Color.clear)
-            .background(.ultraThinMaterial)
-            .cornerRadius(Spacing.cornerRadius)
-            .overlay(
-                RoundedRectangle(cornerRadius: Spacing.cornerRadius)
-                    .stroke(isSelected ? Color.chloePrimary : Color.chloeBorderWarm, lineWidth: 1)
+            .background(
+                ZStack {
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(.ultraThinMaterial)
+                    if isSelected {
+                        RoundedRectangle(cornerRadius: 20)
+                            .fill(Color(hex: "#B76E79").opacity(0.5))
+                    }
+                }
             )
+            .clipShape(RoundedRectangle(cornerRadius: 20))
+            .overlay(
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(
+                        isSelected ? Color(hex: "#B76E79") : Color.white.opacity(0.2),
+                        lineWidth: 0.5
+                    )
+            )
+            .shadow(color: isSelected ? Color(hex: "#B76E79").opacity(0.3) : .clear, radius: 12)
         }
         .buttonStyle(.plain)
+        .scaleEffect(isSelected ? 1.0 : 0.98)
+        .opacity(isSelected ? 1.0 : 0.6)
         .accessibilityAddTraits(isSelected ? [.isSelected] : [])
         .animation(.easeOut(duration: 0.2), value: isSelected)
     }
