@@ -12,9 +12,9 @@ struct ChatBubble: View {
             if isUser { Spacer(minLength: 60) }
 
             Text(message.text)
-                .font(.chloeBodyDefault)
+                .font(.system(size: 17, weight: isUser ? .medium : .light))
                 .foregroundColor(.chloeTextPrimary)
-                .lineSpacing(6)
+                .lineSpacing(8.5)
                 .padding(.horizontal, Spacing.sm)
                 .padding(.vertical, Spacing.xs)
                 .background(isUser ? Color.chloePrimary.opacity(0.12) : Color.white)

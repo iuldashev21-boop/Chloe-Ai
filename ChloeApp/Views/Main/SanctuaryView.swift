@@ -193,8 +193,8 @@ struct SanctuaryView: View {
                             .foregroundColor(.chloePrimary)
                             .frame(width: 44, height: 44)
                             .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(.ultraThinMaterial)
+                                Circle()
+                                    .stroke(Color.chloePrimary.opacity(0.35), lineWidth: 1.5)
                             )
                     }
                     .accessibilityLabel("Open sidebar")
@@ -209,13 +209,13 @@ struct SanctuaryView: View {
                                 chatActive = false
                             }
                         } label: {
-                            Image(systemName: "square.and.pencil")
-                                .font(.system(size: 18, weight: .medium))
+                            Image(systemName: "plus")
+                                .font(.system(size: 20, weight: .medium))
                                 .foregroundColor(.chloePrimary)
                                 .frame(width: 44, height: 44)
                                 .background(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .fill(.ultraThinMaterial)
+                                    Circle()
+                                        .stroke(Color.chloePrimary.opacity(0.35), lineWidth: 1.5)
                                 )
                         }
                         .accessibilityLabel("New chat")
@@ -294,97 +294,101 @@ struct SanctuaryView: View {
     // MARK: - Chat Layout
 
     private var chatLayout: some View {
-        VStack(spacing: 0) {
-                ScrollViewReader { proxy in
-                    ScrollView {
-                        LazyVStack(spacing: Spacing.xs) {
-                            ForEach(chatVM.messages) { message in
-                                ChatBubble(message: message)
-                                    .id(message.id)
+        ScrollViewReader { proxy in
+            ScrollView {
+                LazyVStack(spacing: Spacing.xs) {
+                    ForEach(chatVM.messages) { message in
+                        ChatBubble(message: message)
+                            .id(message.id)
+                    }
+
+                    if chatVM.isTyping {
+                        HStack {
+                            TypingIndicator()
+                                .accessibilityLabel("Chloe is typing")
+                            Spacer()
+                        }
+                    }
+
+                    Color.clear
+                        .frame(height: 8)
+                        .id("bottomSpacer")
+                }
+                .padding(.horizontal, Spacing.screenHorizontal)
+                .padding(.vertical, Spacing.sm)
+            }
+            .contentMargins(.top, 56, for: .scrollContent)
+                        .scrollDismissesKeyboard(.interactively)
+            .defaultScrollAnchor(.bottom)
+            .safeAreaInset(edge: .bottom) {
+                VStack(spacing: 0) {
+                    if let error = chatVM.errorMessage {
+                        HStack {
+                            if chatVM.lastFailedText != nil {
+                                Button {
+                                    Task { await chatVM.retryLastMessage() }
+                                } label: {
+                                    HStack(spacing: Spacing.xxxs) {
+                                        Image(systemName: "arrow.clockwise")
+                                            .font(.system(size: 12, weight: .medium))
+                                        Text(error)
+                                            .font(.chloeCaption)
+                                    }
+                                    .foregroundColor(.chloeRosewood)
+                                }
+                                .accessibilityLabel("Retry message")
+                            } else {
+                                Text(error)
+                                    .font(.chloeCaption)
+                                    .foregroundColor(.chloeRosewood)
                             }
 
-                            if chatVM.isTyping {
-                                HStack {
-                                    TypingIndicator()
-                                        .accessibilityLabel("Chloe is typing")
-                                    Spacer()
-                                }
+                            Spacer()
+
+                            Button {
+                                chatVM.errorMessage = nil
+                                chatVM.lastFailedText = nil
+                            } label: {
+                                Image(systemName: "xmark")
+                                    .font(.system(size: 12, weight: .medium))
+                                    .foregroundColor(.chloeTextTertiary)
+                                    .frame(width: 24, height: 24)
                             }
+                            .accessibilityLabel("Dismiss error")
                         }
                         .padding(.horizontal, Spacing.screenHorizontal)
-                        .padding(.vertical, Spacing.sm)
-                    }
-                    .scrollDismissesKeyboard(.interactively)
-                    .defaultScrollAnchor(.bottom)
-                    .onChange(of: chatVM.messages.count) {
-                        if let last = chatVM.messages.last {
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                                withAnimation {
-                                    proxy.scrollTo(last.id, anchor: .bottom)
+                        .padding(.bottom, Spacing.xxxs)
+                        .onAppear {
+                            if chatVM.lastFailedText == nil {
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                                    withAnimation {
+                                        chatVM.errorMessage = nil
+                                    }
                                 }
                             }
                         }
                     }
-                    .onChange(of: chatVM.isTyping) {
-                        if chatVM.isTyping, let last = chatVM.messages.last {
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                                withAnimation {
-                                    proxy.scrollTo(last.id, anchor: .bottom)
-                                }
-                            }
-                        }
-                    }
+
+                    chatInputBar
                 }
-
-                if let error = chatVM.errorMessage {
-                    HStack {
-                        if chatVM.lastFailedText != nil {
-                            Button {
-                                Task { await chatVM.retryLastMessage() }
-                            } label: {
-                                HStack(spacing: Spacing.xxxs) {
-                                    Image(systemName: "arrow.clockwise")
-                                        .font(.system(size: 12, weight: .medium))
-                                    Text(error)
-                                        .font(.chloeCaption)
-                                }
-                                .foregroundColor(.chloeRosewood)
-                            }
-                            .accessibilityLabel("Retry message")
-                        } else {
-                            Text(error)
-                                .font(.chloeCaption)
-                                .foregroundColor(.chloeRosewood)
-                        }
-
-                        Spacer()
-
-                        Button {
-                            chatVM.errorMessage = nil
-                            chatVM.lastFailedText = nil
-                        } label: {
-                            Image(systemName: "xmark")
-                                .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(.chloeTextTertiary)
-                                .frame(width: 24, height: 24)
-                        }
-                        .accessibilityLabel("Dismiss error")
-                    }
-                    .padding(.horizontal, Spacing.screenHorizontal)
-                    .padding(.bottom, Spacing.xxxs)
-                    .onAppear {
-                        if chatVM.lastFailedText == nil {
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-                                withAnimation {
-                                    chatVM.errorMessage = nil
-                                }
-                            }
-                        }
-                    }
-                }
-
-                chatInputBar
             }
+            .onChange(of: chatVM.messages.count) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                    withAnimation {
+                        proxy.scrollTo("bottomSpacer", anchor: .bottom)
+                    }
+                }
+            }
+            .onChange(of: chatVM.isTyping) {
+                if chatVM.isTyping {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                        withAnimation {
+                            proxy.scrollTo("bottomSpacer", anchor: .bottom)
+                        }
+                    }
+                }
+            }
+        }
     }
 
     // MARK: - Shared Input Bar
@@ -470,8 +474,9 @@ struct SanctuaryView: View {
             if message.role == .user { Spacer(minLength: 60) }
 
             Text(message.text)
-                .font(.chloeBodyDefault)
+                .font(.system(size: 17, weight: message.role == .user ? .medium : .light))
                 .foregroundColor(.chloeTextPrimary)
+                .lineSpacing(8.5)
                 .padding(.horizontal, Spacing.sm)
                 .padding(.vertical, Spacing.xs)
                 .background(
