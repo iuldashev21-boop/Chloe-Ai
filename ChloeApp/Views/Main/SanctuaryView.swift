@@ -1,5 +1,6 @@
 import SwiftUI
 import PhotosUI
+import UniformTypeIdentifiers
 
 struct SanctuaryView: View {
     @StateObject private var chatVM = ChatViewModel()
@@ -29,6 +30,7 @@ struct SanctuaryView: View {
     @State private var showPhotoPicker = false
     @State private var selectedImage: UIImage? = nil
     @State private var selectedPhotoItem: PhotosPickerItem? = nil
+    @State private var showFileImporter = false
 
     private var screenWidth: CGFloat {
         UIApplication.shared.connectedScenes
@@ -121,6 +123,23 @@ struct SanctuaryView: View {
             .ignoresSafeArea()
         }
         .photosPicker(isPresented: $showPhotoPicker, selection: $selectedPhotoItem, matching: .images)
+        .fileImporter(isPresented: $showFileImporter, allowedContentTypes: [.image]) { result in
+            switch result {
+            case .success(let url):
+                guard url.startAccessingSecurityScopedResource() else { return }
+                defer { url.stopAccessingSecurityScopedResource() }
+                if let data = try? Data(contentsOf: url),
+                   let image = UIImage(data: data) {
+                    selectedImage = image
+                    if !chatActive { activateChat() }
+                    if chatVM.inputText.isEmpty {
+                        chatVM.inputText = "What do you think of this?"
+                    }
+                }
+            case .failure:
+                break
+            }
+        }
         .onChange(of: selectedPhotoItem) {
             guard let item = selectedPhotoItem else { return }
             Task {
@@ -408,10 +427,8 @@ struct SanctuaryView: View {
             onUploadImage: {
                 showPhotoPicker = true
             },
-            onVisionBoard: {
-                closeSidebar {
-                    showVisionBoard = true
-                }
+            onPickFile: {
+                showFileImporter = true
             }
         )
     }

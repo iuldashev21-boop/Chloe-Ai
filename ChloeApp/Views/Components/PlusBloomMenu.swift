@@ -1,100 +1,92 @@
 import SwiftUI
 
-struct PlusBloomMenu: View {
-    @Binding var isPresented: Bool
+struct AddToChatSheet: View {
     var onTakePhoto: () -> Void
     var onUploadImage: () -> Void
-    var onVisionBoard: () -> Void
+    var onPickFile: () -> Void
 
-    // Radial layout: 3 circles in a tight arc directly above the + button
-    private let circleSize: CGFloat = 44
-    private let radius: CGFloat = 46
-    private let staggerDelay: Double = 0.05
-
-    // Angles for the 3 circles (tight fan upward)
-    private let angles: [Angle] = [
-        .degrees(-155),  // upper-left
-        .degrees(-110),  // upper-center
-        .degrees(-65)    // upper-right
-    ]
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        ZStack {
-            // Tap-outside dismissal — covers entire screen
-            if isPresented {
-                Color.clear
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .ignoresSafeArea()
-                    .contentShape(Rectangle())
-                    .onTapGesture { dismiss() }
-            }
-
-            // Radial circle buttons
+        VStack(spacing: Spacing.md) {
+            // Header
             ZStack {
-                bloomCircle(icon: "camera", label: "Take photo", index: 0, action: onTakePhoto)
-                bloomCircle(icon: "photo", label: "Upload photo", index: 1, action: onUploadImage)
-                bloomCircle(icon: "star", label: "Vision board", index: 2, action: onVisionBoard)
+                Text("Add to Chat")
+                    .font(.chloeBodyDefault)
+                    .foregroundColor(.chloeTextPrimary)
+
+                HStack {
+                    Button { dismiss() } label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.chloeTextSecondary)
+                            .frame(width: 32, height: 32)
+                            .background(Circle().fill(Color.chloeTextTertiary.opacity(0.12)))
+                    }
+                    .accessibilityLabel("Close")
+
+                    Spacer()
+                }
             }
+            .padding(.horizontal, Spacing.md)
+            .padding(.top, Spacing.sm)
+
+            // Cards
+            HStack(spacing: Spacing.sm) {
+                cardButton(icon: "camera", label: "Camera") {
+                    dismiss()
+                    onTakePhoto()
+                }
+
+                cardButton(icon: "photo", label: "Photos") {
+                    dismiss()
+                    onUploadImage()
+                }
+
+                cardButton(icon: "doc", label: "Files") {
+                    dismiss()
+                    onPickFile()
+                }
+            }
+            .padding(.horizontal, Spacing.md)
+
+            Spacer()
         }
+        .background(Color.chloeBackground)
+        .presentationDetents([.height(220)])
+        .presentationDragIndicator(.visible)
     }
 
-    private func bloomCircle(icon: String, label: String, index: Int, action: @escaping () -> Void) -> some View {
-        let angle = angles[index]
-        let xOffset = isPresented ? radius * CGFloat(cos(angle.radians)) : 0
-        let yOffset = isPresented ? radius * CGFloat(sin(angle.radians)) : 0
+    private func cardButton(icon: String, label: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            VStack(spacing: Spacing.xs) {
+                Image(systemName: icon)
+                    .font(.system(size: 24, weight: .light))
+                    .foregroundColor(.chloeRosewood)
 
-        return Button {
-            dismiss()
-            action()
-        } label: {
-            Image(systemName: icon)
-                .font(.system(size: 18, weight: .thin))
-                .foregroundColor(.chloeRosewood)
-                .frame(width: circleSize, height: circleSize)
-                .background(
-                    Circle()
-                        .fill(.ultraThinMaterial)
-                )
-                .overlay(
-                    Circle()
-                        .strokeBorder(Color.white.opacity(0.2), lineWidth: 1)
-                )
-                .shadow(
-                    color: Color.chloeRosewood.opacity(0.12),
-                    radius: 8,
-                    x: 0,
-                    y: 3
-                )
-        }
-        .accessibilityLabel(label)
-        .offset(x: xOffset, y: yOffset)
-        .scaleEffect(isPresented ? 1.0 : 0.3)
-        .opacity(isPresented ? 1 : 0)
-        .animation(
-            .spring(response: 0.35, dampingFraction: 0.75)
-                .delay(Double(index) * staggerDelay),
-            value: isPresented
-        )
-    }
-
-    private func dismiss() {
-        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-            isPresented = false
+                Text(label)
+                    .font(.chloeCaption)
+                    .foregroundColor(.chloeTextPrimary)
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 90)
+            .background(.ultraThinMaterial)
+            .cornerRadius(16)
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color.chloeBorderWarm, lineWidth: 1)
+            )
         }
     }
 }
 
 #Preview {
-    ZStack {
-        Color.chloeBackground.ignoresSafeArea()
-        VStack {
-            Spacer()
-            PlusBloomMenu(
-                isPresented: .constant(true),
+    Color.chloeBackground.ignoresSafeArea()
+        .sheet(isPresented: .constant(true)) {
+            AddToChatSheet(
                 onTakePhoto: {},
                 onUploadImage: {},
-                onVisionBoard: {}
+                onPickFile: {}
             )
         }
-    }
 }
