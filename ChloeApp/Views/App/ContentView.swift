@@ -29,7 +29,7 @@ struct ContentView: View {
         }
         .environmentObject(authVM)
         .onAppear {
-            // Check if profile exists and onboarding is done
+            authVM.restoreSession()
             if let profile = StorageService.shared.loadProfile() {
                 onboardingComplete = profile.onboardingComplete
             }
