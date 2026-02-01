@@ -16,6 +16,7 @@ struct JournalView: View {
             }
         }
         .navigationTitle("Journal")
+        .toolbar(.visible, for: .navigationBar)
     }
 }
 

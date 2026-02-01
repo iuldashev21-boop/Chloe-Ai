@@ -96,6 +96,14 @@ class ChatViewModel: ObservableObject {
         isTyping = false
     }
 
+    func startNewChat() {
+        conversationId = UUID().uuidString
+        messages = []
+        inputText = ""
+        errorMessage = nil
+        isTyping = false
+    }
+
     func loadConversation(id: String) {
         conversationId = id
         messages = storageService.loadMessages(forConversation: id)

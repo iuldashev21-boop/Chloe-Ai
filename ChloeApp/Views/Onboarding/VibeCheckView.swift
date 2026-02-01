@@ -4,24 +4,36 @@ struct VibeCheckView: View {
     @ObservedObject var viewModel: OnboardingViewModel
     @State private var selectedVibe: VibeScore? = nil
 
+    private let vibeInfo: [(vibe: VibeScore, title: String, description: String)] = [
+        (.low, "Struggling a bit", "Things feel heavy right now"),
+        (.medium, "Doing okay", "Steady but room to grow"),
+        (.high, "Feeling great", "Confident and in your power"),
+    ]
+
+    private let columns = [GridItem(.flexible(), spacing: Spacing.xs), GridItem(.flexible(), spacing: Spacing.xs)]
+
     var body: some View {
         VStack(spacing: Spacing.lg) {
             Spacer()
 
+            ChloeAvatar(size: 40)
+
             Text("How are you feeling today?")
-                .font(.chloeTitle)
+                .font(.chloeOnboardingQuestion)
                 .foregroundColor(.chloeTextPrimary)
+                .multilineTextAlignment(.center)
 
             Text("Pick what resonates most")
-                .font(.chloeBodyDefault)
+                .font(.chloeCaption)
                 .foregroundColor(.chloeTextSecondary)
 
-            VStack(spacing: Spacing.sm) {
-                ForEach(VibeScore.allCases, id: \.self) { vibe in
-                    SelectionChip(
-                        title: vibeLabel(for: vibe),
-                        isSelected: selectedVibe == vibe,
-                        action: { selectedVibe = vibe }
+            LazyVGrid(columns: columns, spacing: Spacing.xs) {
+                ForEach(vibeInfo, id: \.vibe) { item in
+                    OnboardingCard(
+                        title: item.title,
+                        description: item.description,
+                        isSelected: selectedVibe == item.vibe,
+                        action: { selectedVibe = item.vibe }
                     )
                 }
             }
@@ -33,24 +45,11 @@ struct VibeCheckView: View {
                 viewModel.preferences.vibeScore = selectedVibe
                 viewModel.nextStep()
             } label: {
-                Text("Continue")
-                    .font(.chloeHeadline)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, Spacing.sm)
-                    .background(selectedVibe == nil ? Color.chloeAccentMuted : Color.chloePrimary)
-                    .cornerRadius(Spacing.cornerRadius)
+                ChloeButtonLabel(title: "Continue", isEnabled: selectedVibe != nil)
             }
+            .buttonStyle(PressableButtonStyle())
             .padding(.horizontal, Spacing.screenHorizontal)
             .padding(.bottom, Spacing.xl)
-        }
-    }
-
-    private func vibeLabel(for vibe: VibeScore) -> String {
-        switch vibe {
-        case .low: return "Struggling a bit"
-        case .medium: return "Doing okay"
-        case .high: return "Feeling great"
         }
     }
 }

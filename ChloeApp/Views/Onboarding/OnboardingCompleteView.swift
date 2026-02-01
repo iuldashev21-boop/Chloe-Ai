@@ -24,14 +24,9 @@ struct OnboardingCompleteView: View {
             Button {
                 viewModel.completeOnboarding()
             } label: {
-                Text("Meet Chloe")
-                    .font(.chloeHeadline)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, Spacing.sm)
-                    .background(Color.chloePrimary)
-                    .cornerRadius(Spacing.cornerRadius)
+                ChloeButtonLabel(title: "Meet Chloe")
             }
+            .buttonStyle(PressableButtonStyle())
             .padding(.horizontal, Spacing.screenHorizontal)
             .padding(.bottom, Spacing.xl)
         }

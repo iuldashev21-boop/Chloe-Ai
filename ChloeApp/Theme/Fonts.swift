@@ -5,6 +5,8 @@ enum ChloeFont {
     static let headingMedium = "PlayfairDisplay-Medium"
     static let bodyRegular = "Inter-Regular"
     static let bodyMedium = "Inter-Medium"
+    static let serifItalic = "CormorantGaramond-Italic"
+    static let sidebarDisplay = "TenorSans-Regular"
 }
 
 extension Font {
@@ -31,4 +33,17 @@ extension Font {
     static let chloeSubheadline = Font.custom(ChloeFont.bodyMedium, size: 15)
     static let chloeBodyDefault = Font.custom(ChloeFont.bodyRegular, size: 16)
     static let chloeCaption = Font.custom(ChloeFont.bodyRegular, size: 13)
+    static let chloeButton = Font.custom(ChloeFont.bodyMedium, size: 15)
+    static let chloeGreeting = Font.custom(ChloeFont.headingRegular, size: 36)
+    static let chloeStatus = Font.custom(ChloeFont.bodyRegular, size: 11)
+    static let chloeProgressLabel = Font.custom(ChloeFont.bodyRegular, size: 11)
+    static let chloeSidebarSectionHeader = Font.custom(ChloeFont.bodyMedium, size: 11)
+    static let chloeSidebarMenuItem = Font.custom(ChloeFont.bodyRegular, size: 15)
+    static let chloeSidebarChatItem = Font.custom(ChloeFont.bodyRegular, size: 14)
+
+    static let chloeOnboardingQuestion = Font.custom(ChloeFont.serifItalic, size: 26)
+
+    static func chloeInputPlaceholder(_ size: CGFloat) -> Font {
+        .custom(ChloeFont.bodyRegular, size: size)
+    }
 }

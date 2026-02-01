@@ -25,14 +25,9 @@ struct WelcomeView: View {
                 Spacer()
 
                 NavigationLink(destination: EmailLoginView()) {
-                    Text("Get Started")
-                        .font(.chloeHeadline)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, Spacing.sm)
-                        .background(Color.chloePrimary)
-                        .cornerRadius(Spacing.cornerRadius)
+                    ChloeButtonLabel(title: "Get Started")
                 }
+                .buttonStyle(PressableButtonStyle())
                 .padding(.horizontal, Spacing.screenHorizontal)
 
                 DisclaimerText()

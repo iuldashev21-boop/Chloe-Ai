@@ -30,4 +30,11 @@ enum Spacing {
     static let cornerRadius: CGFloat = 12
     /// Large corner radius
     static let cornerRadiusLarge: CGFloat = 20
+
+    /// Orb default size
+    static let orbSize: CGFloat = 80
+    /// Orb size on Sanctuary screen
+    static let orbSizeSanctuary: CGFloat = 140
+    /// Sanctuary orb vertical position (fraction of screen height)
+    static let sanctuaryOrbY: CGFloat = 0.25
 }

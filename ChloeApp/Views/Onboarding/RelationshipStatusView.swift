@@ -7,19 +7,34 @@ struct RelationshipStatusView: View {
         viewModel.preferences.relationshipStatus ?? []
     }
 
+    private let descriptions: [RelationshipStatus: String] = [
+        .singleExploring: "Open to possibilities and self-discovery",
+        .datingNew: "Navigating the early butterflies",
+        .inRelationship: "Growing deeper with your person",
+        .complicated: "Figuring out mixed signals",
+        .breakupRecovery: "Healing and rebuilding yourself",
+        .happilyTaken: "Committed and thriving together",
+    ]
+
+    private let columns = [GridItem(.flexible(), spacing: Spacing.xs), GridItem(.flexible(), spacing: Spacing.xs)]
+
     var body: some View {
         VStack(spacing: Spacing.lg) {
             Spacer()
 
+            ChloeAvatar(size: 40)
+
             Text("What's your relationship status?")
-                .font(.chloeTitle)
+                .font(.chloeOnboardingQuestion)
                 .foregroundColor(.chloeTextPrimary)
                 .multilineTextAlignment(.center)
+                .padding(.horizontal, Spacing.screenHorizontal)
 
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: Spacing.xs) {
+            LazyVGrid(columns: columns, spacing: Spacing.xs) {
                 ForEach(RelationshipStatus.allCases, id: \.self) { status in
-                    SelectionChip(
+                    OnboardingCard(
                         title: status.rawValue.replacingOccurrences(of: "_", with: " ").capitalized,
+                        description: descriptions[status] ?? "",
                         isSelected: selectedStatuses.contains(status),
                         action: { toggleSelection(status) }
                     )
@@ -32,14 +47,9 @@ struct RelationshipStatusView: View {
             Button {
                 viewModel.nextStep()
             } label: {
-                Text("Continue")
-                    .font(.chloeHeadline)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, Spacing.sm)
-                    .background(selectedStatuses.isEmpty ? Color.chloeAccentMuted : Color.chloePrimary)
-                    .cornerRadius(Spacing.cornerRadius)
+                ChloeButtonLabel(title: "Continue", isEnabled: !selectedStatuses.isEmpty)
             }
+            .buttonStyle(PressableButtonStyle())
             .padding(.horizontal, Spacing.screenHorizontal)
             .padding(.bottom, Spacing.xl)
         }

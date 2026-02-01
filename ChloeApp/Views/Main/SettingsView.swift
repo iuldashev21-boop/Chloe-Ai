@@ -30,6 +30,7 @@ struct SettingsView: View {
             .padding(.top, Spacing.xl)
         }
         .navigationTitle("Settings")
+        .toolbar(.visible, for: .navigationBar)
     }
 }
 

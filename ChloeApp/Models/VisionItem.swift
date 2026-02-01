@@ -7,6 +7,24 @@ enum VisionCategory: String, Codable, CaseIterable {
     case travel
     case lifestyle
     case other
+
+    var displayName: String {
+        switch self {
+        case .selfCare: return "Self Care"
+        default:        return rawValue.capitalized
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .love:      return "heart.fill"
+        case .career:    return "briefcase.fill"
+        case .selfCare:  return "sparkles"
+        case .travel:    return "airplane"
+        case .lifestyle: return "leaf.fill"
+        case .other:     return "star.fill"
+        }
+    }
 }
 
 struct VisionItem: Codable, Identifiable {

@@ -7,18 +7,34 @@ struct PainPointView: View {
         viewModel.preferences.painPoint ?? []
     }
 
+    private let descriptions: [PainPoint: String] = [
+        .anxiousAttachment: "Overthinking and needing reassurance",
+        .peoplePleasing: "Putting everyone else first",
+        .lowSelfWorth: "Struggling to see your own value",
+        .fearOfAbandonment: "Worrying they'll leave",
+        .codependency: "Losing yourself in relationships",
+        .settling: "Accepting less than you deserve",
+    ]
+
+    private let columns = [GridItem(.flexible(), spacing: Spacing.xs), GridItem(.flexible(), spacing: Spacing.xs)]
+
     var body: some View {
         VStack(spacing: Spacing.lg) {
             Spacer()
 
-            Text("What's your biggest struggle?")
-                .font(.chloeTitle)
-                .foregroundColor(.chloeTextPrimary)
+            ChloeAvatar(size: 40)
 
-            VStack(spacing: Spacing.xs) {
+            Text("What's your biggest struggle?")
+                .font(.chloeOnboardingQuestion)
+                .foregroundColor(.chloeTextPrimary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, Spacing.screenHorizontal)
+
+            LazyVGrid(columns: columns, spacing: Spacing.xs) {
                 ForEach(PainPoint.allCases, id: \.self) { point in
-                    SelectionChip(
+                    OnboardingCard(
                         title: point.rawValue.replacingOccurrences(of: "_", with: " ").capitalized,
+                        description: descriptions[point] ?? "",
                         isSelected: selectedPoints.contains(point),
                         action: { toggleSelection(point) }
                     )
@@ -31,14 +47,9 @@ struct PainPointView: View {
             Button {
                 viewModel.nextStep()
             } label: {
-                Text("Continue")
-                    .font(.chloeHeadline)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, Spacing.sm)
-                    .background(Color.chloePrimary)
-                    .cornerRadius(Spacing.cornerRadius)
+                ChloeButtonLabel(title: "Continue", isEnabled: !selectedPoints.isEmpty)
             }
+            .buttonStyle(PressableButtonStyle())
             .padding(.horizontal, Spacing.screenHorizontal)
             .padding(.bottom, Spacing.xl)
         }

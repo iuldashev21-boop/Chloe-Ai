@@ -16,6 +16,7 @@ struct VisionBoardView: View {
             }
         }
         .navigationTitle("Vision Board")
+        .toolbar(.visible, for: .navigationBar)
     }
 }
 

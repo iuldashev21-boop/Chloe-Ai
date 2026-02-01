@@ -8,19 +8,22 @@ struct NameStepView: View {
         VStack(spacing: Spacing.lg) {
             Spacer()
 
+            ChloeAvatar(size: 40)
+
             Text("What should I call you?")
-                .font(.chloeTitle)
+                .font(.chloeOnboardingQuestion)
                 .foregroundColor(.chloeTextPrimary)
+                .multilineTextAlignment(.center)
 
             TextField("Your name", text: $name)
                 .font(.chloeBodyDefault)
                 .multilineTextAlignment(.center)
                 .padding()
-                .background(Color.chloeSurface)
-                .cornerRadius(Spacing.cornerRadius)
+                .background(.ultraThinMaterial)
+                .cornerRadius(Spacing.cornerRadiusLarge)
                 .overlay(
-                    RoundedRectangle(cornerRadius: Spacing.cornerRadius)
-                        .stroke(Color.chloeBorder, lineWidth: 1)
+                    RoundedRectangle(cornerRadius: Spacing.cornerRadiusLarge)
+                        .stroke(Color.chloeBorderWarm, lineWidth: 1)
                 )
                 .padding(.horizontal, Spacing.xxl)
 
@@ -30,14 +33,9 @@ struct NameStepView: View {
                 viewModel.preferences.name = name
                 viewModel.nextStep()
             } label: {
-                Text("Continue")
-                    .font(.chloeHeadline)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, Spacing.sm)
-                    .background(name.isBlank ? Color.chloeAccentMuted : Color.chloePrimary)
-                    .cornerRadius(Spacing.cornerRadius)
+                ChloeButtonLabel(title: "Continue", isEnabled: !name.isBlank)
             }
+            .buttonStyle(PressableButtonStyle())
             .disabled(name.isBlank)
             .padding(.horizontal, Spacing.screenHorizontal)
             .padding(.bottom, Spacing.xl)

@@ -7,7 +7,7 @@ class OnboardingViewModel: ObservableObject {
     @Published var preferences = OnboardingPreferences()
     @Published var isComplete = false
 
-    let totalSteps = 8
+    let totalSteps = 9
 
     var progress: Double {
         Double(currentStep) / Double(totalSteps)

@@ -15,7 +15,7 @@ struct ContentView: View {
                     OnboardingContainerView()
                 }
             } else {
-                MainTabView()
+                SanctuaryView()
             }
         }
         .environmentObject(authVM)

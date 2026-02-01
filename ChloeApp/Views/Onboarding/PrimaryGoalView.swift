@@ -7,18 +7,34 @@ struct PrimaryGoalView: View {
         viewModel.preferences.primaryGoal ?? []
     }
 
+    private let descriptions: [PrimaryGoal: String] = [
+        .findingPerson: "Attracting your ideal match",
+        .understandingMen: "Decoding what he really means",
+        .buildingConfidence: "Becoming unshakably self-assured",
+        .healingBreakup: "Turning heartbreak into growth",
+        .improvingRelationship: "Deepening your current connection",
+        .feminineEnergy: "Embracing softness as your power",
+    ]
+
+    private let columns = [GridItem(.flexible(), spacing: Spacing.xs), GridItem(.flexible(), spacing: Spacing.xs)]
+
     var body: some View {
         VStack(spacing: Spacing.lg) {
             Spacer()
 
-            Text("What's your primary goal?")
-                .font(.chloeTitle)
-                .foregroundColor(.chloeTextPrimary)
+            ChloeAvatar(size: 40)
 
-            VStack(spacing: Spacing.xs) {
+            Text("What's your primary goal?")
+                .font(.chloeOnboardingQuestion)
+                .foregroundColor(.chloeTextPrimary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, Spacing.screenHorizontal)
+
+            LazyVGrid(columns: columns, spacing: Spacing.xs) {
                 ForEach(PrimaryGoal.allCases, id: \.self) { goal in
-                    SelectionChip(
+                    OnboardingCard(
                         title: goal.rawValue.replacingOccurrences(of: "_", with: " ").capitalized,
+                        description: descriptions[goal] ?? "",
                         isSelected: selectedGoals.contains(goal),
                         action: { toggleSelection(goal) }
                     )
@@ -31,14 +47,9 @@ struct PrimaryGoalView: View {
             Button {
                 viewModel.nextStep()
             } label: {
-                Text("Continue")
-                    .font(.chloeHeadline)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, Spacing.sm)
-                    .background(Color.chloePrimary)
-                    .cornerRadius(Spacing.cornerRadius)
+                ChloeButtonLabel(title: "Continue", isEnabled: !selectedGoals.isEmpty)
             }
+            .buttonStyle(PressableButtonStyle())
             .padding(.horizontal, Spacing.screenHorizontal)
             .padding(.bottom, Spacing.xl)
         }

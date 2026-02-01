@@ -7,18 +7,33 @@ struct CoreDesireView: View {
         viewModel.preferences.coreDesire ?? []
     }
 
+    private let descriptions: [CoreDesire: String] = [
+        .marriage: "Building a forever partnership",
+        .detachment: "Releasing what no longer serves you",
+        .glowUp: "Becoming your most radiant self",
+        .highValueDating: "Attracting with confidence and standards",
+        .selfMastery: "Total command of your inner world",
+    ]
+
+    private let columns = [GridItem(.flexible(), spacing: Spacing.xs), GridItem(.flexible(), spacing: Spacing.xs)]
+
     var body: some View {
         VStack(spacing: Spacing.lg) {
             Spacer()
 
-            Text("What do you desire most?")
-                .font(.chloeTitle)
-                .foregroundColor(.chloeTextPrimary)
+            ChloeAvatar(size: 40)
 
-            VStack(spacing: Spacing.xs) {
+            Text("What do you desire most?")
+                .font(.chloeOnboardingQuestion)
+                .foregroundColor(.chloeTextPrimary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, Spacing.screenHorizontal)
+
+            LazyVGrid(columns: columns, spacing: Spacing.xs) {
                 ForEach(CoreDesire.allCases, id: \.self) { desire in
-                    SelectionChip(
+                    OnboardingCard(
                         title: desire.rawValue.replacingOccurrences(of: "_", with: " ").capitalized,
+                        description: descriptions[desire] ?? "",
                         isSelected: selectedDesires.contains(desire),
                         action: { toggleSelection(desire) }
                     )
@@ -31,14 +46,9 @@ struct CoreDesireView: View {
             Button {
                 viewModel.nextStep()
             } label: {
-                Text("Continue")
-                    .font(.chloeHeadline)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, Spacing.sm)
-                    .background(Color.chloePrimary)
-                    .cornerRadius(Spacing.cornerRadius)
+                ChloeButtonLabel(title: "Continue", isEnabled: !selectedDesires.isEmpty)
             }
+            .buttonStyle(PressableButtonStyle())
             .padding(.horizontal, Spacing.screenHorizontal)
             .padding(.bottom, Spacing.xl)
         }

@@ -1,5 +1,26 @@
 import Foundation
 
+enum JournalMood: String, CaseIterable, Hashable {
+    case happy, calm, grateful, anxious, sad, angry, hopeful, tired
+
+    var emoji: String {
+        switch self {
+        case .happy:    return "😊"
+        case .calm:     return "😌"
+        case .grateful: return "🙏"
+        case .anxious:  return "😰"
+        case .sad:      return "😢"
+        case .angry:    return "😤"
+        case .hopeful:  return "🌱"
+        case .tired:    return "😴"
+        }
+    }
+
+    var label: String {
+        rawValue.capitalized
+    }
+}
+
 struct JournalEntry: Codable, Identifiable {
     let id: String
     var userId: String?

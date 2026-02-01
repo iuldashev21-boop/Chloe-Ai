@@ -16,4 +16,14 @@ extension Color {
     static let chloeUserBubble = Color(hex: "#F0F0F0")
     static let chloeGradientStart = Color(hex: "#FFF8F5")
     static let chloeGradientEnd = Color(hex: "#FEEAE2")
+    static let chloeRosewood = Color(hex: "#6B3A3A")
+    static let chloeEtherealGold = Color(hex: "#F5D5A0")
+}
+
+extension LinearGradient {
+    static let chloeHeadingGradient = LinearGradient(
+        colors: [Color.chloePrimary, Color.chloeAccent],
+        startPoint: .leading,
+        endPoint: .trailing
+    )
 }
