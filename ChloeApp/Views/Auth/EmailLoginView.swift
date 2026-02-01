@@ -23,17 +23,8 @@ struct EmailLoginView: View {
             VStack(spacing: Spacing.lg) {
                 Spacer()
 
-                // MARK: - Orb
-                ZStack {
-                    LuminousOrb(size: 100)
-                    RadialGradient(
-                        colors: [Color.chloeEtherealGold.opacity(0.15), Color.chloeEtherealGold.opacity(0.0)],
-                        center: .center, startRadius: 10, endRadius: 120
-                    )
-                    .frame(width: 240, height: 240)
-                    .offset(y: 80)
-                    .allowsHitTesting(false)
-                }
+                // MARK: - Crystalline Spark
+                LuminousOrb(size: 80, isFieldFocused: focusedField != nil)
                 .opacity(showOrb ? 1 : 0)
                 .scaleEffect(keyboardVisible ? 0.7 : (showOrb ? 1 : 0.8))
                 .offset(x: keyboardVisible ? 120 : 0, y: keyboardVisible ? -60 : 0)
@@ -44,7 +35,7 @@ struct EmailLoginView: View {
                 VStack(spacing: Spacing.xs) {
                     Text("Welcome home")
                         .font(.custom(ChloeFont.heroBoldItalic, size: 40))
-                        .tracking(-0.5)
+                        .tracking(1)
                         .foregroundStyle(
                             LinearGradient(
                                 colors: [Color(hex: "#2D2324"), Color(hex: "#8E5A5E")],
@@ -71,14 +62,16 @@ struct EmailLoginView: View {
                         .textContentType(.emailAddress)
                         .autocapitalization(.none)
                         .focused($focusedField, equals: .email)
-                        .padding(.horizontal, Spacing.sm)
-                        .frame(height: 52)
-                        .background(.ultraThinMaterial)
-                        .clipShape(RoundedRectangle(cornerRadius: Spacing.cornerRadiusLarge))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: Spacing.cornerRadiusLarge)
-                                .stroke(Color(hex: "#E8D4D0"), lineWidth: 0.5)
-                        )
+                        .padding(.horizontal, Spacing.xs)
+                        .frame(height: 48)
+                        .background(Color.clear)
+                        .overlay(alignment: .bottom) {
+                            Rectangle()
+                                .fill(Color(hex: "#B76E79").opacity(focusedField == .email ? 0.9 : 0.4))
+                                .frame(height: focusedField == .email ? 1 : 0.5)
+                                .shadow(color: Color(hex: "#B76E79").opacity(focusedField == .email ? 0.5 : 0), radius: 4)
+                                .animation(.easeInOut(duration: 0.3), value: focusedField)
+                        }
                         .padding(.horizontal, Spacing.screenHorizontal)
                         .accessibilityLabel("Email address")
 
@@ -87,14 +80,16 @@ struct EmailLoginView: View {
                         .font(.chloeBodyDefault)
                         .textContentType(.password)
                         .focused($focusedField, equals: .password)
-                        .padding(.horizontal, Spacing.sm)
-                        .frame(height: 52)
-                        .background(.ultraThinMaterial)
-                        .clipShape(RoundedRectangle(cornerRadius: Spacing.cornerRadiusLarge))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: Spacing.cornerRadiusLarge)
-                                .stroke(Color(hex: "#E8D4D0"), lineWidth: 0.5)
-                        )
+                        .padding(.horizontal, Spacing.xs)
+                        .frame(height: 48)
+                        .background(Color.clear)
+                        .overlay(alignment: .bottom) {
+                            Rectangle()
+                                .fill(Color(hex: "#B76E79").opacity(focusedField == .password ? 0.9 : 0.4))
+                                .frame(height: focusedField == .password ? 1 : 0.5)
+                                .shadow(color: Color(hex: "#B76E79").opacity(focusedField == .password ? 0.5 : 0), radius: 4)
+                                .animation(.easeInOut(duration: 0.3), value: focusedField)
+                        }
                         .padding(.horizontal, Spacing.screenHorizontal)
                         .accessibilityLabel("Password")
 
@@ -137,7 +132,7 @@ struct EmailLoginView: View {
                                 }
                             )
                             .clipShape(Capsule())
-                            .shadow(color: .chloePrimary.opacity(0.15), radius: 20, y: 10)
+                            .shadow(color: Color(hex: "#B76E79").opacity(0.2), radius: 15, y: 8)
                     }
                     .disabled(email.isBlank)
                     .buttonStyle(PressableButtonStyle())

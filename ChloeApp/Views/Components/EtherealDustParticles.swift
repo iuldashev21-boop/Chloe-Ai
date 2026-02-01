@@ -7,23 +7,25 @@ struct EtherealDustParticles: View {
         var size: CGFloat
         var speed: CGFloat
         var phaseX: CGFloat
-        var phaseY: CGFloat
-        var swayAmplitudeX: CGFloat
-        var swayAmplitudeY: CGFloat
+        var swayAmplitude: CGFloat
         var opacity: Double
     }
 
     @State private var particles: [Particle] = []
 
     var body: some View {
-        TimelineView(.periodic(from: .now, by: 1.0 / 30.0)) { timeline in
+        TimelineView(.animation) { timeline in
             Canvas { context, size in
-                let time = CGFloat(timeline.date.timeIntervalSinceReferenceDate)
+                let t = CGFloat(timeline.date.timeIntervalSinceReferenceDate)
 
                 for particle in particles {
-                    let elapsed = time * particle.speed
-                    let xPos = particle.x * size.width + sin(elapsed + particle.phaseX) * particle.swayAmplitudeX
-                    let yPos = particle.y * size.height + cos(elapsed + particle.phaseY) * particle.swayAmplitudeY
+                    // Drift upward continuously, wrap around when off top
+                    let yTravel = t * particle.speed * 15
+                    var yPos = particle.y * size.height - yTravel.truncatingRemainder(dividingBy: size.height + 40)
+                    if yPos < -20 { yPos += size.height + 40 }
+
+                    // Gentle horizontal sway
+                    let xPos = particle.x * size.width + sin(t * 0.3 + particle.phaseX) * particle.swayAmplitude
 
                     let rect = CGRect(
                         x: xPos - particle.size / 2,
@@ -39,23 +41,37 @@ struct EtherealDustParticles: View {
                     )
                 }
             }
-            .blur(radius: 4)
+            .blur(radius: 1)
         }
         .allowsHitTesting(false)
         .onAppear {
-            particles = (0..<12).map { _ in
+            // Original ambient dust (large, very faint)
+            let dust: [Particle] = (0..<8).map { _ in
                 Particle(
-                    x: CGFloat.random(in: 0...1),
-                    y: CGFloat.random(in: 0...1),
-                    size: CGFloat.random(in: 8...20),
-                    speed: CGFloat.random(in: 0.05...0.15),
-                    phaseX: CGFloat.random(in: 0...(2 * .pi)),
-                    phaseY: CGFloat.random(in: 0...(2 * .pi)),
-                    swayAmplitudeX: CGFloat.random(in: 20...60),
-                    swayAmplitudeY: CGFloat.random(in: 15...40),
+                    x: .random(in: 0...1),
+                    y: .random(in: 0...1),
+                    size: .random(in: 8...16),
+                    speed: .random(in: 0.02...0.06),
+                    phaseX: .random(in: 0...(2 * .pi)),
+                    swayAmplitude: .random(in: 20...50),
                     opacity: 0.03
                 )
             }
+
+            // Ethereal bokeh (tiny, brighter, drift upward)
+            let bokeh: [Particle] = (0..<10).map { _ in
+                Particle(
+                    x: .random(in: 0.05...0.95),
+                    y: .random(in: 0...1),
+                    size: .random(in: 1...3),
+                    speed: .random(in: 0.08...0.2),
+                    phaseX: .random(in: 0...(2 * .pi)),
+                    swayAmplitude: .random(in: 8...20),
+                    opacity: 0.1
+                )
+            }
+
+            particles = dust + bokeh
         }
     }
 }
