@@ -5,7 +5,7 @@ struct ContentView: View {
     @State private var onboardingComplete = false
 
     // TEMP: Set to true to bypass auth/onboarding for UI testing
-    private let debugSkipToMain = true
+    private let debugSkipToMain = false
 
     var body: some View {
         Group {
@@ -33,6 +33,9 @@ struct ContentView: View {
             if let profile = StorageService.shared.loadProfile() {
                 onboardingComplete = profile.onboardingComplete
             }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .onboardingDidComplete)) { _ in
+            onboardingComplete = true
         }
     }
 }

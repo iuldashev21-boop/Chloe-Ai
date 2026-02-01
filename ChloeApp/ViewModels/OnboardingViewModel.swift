@@ -1,6 +1,10 @@
 import Foundation
 import SwiftUI
 
+extension Notification.Name {
+    static let onboardingDidComplete = Notification.Name("onboardingDidComplete")
+}
+
 @MainActor
 class OnboardingViewModel: ObservableObject {
     @Published var currentStep = 0
@@ -44,5 +48,6 @@ class OnboardingViewModel: ObservableObject {
 
         try? StorageService.shared.saveProfile(profile)
         isComplete = true
+        NotificationCenter.default.post(name: .onboardingDidComplete, object: nil)
     }
 }
