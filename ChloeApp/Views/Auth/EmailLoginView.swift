@@ -134,7 +134,7 @@ struct EmailLoginView: View {
                 } onCompletion: { _ in
                     // TODO: handle Apple sign-in result
                 }
-                .signInWithAppleButtonStyle(.black)
+                .signInWithAppleButtonStyle(.white)
                 .frame(height: 50)
                 .clipShape(RoundedRectangle(cornerRadius: 28))
                 .buttonStyle(PressableButtonStyle())
