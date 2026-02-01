@@ -27,12 +27,13 @@ struct EmailLoginView: View {
 
                 // MARK: - Header
                 VStack(spacing: Spacing.xs) {
-                    Text("Welcome back")
-                        .font(.chloeGreeting)
+                    Text("Welcome home")
+                        .font(.custom(ChloeFont.heroBoldItalic, size: 36))
                         .foregroundColor(.chloeTextPrimary)
 
-                    Text("Enter your email to continue")
-                        .font(.chloeBodyLight)
+                    Text("ENTER YOUR SANCTUARY")
+                        .font(.custom(ChloeFont.headerDisplay, size: 11))
+                        .tracking(3)
                         .foregroundColor(.chloeRosewood)
                 }
 
