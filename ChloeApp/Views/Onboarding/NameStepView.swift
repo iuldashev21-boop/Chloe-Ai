@@ -14,16 +14,24 @@ struct NameStepView: View {
                     Spacer().frame(height: 80)
 
                     Text("What shall I call you, beautiful?")
-                        .font(.chloeOnboardingQuestion)
-                        .foregroundColor(.chloeTextPrimary)
+                        .chloeEditorialHeading()
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, Spacing.screenHorizontal)
+                        .background(
+                            RadialGradient(
+                                colors: [Color(hex: "#FAD6A5").opacity(0.05), Color.clear],
+                                center: .center,
+                                startRadius: 0,
+                                endRadius: 120
+                            )
+                            .blur(radius: 30)
+                        )
 
                     // Single glowing line input
                     TextField("", text: $viewModel.nameText, prompt:
                         Text("Your name")
                             .font(.system(size: 20, weight: .light).italic())
-                            .foregroundColor(.chloeRosewood.opacity(0.4))
+                            .foregroundColor(.chloeRosewood.opacity(0.6))
                     )
                     .font(.custom(ChloeFont.heroBoldItalic, size: 24))
                     .foregroundColor(.chloeTextPrimary)

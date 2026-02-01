@@ -25,11 +25,20 @@ struct WelcomeIntroView: View {
                 Spacer()
 
                 // Space for the container-level orb
-                Spacer().frame(height: 100)
+                Spacer().frame(height: 80)
 
                 // Kinetic typography — words fade in one-by-one
                 kineticText
                     .padding(.horizontal, Spacing.screenHorizontal + Spacing.sm)
+                    .background(
+                        RadialGradient(
+                            colors: [Color(hex: "#FAD6A5").opacity(0.05), Color.clear],
+                            center: .center,
+                            startRadius: 0,
+                            endRadius: 120
+                        )
+                        .blur(radius: 30)
+                    )
                     .opacity(dissolving ? 0 : 1)
                     .scaleEffect(dissolving ? 0.8 : 1)
                     .offset(y: dissolving ? -80 : 0)
@@ -79,8 +88,15 @@ struct WelcomeIntroView: View {
                 let isVisible = index < revealedWordCount
                 Text(word)
                     .font(.chloeOnboardingQuestion)
-                    .tracking(26 * 0.03)
-                    .foregroundColor(.chloeTextPrimary)
+                    .tracking(1)
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [Color(hex: "#2D2324"), Color(hex: "#8E5A5E")],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .shadow(color: Color(hex: "#2D2324").opacity(0.15), radius: 4, y: 2)
                     .opacity(isVisible ? 1 : 0)
                     .offset(y: isVisible ? 0 : 5)
                     .animation(.easeOut(duration: 0.3), value: revealedWordCount)

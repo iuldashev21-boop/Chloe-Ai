@@ -43,7 +43,7 @@ struct OnboardingCard: View {
         }
         .buttonStyle(.plain)
         .scaleEffect(isSelected ? 1.0 : 0.98)
-        .opacity(isSelected ? 1.0 : 0.6)
+        .opacity(isSelected ? 1.0 : 0.85)
         .accessibilityAddTraits(isSelected ? [.isSelected] : [])
         .animation(.easeOut(duration: 0.2), value: isSelected)
     }

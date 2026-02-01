@@ -1,9 +1,16 @@
 import SwiftUI
+import ConfettiSwiftUI
 
 struct OnboardingCompleteView: View {
     @ObservedObject var viewModel: OnboardingViewModel
+    @State private var confettiCounter = 0
 
     var body: some View {
+        let archetype: UserArchetype? = {
+            guard let answers = viewModel.preferences.archetypeAnswers else { return nil }
+            return ArchetypeService.shared.classify(answers: answers)
+        }()
+
         VStack(spacing: Spacing.lg) {
             Spacer()
 
@@ -14,9 +21,23 @@ struct OnboardingCompleteView: View {
                 .font(.chloeGreeting)
                 .foregroundColor(.chloePrimary)
 
-            Text("I can't wait to get to know you better.\nLet's start your journey together.")
-                .font(.chloeBodyLight)
-                .foregroundColor(.chloeTextSecondary)
+            if let archetype {
+                VStack(spacing: Spacing.sm) {
+                    Text("YOUR ARCHETYPE")
+                        .font(.custom(ChloeFont.headerDisplay, size: 13))
+                        .tracking(3)
+                        .foregroundColor(.chloeTextSecondary.opacity(0.8))
+
+                    Text(archetype.label)
+                        .font(.custom(ChloeFont.headerDisplay, size: 28))
+                        .foregroundColor(.chloePrimary)
+                }
+            }
+
+            Text("I can't wait to get to know you better.\nLet's start your journey together.".uppercased())
+                .font(.custom(ChloeFont.headerDisplay, size: 13))
+                .tracking(3)
+                .foregroundColor(.chloeTextSecondary.opacity(0.8))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, Spacing.screenHorizontal)
 
@@ -31,6 +52,26 @@ struct OnboardingCompleteView: View {
             .accessibilityLabel("Meet Chloe")
             .padding(.horizontal, Spacing.screenHorizontal)
             .padding(.bottom, Spacing.xl)
+        }
+        .confettiCannon(counter: $confettiCounter, num: 50,
+                         colors: [.chloePrimary, .chloeAccent, .chloeEtherealGold],
+                         rainHeight: 600, radius: 400)
+        .onAppear {
+            // Fire if already on this step (e.g. direct navigation)
+            if viewModel.currentStep == 3 {
+                fireConfetti()
+            }
+        }
+        .onChange(of: viewModel.currentStep) { _, newStep in
+            if newStep == 3 {
+                fireConfetti()
+            }
+        }
+    }
+
+    private func fireConfetti() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            confettiCounter += 1
         }
     }
 }

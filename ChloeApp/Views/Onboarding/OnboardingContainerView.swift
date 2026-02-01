@@ -26,7 +26,6 @@ struct OnboardingContainerView: View {
 
     // Orb state
     @State private var orbAppeared = false
-    @State private var orbAtTop = false
     @State private var orbNamePulse: CGFloat = 1.0
 
     var body: some View {
@@ -47,12 +46,7 @@ struct OnboardingContainerView: View {
                 // Step content
                 TabView(selection: $viewModel.currentStep) {
                     WelcomeIntroView(viewModel: viewModel, onContinue: {
-                        withAnimation(.spring(response: 0.7, dampingFraction: 0.8)) {
-                            orbAtTop = true
-                        }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                            viewModel.nextStep()
-                        }
+                        viewModel.nextStep()
                     }).tag(0)
                     NameStepView(viewModel: viewModel).tag(1)
                     ArchetypeQuizView(viewModel: viewModel).tag(2)
@@ -64,17 +58,15 @@ struct OnboardingContainerView: View {
 
             // MARK: - Persistent Guide Orb (overlay)
             GeometryReader { geo in
-                let centerY = geo.size.height * 0.4
-                let topY = geo.size.height * 0.08
+                let topY = geo.size.height * 0.14
 
                 ChloeAvatar(size: 80)
-                    .scaleEffect((orbAtTop ? 0.8 : (orbAppeared ? 1.0 : 0.5)) * orbNamePulse)
+                    .scaleEffect((orbAppeared ? 0.8 : 0.5) * orbNamePulse)
                     .opacity(orbAppeared ? 1 : 0)
                     .position(
                         x: geo.size.width / 2,
-                        y: orbAtTop ? topY : centerY
+                        y: topY
                     )
-                    .animation(.spring(response: 0.7, dampingFraction: 0.8), value: orbAtTop)
                     .animation(.spring(response: 0.6, dampingFraction: 0.7), value: orbAppeared)
                     .animation(.easeOut(duration: 0.15), value: orbNamePulse)
                     .allowsHitTesting(false)

@@ -3,6 +3,7 @@ import SwiftUI
 enum ChloeFont {
     static let heroBoldItalic = "CormorantGaramond-BoldItalic"
     static let headerDisplay = "Cinzel-Regular"
+    static let editorialBoldItalic = "PlayfairDisplay-Italic"
 }
 
 extension Font {
@@ -39,7 +40,7 @@ extension Font {
     static let chloeSidebarMenuItem = Font.system(size: 15, weight: .regular)
     static let chloeSidebarChatItem = Font.system(size: 14, weight: .regular)
 
-    static let chloeOnboardingQuestion = Font.custom(ChloeFont.heroBoldItalic, size: 34)
+    static let chloeOnboardingQuestion = Font.custom(ChloeFont.heroBoldItalic, size: 40)
 
     static func chloeInputPlaceholder(_ size: CGFloat) -> Font {
         .system(size: size, weight: .regular)
@@ -47,6 +48,22 @@ extension Font {
 }
 
 // MARK: - Typography Style Modifiers
+
+struct ChloeEditorialHeadingStyle: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .font(.chloeOnboardingQuestion)
+            .tracking(1)
+            .foregroundStyle(
+                LinearGradient(
+                    colors: [Color(hex: "#2D2324"), Color(hex: "#8E5A5E")],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            )
+            .shadow(color: Color(hex: "#2D2324").opacity(0.15), radius: 4, y: 2)
+    }
+}
 
 struct ChloeHeroStyle: ViewModifier {
     func body(content: Content) -> some View {
@@ -90,6 +107,10 @@ struct ChloeButtonTextStyle: ViewModifier {
 }
 
 extension View {
+    func chloeEditorialHeading() -> some View {
+        modifier(ChloeEditorialHeadingStyle())
+    }
+
     func chloeHeroStyle() -> some View {
         modifier(ChloeHeroStyle())
     }

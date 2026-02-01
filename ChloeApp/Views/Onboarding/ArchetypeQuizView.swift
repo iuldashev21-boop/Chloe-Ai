@@ -133,10 +133,18 @@ struct ArchetypeQuizView: View {
         onSelect: @escaping (ArchetypeChoice) -> Void
     ) -> some View {
         Text(question)
-            .font(.chloeOnboardingQuestion)
-            .foregroundColor(.chloeTextPrimary)
+            .chloeEditorialHeading()
             .multilineTextAlignment(.center)
             .padding(.horizontal, Spacing.screenHorizontal)
+            .background(
+                RadialGradient(
+                    colors: [Color(hex: "#FAD6A5").opacity(0.05), Color.clear],
+                    center: .center,
+                    startRadius: 0,
+                    endRadius: 120
+                )
+                .blur(radius: 30)
+            )
 
         LazyVGrid(columns: columns, spacing: Spacing.xs) {
             ForEach(options, id: \.choice) { item in

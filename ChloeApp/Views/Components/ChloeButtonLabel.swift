@@ -5,32 +5,52 @@ struct ChloeButtonLabel: View {
     var isEnabled: Bool = true
 
     @State private var pulseOpacity: Double = 1.0
+    @State private var shimmerOffset: CGFloat = -200
 
     var body: some View {
-        Text(title)
-            .font(.system(size: 15, weight: .medium))
-            .tracking(2)
+        Text(title.uppercased())
+            .font(.chloeButton)
+            .tracking(3)
             .foregroundColor(.white)
             .frame(maxWidth: .infinity)
-            .padding(.vertical, Spacing.sm)
+            .frame(height: 52)
             .background(
                 ZStack {
                     Capsule().fill(.ultraThinMaterial)
-                    Capsule().fill(Color(hex: "#B76E79").opacity(isEnabled ? 0.2 : 0.1))
+                    Capsule().fill(Color.chloePrimary.opacity(isEnabled ? 0.8 : 0.45))
+                    LinearGradient(
+                        colors: [.clear, .white.opacity(0.25), .clear],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                    .offset(x: shimmerOffset)
+                    .mask(Capsule())
+                    // Inner glow — top edge catch light
+                    VStack {
+                        Capsule()
+                            .fill(
+                                LinearGradient(
+                                    colors: [.white.opacity(0.35), .clear],
+                                    startPoint: .top,
+                                    endPoint: .center
+                                )
+                            )
+                            .frame(height: 1)
+                            .padding(.horizontal, 1)
+                        Spacer()
+                    }
+                    .clipShape(Capsule())
                 }
             )
             .clipShape(Capsule())
-            .overlay(
-                Capsule()
-                    .stroke(Color.white.opacity(0.4), lineWidth: 0.5)
-            )
-            .shadow(color: Color(hex: "#B76E79").opacity(0.2), radius: 20)
+            .shadow(color: Color(hex: "#B76E79").opacity(isEnabled ? 0.3 : 0.1), radius: 25, y: 12)
             .opacity(isEnabled ? 1.0 : pulseOpacity)
             .animation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true), value: pulseOpacity)
             .onAppear {
                 if !isEnabled {
                     pulseOpacity = 0.7
                 }
+                startShimmerLoop()
             }
             .onChange(of: isEnabled) { _, newValue in
                 if newValue {
@@ -39,6 +59,15 @@ struct ChloeButtonLabel: View {
                     pulseOpacity = 0.7
                 }
             }
+    }
+
+    private func startShimmerLoop() {
+        Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { _ in
+            shimmerOffset = -200
+            withAnimation(.easeInOut(duration: 0.8)) {
+                shimmerOffset = 200
+            }
+        }
     }
 }
 

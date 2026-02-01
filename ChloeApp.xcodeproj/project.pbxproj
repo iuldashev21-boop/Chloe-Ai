@@ -84,6 +84,7 @@
 		F10000210000000000000001 /* TenorSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F20000210000000000000001 /* TenorSans-Regular.ttf */; };
 		F10000220000000000000001 /* Cinzel-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F20000220000000000000001 /* Cinzel-Regular.ttf */; };
 		F10000230000000000000001 /* CormorantGaramond-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F20000230000000000000001 /* CormorantGaramond-BoldItalic.ttf */; };
+		F10000280000000000000001 /* PlayfairDisplay-Italic-VF.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F20000280000000000000001 /* PlayfairDisplay-Italic-VF.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -161,6 +162,7 @@
 		F20000210000000000000001 /* TenorSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "TenorSans-Regular.ttf"; sourceTree = "<group>"; };
 		F20000220000000000000001 /* Cinzel-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Cinzel-Regular.ttf"; sourceTree = "<group>"; };
 		F20000230000000000000001 /* CormorantGaramond-BoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "CormorantGaramond-BoldItalic.ttf"; sourceTree = "<group>"; };
+		F20000280000000000000001 /* PlayfairDisplay-Italic-VF.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlayfairDisplay-Italic-VF.ttf"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -374,6 +376,7 @@
 				F20000210000000000000001 /* TenorSans-Regular.ttf */,
 				F20000220000000000000001 /* Cinzel-Regular.ttf */,
 				F20000230000000000000001 /* CormorantGaramond-BoldItalic.ttf */,
+				F20000280000000000000001 /* PlayfairDisplay-Italic-VF.ttf */,
 			);
 			path = Fonts;
 			sourceTree = "<group>";
@@ -466,6 +469,7 @@
 				F10000210000000000000001 /* TenorSans-Regular.ttf in Resources */,
 				F10000220000000000000001 /* Cinzel-Regular.ttf in Resources */,
 				F10000230000000000000001 /* CormorantGaramond-BoldItalic.ttf in Resources */,
+				F10000280000000000000001 /* PlayfairDisplay-Italic-VF.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

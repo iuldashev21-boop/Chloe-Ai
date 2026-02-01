@@ -45,7 +45,7 @@ struct EmailLoginView: View {
                         )
 
                     Text("ENTER YOUR SANCTUARY")
-                        .font(.custom(ChloeFont.headerDisplay, size: 11))
+                        .font(.custom(ChloeFont.headerDisplay, size: 13))
                         .tracking(3)
                         .foregroundColor(.chloeRosewood)
                 }
@@ -97,16 +97,16 @@ struct EmailLoginView: View {
                     Button {
                         Task { await authVM.signIn(email: email) }
                     } label: {
-                        Text("Sign In")
-                            .font(.system(size: 17, weight: .medium))
-                            .tracking(1.5)
+                        Text("SIGN IN")
+                            .font(.chloeButton)
+                            .tracking(3)
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .frame(height: 52)
                             .background(
                                 ZStack {
                                     Capsule().fill(.ultraThinMaterial)
-                                    Capsule().fill(Color.chloePrimary.opacity(email.isBlank ? 0.3 : 0.6))
+                                    Capsule().fill(Color.chloePrimary.opacity(email.isBlank ? 0.4 : 0.8))
                                     LinearGradient(
                                         colors: [.clear, .white.opacity(0.25), .clear],
                                         startPoint: .leading,

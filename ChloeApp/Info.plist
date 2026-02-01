@@ -36,6 +36,7 @@
 		<string>TenorSans-Regular.ttf</string>
 		<string>Cinzel-Regular.ttf</string>
 		<string>CormorantGaramond-BoldItalic.ttf</string>
+		<string>PlayfairDisplay-Italic-VF.ttf</string>
 	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>Chloe needs camera access so you can share photos in chat.</string>
