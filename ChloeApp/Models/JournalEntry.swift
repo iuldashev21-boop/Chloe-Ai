@@ -45,28 +45,3 @@ struct JournalEntry: Codable, Identifiable {
         self.createdAt = createdAt
     }
 }
-
-struct MoodCheckin: Codable, Identifiable {
-    let id: String
-    var userId: String?
-    var mood: String
-    var note: String?
-    var date: String
-    var createdAt: Date
-
-    init(
-        id: String = UUID().uuidString,
-        userId: String? = nil,
-        mood: String,
-        note: String? = nil,
-        date: String = "",
-        createdAt: Date = Date()
-    ) {
-        self.id = id
-        self.userId = userId
-        self.mood = mood
-        self.note = note
-        self.date = date
-        self.createdAt = createdAt
-    }
-}

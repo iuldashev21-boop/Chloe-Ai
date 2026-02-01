@@ -170,35 +170,6 @@ Rules:
 """
 }
 
-// MARK: - Topic Cards
-
-let topicCards: [TopicCardConfig] = [
-    TopicCardConfig(
-        id: "feminine-energy",
-        title: "Feminine Energy",
-        subtitle: "Unlock your magnetism",
-        icon: "sparkles",
-        color: .pink,
-        prompt: "I want to tap into my feminine energy and become more magnetic. Can you help me understand what that means and how to embody it?"
-    ),
-    TopicCardConfig(
-        id: "magnetic-presence",
-        title: "Magnetic Presence",
-        subtitle: "Attraction & allure",
-        icon: "diamond",
-        color: .gold,
-        prompt: "I want to work on my presence and allure — how can I become the kind of woman who naturally draws people in and commands attention?"
-    ),
-    TopicCardConfig(
-        id: "love-psychology",
-        title: "Love Psychology",
-        subtitle: "Understand his mind",
-        icon: "eye",
-        color: .purple,
-        prompt: "Help me understand how men think when it comes to love and attachment. What makes a man truly commit and what pushes him away?"
-    ),
-]
-
 // MARK: - Prompt Builder
 
 func buildPersonalizedPrompt(

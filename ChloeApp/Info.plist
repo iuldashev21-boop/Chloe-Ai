@@ -33,11 +33,6 @@
 	</array>
 	<key>UIAppFonts</key>
 	<array>
-		<string>Inter-Regular.ttf</string>
-		<string>Inter-Medium.ttf</string>
-		<string>PlayfairDisplay-Regular.ttf</string>
-		<string>PlayfairDisplay-Medium.ttf</string>
-		<string>CormorantGaramond-Italic-VF.ttf</string>
 		<string>TenorSans-Regular.ttf</string>
 		<string>Cinzel-Regular.ttf</string>
 		<string>CormorantGaramond-BoldItalic.ttf</string>
