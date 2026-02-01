@@ -5,40 +5,51 @@ struct NameStepView: View {
     @State private var name = ""
 
     var body: some View {
-        VStack(spacing: Spacing.lg) {
-            Spacer()
+        GeometryReader { geometry in
+            ScrollView {
+                VStack(spacing: Spacing.lg) {
+                    Spacer()
 
-            ChloeAvatar(size: 40)
+                    ChloeAvatar(size: 100)
 
-            Text("What should I call you?")
-                .font(.chloeOnboardingQuestion)
-                .foregroundColor(.chloeTextPrimary)
-                .multilineTextAlignment(.center)
+                    Text("What should I call you?")
+                        .font(.chloeOnboardingQuestion)
+                        .foregroundColor(.chloeTextPrimary)
+                        .multilineTextAlignment(.center)
 
-            TextField("Your name", text: $name)
-                .font(.chloeBodyDefault)
-                .multilineTextAlignment(.center)
-                .padding()
-                .background(.ultraThinMaterial)
-                .cornerRadius(Spacing.cornerRadiusLarge)
-                .overlay(
-                    RoundedRectangle(cornerRadius: Spacing.cornerRadiusLarge)
-                        .stroke(Color.chloeBorderWarm, lineWidth: 1)
-                )
-                .padding(.horizontal, Spacing.xxl)
+                    TextField("Your name", text: $name)
+                        .font(.chloeBodyDefault)
+                        .multilineTextAlignment(.center)
+                        .padding()
+                        .background(.ultraThinMaterial)
+                        .cornerRadius(Spacing.cornerRadiusLarge)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: Spacing.cornerRadiusLarge)
+                                .stroke(Color.chloeBorderWarm, lineWidth: 1)
+                        )
+                        .padding(.horizontal, Spacing.xxl)
+                        .onSubmit {
+                            guard !name.isBlank else { return }
+                            viewModel.preferences.name = name
+                            viewModel.nextStep()
+                        }
 
-            Spacer()
+                    Spacer()
 
-            Button {
-                viewModel.preferences.name = name
-                viewModel.nextStep()
-            } label: {
-                ChloeButtonLabel(title: "Continue", isEnabled: !name.isBlank)
+                    Button {
+                        viewModel.preferences.name = name
+                        viewModel.nextStep()
+                    } label: {
+                        ChloeButtonLabel(title: "Continue", isEnabled: !name.isBlank)
+                    }
+                    .buttonStyle(PressableButtonStyle())
+                    .disabled(name.isBlank)
+                    .padding(.horizontal, Spacing.screenHorizontal)
+                    .padding(.bottom, Spacing.xl)
+                }
+                .frame(minHeight: geometry.size.height)
             }
-            .buttonStyle(PressableButtonStyle())
-            .disabled(name.isBlank)
-            .padding(.horizontal, Spacing.screenHorizontal)
-            .padding(.bottom, Spacing.xl)
+            .scrollDismissesKeyboard(.interactively)
         }
     }
 }
