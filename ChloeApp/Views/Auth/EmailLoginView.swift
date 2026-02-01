@@ -18,6 +18,7 @@ struct EmailLoginView: View {
     var body: some View {
         ZStack {
             GradientBackground()
+            EtherealDustParticles()
 
             VStack(spacing: Spacing.lg) {
                 Spacer()
