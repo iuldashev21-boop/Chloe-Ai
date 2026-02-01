@@ -52,7 +52,8 @@ struct ArchetypeQuizView: View {
         VStack(spacing: Spacing.lg) {
             Spacer()
 
-            ChloeAvatar(size: 100)
+            // Space for container-level guide orb
+            Spacer().frame(height: 80)
 
             questionView(
                 question: questions[viewModel.quizPage],

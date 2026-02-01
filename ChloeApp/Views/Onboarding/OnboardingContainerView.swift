@@ -24,6 +24,10 @@ struct OnboardingContainerView: View {
         return CGFloat(displayStep) / CGFloat(quizStepCount)
     }
 
+    // Orb state
+    @State private var orbAppeared = false
+    @State private var orbAtTop = false
+
     var body: some View {
         ZStack {
             GradientBackground()
@@ -37,7 +41,14 @@ struct OnboardingContainerView: View {
 
                 // Step content
                 TabView(selection: $viewModel.currentStep) {
-                    WelcomeIntroView(viewModel: viewModel, onContinue: { viewModel.nextStep() }).tag(0)
+                    WelcomeIntroView(viewModel: viewModel, onContinue: {
+                        withAnimation(.spring(response: 0.7, dampingFraction: 0.8)) {
+                            orbAtTop = true
+                        }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                            viewModel.nextStep()
+                        }
+                    }).tag(0)
                     NameStepView(viewModel: viewModel).tag(1)
                     ArchetypeQuizView(viewModel: viewModel).tag(2)
                     OnboardingCompleteView(viewModel: viewModel).tag(3)
@@ -45,10 +56,32 @@ struct OnboardingContainerView: View {
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .animation(.easeInOut, value: viewModel.currentStep)
             }
+
+            // MARK: - Persistent Guide Orb (overlay)
+            GeometryReader { geo in
+                let centerY = geo.size.height * 0.4
+                let topY = geo.size.height * 0.08
+
+                ChloeAvatar(size: 80)
+                    .scaleEffect(orbAtTop ? 0.8 : (orbAppeared ? 1.0 : 0.5))
+                    .opacity(orbAppeared ? 1 : 0)
+                    .position(
+                        x: geo.size.width / 2,
+                        y: orbAtTop ? topY : centerY
+                    )
+                    .animation(.spring(response: 0.7, dampingFraction: 0.8), value: orbAtTop)
+                    .animation(.spring(response: 0.6, dampingFraction: 0.7), value: orbAppeared)
+                    .allowsHitTesting(false)
+            }
         }
         .navigationBarBackButtonHidden(true)
         .onChange(of: viewModel.currentStep) {
             UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+        }
+        .onAppear {
+            withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
+                orbAppeared = true
+            }
         }
     }
 

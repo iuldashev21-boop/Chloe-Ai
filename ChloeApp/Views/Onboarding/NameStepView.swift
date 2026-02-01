@@ -10,7 +10,8 @@ struct NameStepView: View {
                 VStack(spacing: Spacing.lg) {
                     Spacer()
 
-                    ChloeAvatar(size: 100)
+                    // Space for container-level guide orb
+                    Spacer().frame(height: 80)
 
                     Text("What should I call you?")
                         .font(.chloeOnboardingQuestion)

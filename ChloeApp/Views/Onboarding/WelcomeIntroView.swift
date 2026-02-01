@@ -4,7 +4,6 @@ struct WelcomeIntroView: View {
     @ObservedObject var viewModel: OnboardingViewModel
     var onContinue: () -> Void = {}
 
-    @State private var orbAppeared = false
     @State private var revealedWordCount = 0
     @State private var buttonAppeared = false
     @State private var animationTask: Task<Void, Never>?
@@ -19,10 +18,8 @@ struct WelcomeIntroView: View {
         VStack(spacing: Spacing.lg) {
             Spacer()
 
-            // Luminous orb entrance
-            ChloeAvatar(size: 80)
-                .opacity(orbAppeared ? 1 : 0)
-                .scaleEffect(orbAppeared ? 1 : 0.5)
+            // Space for the container-level orb
+            Spacer().frame(height: 100)
 
             // Kinetic typography — words fade in one-by-one
             kineticText
@@ -71,15 +68,11 @@ struct WelcomeIntroView: View {
 
     private func startRevealSequence() {
         animationTask = Task {
-            // Phase 1: Orb springs in
-            withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
-                orbAppeared = true
-            }
-
-            try? await Task.sleep(for: .milliseconds(500))
+            // Wait for container orb to appear
+            try? await Task.sleep(for: .milliseconds(800))
             guard !Task.isCancelled else { return }
 
-            // Phase 2: Words reveal one-by-one (0.3s per word)
+            // Words reveal one-by-one (0.3s per word)
             for i in 1...words.count {
                 revealedWordCount = i
                 try? await Task.sleep(for: .milliseconds(300))

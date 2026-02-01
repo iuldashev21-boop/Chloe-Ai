@@ -7,7 +7,8 @@ struct OnboardingCompleteView: View {
         VStack(spacing: Spacing.lg) {
             Spacer()
 
-            ChloeAvatar(size: 80)
+            // Space for container-level guide orb
+            Spacer().frame(height: 80)
 
             Text("You're all set!")
                 .font(.chloeGreeting)
