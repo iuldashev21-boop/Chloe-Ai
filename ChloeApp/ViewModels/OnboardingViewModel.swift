@@ -11,6 +11,7 @@ class OnboardingViewModel: ObservableObject {
     @Published var quizPage: Int = 0
     @Published var preferences = OnboardingPreferences()
     @Published var isComplete = false
+    @Published var nameText = ""
 
     let totalSteps = 4
 

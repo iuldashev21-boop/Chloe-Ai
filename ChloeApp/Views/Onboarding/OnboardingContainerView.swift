@@ -27,6 +27,7 @@ struct OnboardingContainerView: View {
     // Orb state
     @State private var orbAppeared = false
     @State private var orbAtTop = false
+    @State private var orbNamePulse: CGFloat = 1.0
 
     var body: some View {
         ZStack {
@@ -63,7 +64,7 @@ struct OnboardingContainerView: View {
                 let topY = geo.size.height * 0.08
 
                 ChloeAvatar(size: 80)
-                    .scaleEffect(orbAtTop ? 0.8 : (orbAppeared ? 1.0 : 0.5))
+                    .scaleEffect((orbAtTop ? 0.8 : (orbAppeared ? 1.0 : 0.5)) * orbNamePulse)
                     .opacity(orbAppeared ? 1 : 0)
                     .position(
                         x: geo.size.width / 2,
@@ -71,6 +72,7 @@ struct OnboardingContainerView: View {
                     )
                     .animation(.spring(response: 0.7, dampingFraction: 0.8), value: orbAtTop)
                     .animation(.spring(response: 0.6, dampingFraction: 0.7), value: orbAppeared)
+                    .animation(.easeOut(duration: 0.15), value: orbNamePulse)
                     .allowsHitTesting(false)
             }
         }
@@ -81,6 +83,13 @@ struct OnboardingContainerView: View {
         .onAppear {
             withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
                 orbAppeared = true
+            }
+        }
+        .onChange(of: viewModel.nameText) {
+            // Pulse the orb on each keystroke
+            orbNamePulse = 1.08
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                orbNamePulse = 1.0
             }
         }
     }
