@@ -13,6 +13,18 @@ struct EmailLoginView: View {
             VStack(spacing: Spacing.lg) {
                 Spacer()
 
+                // MARK: - Orb
+                ZStack {
+                    LuminousOrb(size: 100)
+                    RadialGradient(
+                        colors: [Color.chloeEtherealGold.opacity(0.15), Color.chloeEtherealGold.opacity(0.0)],
+                        center: .center, startRadius: 10, endRadius: 120
+                    )
+                    .frame(width: 240, height: 240)
+                    .offset(y: 80)
+                    .allowsHitTesting(false)
+                }
+
                 // MARK: - Header
                 VStack(spacing: Spacing.xs) {
                     Text("Welcome back")
