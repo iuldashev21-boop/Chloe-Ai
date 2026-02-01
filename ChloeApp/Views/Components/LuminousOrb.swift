@@ -36,12 +36,11 @@ struct LuminousOrb: View {
                 }
                 path.closeSubpath()
 
-                // Radial gradient fill: ethereal gold center → accent edge
+                // Radial gradient fill: champagne pearl center → rose-gold edge
                 let gradient = Gradient(stops: [
                     .init(color: .white, location: 0.0),
-                    .init(color: Color(hex: "#F3E5AB"), location: 0.3),
-                    .init(color: Color(hex: "#FFD700").opacity(0.8), location: 0.6),
-                    .init(color: Color(hex: "#FFD700").opacity(0.4), location: 1.0)
+                    .init(color: Color(hex: "#F7E7CE").opacity(0.6), location: 0.4),
+                    .init(color: Color(hex: "#B76E79").opacity(0.0), location: 1.0)
                 ])
                 let shading = GraphicsContext.Shading.radialGradient(
                     gradient,
@@ -52,14 +51,22 @@ struct LuminousOrb: View {
                 context.fill(path, with: shading)
             }
             .frame(width: size, height: size)
+            .background {
+                // Warm halo behind orb
+                Circle()
+                    .fill(Color(hex: "#F3E5AB").opacity(0.10))
+                    .frame(width: size * 2.5, height: size * 2.5)
+                    .blur(radius: 100)
+                    .allowsHitTesting(false)
+            }
             .overlay {
                 // Outer glow
                 Circle()
                     .fill(
                         RadialGradient(
                             colors: [
-                                Color(hex: "#FFD700").opacity(0.4),
-                                Color(hex: "#FFD700").opacity(0.0)
+                                Color(hex: "#B76E79").opacity(0.15),
+                                Color(hex: "#B76E79").opacity(0.0)
                             ],
                             center: .center,
                             startRadius: size * 0.25,
@@ -67,11 +74,11 @@ struct LuminousOrb: View {
                         )
                     )
                     .frame(width: size * 1.6, height: size * 1.6)
-                    .blur(radius: size * 0.5)
+                    .blur(radius: size * 0.6)
                     .allowsHitTesting(false)
             }
         }
-        .frame(width: size * 1.6, height: size * 1.6)
+        .frame(width: size * 2.5, height: size * 2.5)
     }
 }
 
