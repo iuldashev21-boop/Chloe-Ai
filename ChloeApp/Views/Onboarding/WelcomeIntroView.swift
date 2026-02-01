@@ -36,6 +36,7 @@ struct WelcomeIntroView: View {
                 ChloeButtonLabel(title: "Begin My Journey")
             }
             .buttonStyle(PressableButtonStyle())
+            .accessibilityLabel("Begin my journey")
             .padding(.horizontal, Spacing.screenHorizontal)
             .padding(.bottom, Spacing.xl)
             .opacity(buttonAppeared ? 1 : 0)

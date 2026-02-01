@@ -121,6 +121,7 @@ struct SidebarView: View {
                     .font(.system(size: 13, weight: .light))
                     .foregroundColor(.chloeTextTertiary)
                     .frame(width: 20)
+                    .accessibilityHidden(true)
                 Text(convo.title)
                     .font(.chloeSidebarChatItem)
                     .foregroundColor(.chloeTextSecondary)
@@ -133,6 +134,7 @@ struct SidebarView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(convo.title)
     }
 
     private func sentimentIcon(for convo: Conversation) -> String {

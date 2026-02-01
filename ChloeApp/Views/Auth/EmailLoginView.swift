@@ -38,6 +38,7 @@ struct EmailLoginView: View {
                             .stroke(Color.white.opacity(0.2), lineWidth: 1)
                     )
                     .padding(.horizontal, Spacing.screenHorizontal)
+                    .accessibilityLabel("Email address")
 
                 // MARK: - Password field
                 SecureField("Password", text: $password, prompt: Text("Password").foregroundColor(.chloeRosewood))
@@ -51,6 +52,7 @@ struct EmailLoginView: View {
                             .stroke(Color.white.opacity(0.2), lineWidth: 1)
                     )
                     .padding(.horizontal, Spacing.screenHorizontal)
+                    .accessibilityLabel("Password")
 
                 // MARK: - Sign In button
                 Button {
@@ -94,6 +96,7 @@ struct EmailLoginView: View {
                         .frame(height: 0.5)
                 }
                 .padding(.horizontal, Spacing.screenHorizontal)
+                .accessibilityHidden(true)
 
                 // MARK: - Sign in with Apple
                 SignInWithAppleButton(.signIn) { request in

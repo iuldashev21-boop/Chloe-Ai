@@ -35,6 +35,7 @@ struct GoalsView: View {
             Image(systemName: "target")
                 .font(.system(size: 40, weight: .thin))
                 .foregroundColor(.chloeTextTertiary)
+                .accessibilityHidden(true)
 
             Text("Set your first goal")
                 .font(.chloeBodyDefault)
@@ -79,6 +80,7 @@ struct GoalsView: View {
                     .frame(width: 44, height: 44)
             }
             .buttonStyle(.plain)
+            .accessibilityLabel(goal.status == .completed ? "Mark \(goal.title) incomplete" : "Mark \(goal.title) complete")
 
             VStack(alignment: .leading, spacing: Spacing.xxxs) {
                 Text(goal.title)
@@ -147,6 +149,7 @@ struct GoalsView: View {
                     y: 3
                 )
         }
+        .accessibilityLabel("Add goal")
         .padding(.trailing, Spacing.screenHorizontal)
         .padding(.bottom, Spacing.lg)
     }

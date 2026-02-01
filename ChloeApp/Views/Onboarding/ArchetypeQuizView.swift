@@ -2,7 +2,6 @@ import SwiftUI
 
 struct ArchetypeQuizView: View {
     @ObservedObject var viewModel: OnboardingViewModel
-    @State private var quizPage = 0
     @State private var q1Answer: ArchetypeChoice? = nil
     @State private var q2Answer: ArchetypeChoice? = nil
     @State private var q3Answer: ArchetypeChoice? = nil
@@ -12,34 +11,34 @@ struct ArchetypeQuizView: View {
 
     // Q1 options
     private let q1Options: [(choice: ArchetypeChoice, title: String, description: String)] = [
-        (.a, "Magnetic", "People are drawn to your energy"),
-        (.b, "Commanding", "You lead with quiet authority"),
-        (.c, "Inspiring", "You light a fire in others"),
-        (.d, "Electric", "Your presence shifts the room"),
+        (.a, "Magnetic", "The room goes quiet — effortless."),
+        (.b, "Commanding", "One look, and they fall in line."),
+        (.c, "Inspiring", "You speak and something shifts inside them."),
+        (.d, "Electric", "You walk in — everything changes."),
     ]
 
     // Q2 options
     private let q2Options: [(choice: ArchetypeChoice, title: String, description: String)] = [
-        (.a, "Warmth", "You make everyone feel safe"),
-        (.b, "Intuition", "You sense what others can't"),
-        (.c, "Drive", "Relentless focus and ambition"),
-        (.d, "Mystery", "An allure that keeps them curious"),
+        (.a, "Warmth", "They let their guard down around you."),
+        (.b, "Intuition", "You know before they say a word."),
+        (.c, "Drive", "Nothing stands between you and the vision."),
+        (.d, "Mystery", "They can't stop wondering about you."),
     ]
 
     // Q3 options
     private let q3Options: [(choice: ArchetypeChoice, title: String, description: String)] = [
-        (.a, "Reflecting", "Journaling, silence, inner work"),
-        (.b, "Moving", "Gym, walks, physical energy release"),
-        (.c, "Creating", "Music, art, pouring it into beauty"),
-        (.d, "Escaping", "Spontaneity, new places, breaking routine"),
+        (.a, "Reflecting", "Stillness, silence, pages of truth."),
+        (.b, "Moving", "Sweat, motion, letting the body lead."),
+        (.c, "Creating", "Pouring the chaos into something beautiful."),
+        (.d, "Escaping", "New air, new streets, disappearing for a while."),
     ]
 
     // Q4 options
     private let q4Options: [(choice: ArchetypeChoice, title: String, description: String)] = [
-        (.a, "Sensuality", "Your softness and magnetic presence"),
-        (.b, "Standards", "Your poise and unshakeable boundaries"),
-        (.c, "Depth", "Your mind and emotional intelligence"),
-        (.d, "Wildness", "Your unpredictability and fearless honesty"),
+        (.a, "Sensuality", "A slow glance that says everything."),
+        (.b, "Standards", "The quiet power of 'I don't settle.'"),
+        (.c, "Depth", "You see through him — and he craves it."),
+        (.d, "Wildness", "Unpredictable, untamed, utterly alive."),
     ]
 
     private let questions = [
@@ -56,17 +55,19 @@ struct ArchetypeQuizView: View {
             ChloeAvatar(size: 100)
 
             questionView(
-                question: questions[quizPage],
-                options: optionsForPage(quizPage),
-                selected: answerForPage(quizPage),
-                onSelect: { setAnswer($0, for: quizPage) }
+                question: questions[viewModel.quizPage],
+                options: optionsForPage(viewModel.quizPage),
+                selected: answerForPage(viewModel.quizPage),
+                onSelect: { setAnswer($0, for: viewModel.quizPage) }
             )
 
             Spacer()
 
             Button {
-                if quizPage < 3 {
-                    withAnimation(.easeInOut) { quizPage += 1 }
+                if viewModel.quizPage < 3 {
+                    withAnimation(.easeInOut) {
+                        viewModel.quizPage += 1
+                    }
                 } else {
                     viewModel.preferences.archetypeAnswers = ArchetypeAnswers(
                         energy: q1Answer,
@@ -79,10 +80,11 @@ struct ArchetypeQuizView: View {
             } label: {
                 ChloeButtonLabel(
                     title: "Continue",
-                    isEnabled: answerForPage(quizPage) != nil
+                    isEnabled: answerForPage(viewModel.quizPage) != nil
                 )
             }
             .buttonStyle(PressableButtonStyle())
+            .accessibilityLabel(viewModel.quizPage < 3 ? "Continue to next question" : "See results")
             .padding(.horizontal, Spacing.screenHorizontal)
             .padding(.bottom, Spacing.xl)
         }

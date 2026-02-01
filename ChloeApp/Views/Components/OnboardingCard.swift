@@ -11,25 +11,26 @@ struct OnboardingCard: View {
             VStack(alignment: .leading, spacing: Spacing.xxxs) {
                 Text(title)
                     .font(.chloeSubheadline)
-                    .foregroundColor(isSelected ? .chloePrimary : .chloeTextPrimary)
+                    .foregroundColor(isSelected ? .white : .chloeTextPrimary)
 
                 Text(description)
                     .font(.chloeCaptionLight)
-                    .foregroundColor(isSelected ? .chloePrimary.opacity(0.8) : .chloeTextSecondary)
+                    .foregroundColor(isSelected ? .white.opacity(0.85) : .chloeTextSecondary)
                     .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(Spacing.sm)
-            .background(isSelected ? Color.chloePrimaryLight : Color.clear)
+            .background(isSelected ? Color.chloePrimary : Color.clear)
             .background(.ultraThinMaterial)
             .cornerRadius(Spacing.cornerRadius)
             .overlay(
                 RoundedRectangle(cornerRadius: Spacing.cornerRadius)
-                    .stroke(isSelected ? Color.chloePrimary.opacity(0.4) : Color.chloeBorderWarm, lineWidth: 1)
+                    .stroke(isSelected ? Color.chloePrimary : Color.chloeBorderWarm, lineWidth: 1)
             )
         }
         .buttonStyle(.plain)
+        .accessibilityAddTraits(isSelected ? [.isSelected] : [])
         .animation(.easeOut(duration: 0.2), value: isSelected)
     }
 }

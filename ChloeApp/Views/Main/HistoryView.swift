@@ -14,6 +14,7 @@ struct HistoryView: View {
                     Image(systemName: "clock.arrow.circlepath")
                         .font(.system(size: 40, weight: .thin))
                         .foregroundColor(.chloeTextTertiary)
+                        .accessibilityHidden(true)
                     Text("No conversations yet")
                         .font(.chloeBodyDefault)
                         .foregroundColor(.chloeTextTertiary)
@@ -62,6 +63,7 @@ struct HistoryView: View {
                     .foregroundColor(.chloeTextTertiary)
             }
         }
+        .accessibilityElement(children: .combine)
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(Spacing.sm)
         .background(

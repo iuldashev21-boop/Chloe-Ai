@@ -59,20 +59,20 @@ struct LuminousOrb: View {
                     .fill(
                         RadialGradient(
                             colors: [
-                                Color.chloePrimary.opacity(0.25),
+                                Color.chloePrimary.opacity(0.4),
                                 Color.chloePrimary.opacity(0.0)
                             ],
                             center: .center,
                             startRadius: size * 0.25,
-                            endRadius: size * 0.6
+                            endRadius: size * 0.75
                         )
                     )
-                    .frame(width: size * 1.4, height: size * 1.4)
-                    .blur(radius: size * 0.15)
+                    .frame(width: size * 1.6, height: size * 1.6)
+                    .blur(radius: size * 0.2)
                     .allowsHitTesting(false)
             }
         }
-        .frame(width: size * 1.4, height: size * 1.4)
+        .frame(width: size * 1.6, height: size * 1.6)
     }
 }
 

@@ -297,11 +297,12 @@ private struct CategoryTile: View {
             )
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(category.displayName)
+        .accessibilityAddTraits(isSelected ? [.isSelected] : [])
     }
 }
 
 #Preview {
-    AddVisionSheet { item in
-        print("Added: \(item.title)")
+    AddVisionSheet { _ in
     }
 }

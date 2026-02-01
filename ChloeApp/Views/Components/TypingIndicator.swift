@@ -22,6 +22,8 @@ struct TypingIndicator: View {
         .padding(.vertical, Spacing.xs)
         .background(Color.chloePrimaryLight)
         .cornerRadius(Spacing.cornerRadius)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Chloe is typing")
         .onAppear { animating = true }
     }
 }

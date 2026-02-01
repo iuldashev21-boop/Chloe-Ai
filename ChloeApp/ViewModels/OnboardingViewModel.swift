@@ -8,6 +8,7 @@ extension Notification.Name {
 @MainActor
 class OnboardingViewModel: ObservableObject {
     @Published var currentStep = 0
+    @Published var quizPage: Int = 0
     @Published var preferences = OnboardingPreferences()
     @Published var isComplete = false
 

@@ -31,14 +31,14 @@ struct PlusBloomMenu: View {
 
             // Radial circle buttons
             ZStack {
-                bloomCircle(icon: "camera", index: 0, action: onTakePhoto)
-                bloomCircle(icon: "photo", index: 1, action: onUploadImage)
-                bloomCircle(icon: "star", index: 2, action: onVisionBoard)
+                bloomCircle(icon: "camera", label: "Take photo", index: 0, action: onTakePhoto)
+                bloomCircle(icon: "photo", label: "Upload photo", index: 1, action: onUploadImage)
+                bloomCircle(icon: "star", label: "Vision board", index: 2, action: onVisionBoard)
             }
         }
     }
 
-    private func bloomCircle(icon: String, index: Int, action: @escaping () -> Void) -> some View {
+    private func bloomCircle(icon: String, label: String, index: Int, action: @escaping () -> Void) -> some View {
         let angle = angles[index]
         let xOffset = isPresented ? radius * CGFloat(cos(angle.radians)) : 0
         let yOffset = isPresented ? radius * CGFloat(sin(angle.radians)) : 0
@@ -66,6 +66,7 @@ struct PlusBloomMenu: View {
                     y: 3
                 )
         }
+        .accessibilityLabel(label)
         .offset(x: xOffset, y: yOffset)
         .scaleEffect(isPresented ? 1.0 : 0.3)
         .opacity(isPresented ? 1 : 0)

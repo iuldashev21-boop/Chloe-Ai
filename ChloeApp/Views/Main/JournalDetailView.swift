@@ -50,6 +50,8 @@ struct JournalDetailView: View {
                 .padding(.vertical, Spacing.xxs)
                 .background(Color.chloePrimaryLight)
                 .cornerRadius(Spacing.cornerRadiusLarge)
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Mood: \(mood.label)")
             }
 
             // Title
@@ -81,6 +83,7 @@ struct JournalDetailView: View {
                 .fill(Color.chloeBorderWarm)
                 .frame(height: 1)
         }
+        .accessibilityHidden(true)
     }
 
     // MARK: - Content

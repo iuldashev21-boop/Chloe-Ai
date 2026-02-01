@@ -95,8 +95,16 @@ class ArchetypeService {
         let primary = sorted[0]
         let secondary = sorted[1] == primary ? sorted[2] : sorted[1]
 
-        let primaryData = Self.archetypeData[primary]!
-        let secondaryData = Self.archetypeData[secondary]!
+        guard let primaryData = Self.archetypeData[primary],
+              let secondaryData = Self.archetypeData[secondary] else {
+            return UserArchetype(
+                primary: primary,
+                secondary: secondary,
+                label: primary.rawValue.capitalized,
+                blend: "\(primary.rawValue.capitalized)-\(secondary.rawValue.capitalized)",
+                description: ""
+            )
+        }
 
         return UserArchetype(
             primary: primary,

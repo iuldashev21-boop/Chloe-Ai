@@ -40,6 +40,7 @@ struct VisionBoardView: View {
             Image(systemName: "star")
                 .font(.system(size: 40, weight: .thin))
                 .foregroundColor(.chloeTextTertiary)
+                .accessibilityHidden(true)
 
             Text("Add your first vision")
                 .font(.chloeBodyDefault)
@@ -101,6 +102,8 @@ struct VisionBoardView: View {
                 .font(.chloeCaption)
                 .foregroundColor(.chloeTextTertiary)
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(item.title), \(item.category.displayName)")
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(Spacing.xs)
         .background(
@@ -144,6 +147,7 @@ struct VisionBoardView: View {
                     y: 3
                 )
         }
+        .accessibilityLabel("Add vision")
         .padding(.trailing, Spacing.screenHorizontal)
         .padding(.bottom, Spacing.lg)
     }

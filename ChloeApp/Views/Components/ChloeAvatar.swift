@@ -5,22 +5,26 @@ struct ChloeAvatar: View {
     var isThinking: Bool = false
 
     var body: some View {
-        if size >= Spacing.orbSize {
-            ZStack {
-                LuminousOrb(size: size)
-                OrbStardustEmitter(isEmitting: isThinking, orbSize: size)
+        Group {
+            if size >= Spacing.orbSize {
+                ZStack {
+                    LuminousOrb(size: size)
+                    OrbStardustEmitter(isEmitting: isThinking, orbSize: size)
+                }
+            } else {
+                Image("chloe-logo")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: size, height: size)
+                    .clipShape(Circle())
+                    .overlay(
+                        Circle()
+                            .stroke(Color.chloeBorderWarm, lineWidth: 2)
+                    )
             }
-        } else {
-            Image("chloe-logo")
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: size, height: size)
-                .clipShape(Circle())
-                .overlay(
-                    Circle()
-                        .stroke(Color.chloeBorderWarm, lineWidth: 2)
-                )
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(isThinking ? "Chloe is thinking" : "Chloe")
     }
 }
 

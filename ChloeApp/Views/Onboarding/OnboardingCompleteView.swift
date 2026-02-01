@@ -27,6 +27,7 @@ struct OnboardingCompleteView: View {
                 ChloeButtonLabel(title: "Meet Chloe")
             }
             .buttonStyle(PressableButtonStyle())
+            .accessibilityLabel("Meet Chloe")
             .padding(.horizontal, Spacing.screenHorizontal)
             .padding(.bottom, Spacing.xl)
         }

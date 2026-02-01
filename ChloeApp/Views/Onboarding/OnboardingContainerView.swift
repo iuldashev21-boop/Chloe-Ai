@@ -3,19 +3,25 @@ import SwiftUI
 struct OnboardingContainerView: View {
     @StateObject private var viewModel = OnboardingViewModel()
 
-    /// Total quiz steps (excluding WelcomeIntro at 0 and Complete at 3)
-    private let quizStepCount = 2
+    /// Total quiz steps: Name (1) + Quiz Q1-Q4 (2-5) = 5
+    private let quizStepCount = 5
 
     private var isWelcomeIntro: Bool { viewModel.currentStep == 0 }
     private var isComplete: Bool { viewModel.currentStep == 3 }
 
-    /// 1-based quiz step index for display (steps 1–2)
-    private var displayStep: Int { viewModel.currentStep }
+    /// 1-based display step: step 1 → 1, step 2 (quiz) → 2 + quizPage
+    private var displayStep: Int {
+        switch viewModel.currentStep {
+        case 1: return 1
+        case 2: return 2 + viewModel.quizPage
+        default: return viewModel.currentStep
+        }
+    }
 
-    /// Progress fraction across quiz steps 1–2
+    /// Progress fraction across all 5 quiz steps
     private var quizProgress: CGFloat {
         guard !isWelcomeIntro, !isComplete else { return isComplete ? 1 : 0 }
-        return CGFloat(viewModel.currentStep) / CGFloat(quizStepCount)
+        return CGFloat(displayStep) / CGFloat(quizStepCount)
     }
 
     var body: some View {
@@ -52,14 +58,19 @@ struct OnboardingContainerView: View {
         HStack {
             // Back button
             Button {
-                viewModel.previousStep()
+                if viewModel.currentStep == 2 && viewModel.quizPage > 0 {
+                    withAnimation(.easeInOut) { viewModel.quizPage -= 1 }
+                } else {
+                    viewModel.previousStep()
+                }
             } label: {
                 Image(systemName: "chevron.left")
                     .font(.system(size: 16, weight: .medium))
                     .foregroundColor(.chloeTextPrimary)
             }
-            .opacity(viewModel.currentStep > 1 ? 1 : 0)
-            .disabled(viewModel.currentStep <= 1)
+            .accessibilityLabel("Go back")
+            .opacity(displayStep > 1 ? 1 : 0)
+            .disabled(displayStep <= 1)
 
             Spacer()
 
@@ -67,6 +78,7 @@ struct OnboardingContainerView: View {
             Text("\(displayStep) of \(quizStepCount)")
                 .font(.chloeCaption)
                 .foregroundColor(.chloeTextSecondary)
+                .accessibilityLabel("Step \(displayStep) of \(quizStepCount)")
 
             Spacer()
 
@@ -78,6 +90,7 @@ struct OnboardingContainerView: View {
                     .font(.chloeCaption)
                     .foregroundColor(.chloeTextTertiary)
             }
+            .accessibilityLabel("Skip onboarding")
         }
         .padding(.horizontal, Spacing.screenHorizontal)
         .padding(.top, Spacing.xs)
@@ -101,6 +114,7 @@ struct OnboardingContainerView: View {
         .frame(height: 3)
         .padding(.horizontal, Spacing.screenHorizontal)
         .padding(.top, Spacing.xs)
+        .accessibilityHidden(true)
     }
 }
 

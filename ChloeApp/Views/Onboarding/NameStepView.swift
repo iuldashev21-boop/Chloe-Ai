@@ -28,6 +28,7 @@ struct NameStepView: View {
                                 .stroke(Color.chloeBorderWarm, lineWidth: 1)
                         )
                         .padding(.horizontal, Spacing.xxl)
+                        .accessibilityLabel("Your name")
                         .onSubmit {
                             guard !name.isBlank else { return }
                             viewModel.preferences.name = name

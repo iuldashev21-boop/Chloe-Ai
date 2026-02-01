@@ -192,6 +192,7 @@ struct SanctuaryView: View {
                                     .fill(.ultraThinMaterial)
                             )
                     }
+                    .accessibilityLabel("Open sidebar")
 
                     Spacer()
 
@@ -212,6 +213,7 @@ struct SanctuaryView: View {
                                         .fill(.ultraThinMaterial)
                                 )
                         }
+                        .accessibilityLabel("New chat")
                     }
                 }
                 .padding(.horizontal, Spacing.screenHorizontal)
@@ -250,7 +252,7 @@ struct SanctuaryView: View {
                 // Status line
                 Text(statusText)
                     .font(.chloeStatus)
-                    .tracking(2)
+                    .tracking(3)
                     .textCase(.uppercase)
                     .foregroundColor(.chloeTextTertiary)
                     .opacity(appeared ? 1 : 0)
@@ -299,6 +301,7 @@ struct SanctuaryView: View {
                             if chatVM.isTyping {
                                 HStack {
                                     TypingIndicator()
+                                        .accessibilityLabel("Chloe is typing")
                                     Spacer()
                                 }
                             }
@@ -342,6 +345,7 @@ struct SanctuaryView: View {
                                 }
                                 .foregroundColor(.chloeRosewood)
                             }
+                            .accessibilityLabel("Retry message")
                         } else {
                             Text(error)
                                 .font(.chloeCaption)
@@ -359,6 +363,7 @@ struct SanctuaryView: View {
                                 .foregroundColor(.chloeTextTertiary)
                                 .frame(width: 24, height: 24)
                         }
+                        .accessibilityLabel("Dismiss error")
                     }
                     .padding(.horizontal, Spacing.screenHorizontal)
                     .padding(.bottom, Spacing.xxxs)

@@ -98,6 +98,7 @@ struct SettingsView: View {
                                 Image(systemName: "chevron.right")
                                     .font(.system(size: 12, weight: .regular))
                                     .foregroundColor(.chloeTextTertiary)
+                                    .accessibilityHidden(true)
                             }
                         }
                     }
@@ -215,7 +216,7 @@ struct SettingsView: View {
                                 .foregroundColor(.white)
                                 .padding(.horizontal, Spacing.xs)
                                 .padding(.vertical, Spacing.xxxs)
-                                .background(Capsule().fill(Color.orange))
+                                .background(Capsule().fill(Color.chloeAccent))
                         }
                     }
                 }
@@ -242,6 +243,7 @@ struct SettingsView: View {
                                 Image(systemName: "chevron.right")
                                     .font(.system(size: 12, weight: .regular))
                                     .foregroundColor(.chloeTextTertiary)
+                                    .accessibilityHidden(true)
                             }
                             .padding(.vertical, Spacing.xs)
                         }
@@ -269,6 +271,7 @@ struct SettingsView: View {
                                 Image(systemName: "chevron.right")
                                     .font(.system(size: 12, weight: .regular))
                                     .foregroundColor(.chloeTextTertiary)
+                                    .accessibilityHidden(true)
                             }
                             .padding(.vertical, Spacing.xs)
                         }
@@ -351,6 +354,7 @@ struct SettingsView: View {
             Toggle("", isOn: isOn)
                 .labelsHidden()
                 .tint(.chloePrimary)
+                .accessibilityLabel(label)
         }
         .padding(.vertical, Spacing.xs)
     }

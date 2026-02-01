@@ -69,6 +69,7 @@ struct JournalEntryEditorView: View {
                 .cornerRadius(Spacing.cornerRadiusLarge)
         }
         .disabled(!canSave)
+        .accessibilityLabel("Save entry")
         .animation(.spring(response: 0.35, dampingFraction: 0.8), value: canSave)
     }
 
@@ -204,11 +205,12 @@ private struct MoodPill: View {
         }
         .buttonStyle(.plain)
         .sensoryFeedback(.selection, trigger: isSelected)
+        .accessibilityLabel(mood.label)
+        .accessibilityAddTraits(isSelected ? [.isSelected] : [])
     }
 }
 
 #Preview {
-    JournalEntryEditorView { entry in
-        print("Saved: \(entry.title)")
+    JournalEntryEditorView { _ in
     }
 }

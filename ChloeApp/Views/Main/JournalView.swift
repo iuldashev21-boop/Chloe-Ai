@@ -35,6 +35,7 @@ struct JournalView: View {
             Image(systemName: "book.closed")
                 .font(.system(size: 40, weight: .thin))
                 .foregroundColor(.chloeTextTertiary)
+                .accessibilityHidden(true)
 
             Text("Begin writing")
                 .font(.chloeBodyDefault)
@@ -77,6 +78,7 @@ struct JournalView: View {
             if let mood = JournalMood(rawValue: entry.mood) {
                 Text(mood.emoji)
                     .font(.system(size: 24))
+                    .accessibilityHidden(true)
             }
 
             VStack(alignment: .leading, spacing: Spacing.xxxs) {
@@ -95,6 +97,7 @@ struct JournalView: View {
 
             Spacer()
         }
+        .accessibilityElement(children: .combine)
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(Spacing.cardPadding)
         .background(
@@ -138,6 +141,7 @@ struct JournalView: View {
                     y: 3
                 )
         }
+        .accessibilityLabel("New journal entry")
         .padding(.trailing, Spacing.screenHorizontal)
         .padding(.bottom, Spacing.lg)
     }
