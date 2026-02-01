@@ -7,6 +7,9 @@ struct OnboardingCard: View {
     var anySelected: Bool = false
     var action: () -> Void
 
+    private static let cardShape = RoundedRectangle(cornerRadius: 20)
+    private static let accentColor = Color(hex: "#B76E79")
+
     var body: some View {
         Button(action: action) {
             VStack(alignment: .leading, spacing: Spacing.xxxs) {
@@ -24,23 +27,20 @@ struct OnboardingCard: View {
             .padding(Spacing.sm)
             .background(
                 ZStack {
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(.ultraThinMaterial)
+                    Self.cardShape.fill(.ultraThinMaterial)
                     if isSelected {
-                        RoundedRectangle(cornerRadius: 20)
-                            .fill(Color(hex: "#B76E79").opacity(0.5))
+                        Self.cardShape.fill(Self.accentColor.opacity(0.5))
                     }
                 }
             )
-            .clipShape(RoundedRectangle(cornerRadius: 20))
+            .clipShape(Self.cardShape)
             .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(
-                        isSelected ? Color(hex: "#B76E79") : Color.white.opacity(0.2),
-                        lineWidth: isSelected ? 2 : 0.5
-                    )
+                Self.cardShape.stroke(
+                    isSelected ? Self.accentColor : Color.white.opacity(0.2),
+                    lineWidth: isSelected ? 2 : 0.5
+                )
             )
-            .shadow(color: isSelected ? Color(hex: "#B76E79").opacity(0.3) : .clear, radius: 12)
+            .shadow(color: isSelected ? Self.accentColor.opacity(0.3) : .clear, radius: 12)
         }
         .buttonStyle(.plain)
         .scaleEffect(isSelected ? 1.0 : 0.98)

@@ -76,8 +76,9 @@ struct OnboardingContainerView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
-        .onChange(of: viewModel.currentStep) {
+        .onChange(of: viewModel.currentStep) { _, _ in
             UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+            pulseOrbGlow()
         }
         .onAppear {
             withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
@@ -92,23 +93,20 @@ struct OnboardingContainerView: View {
             }
         }
         .onChange(of: viewModel.quizPage) { _, _ in
-            withAnimation(.easeInOut(duration: 0.5)) {
-                orbGlowRadius = 30
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                withAnimation(.easeInOut(duration: 0.5)) {
-                    orbGlowRadius = 10
-                }
-            }
+            pulseOrbGlow()
         }
-        .onChange(of: viewModel.currentStep) { _, _ in
+    }
+
+    // MARK: - Orb Helpers
+
+    /// Briefly flares the orb glow on step/page transitions.
+    private func pulseOrbGlow() {
+        withAnimation(.easeInOut(duration: 0.5)) {
+            orbGlowRadius = 30
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             withAnimation(.easeInOut(duration: 0.5)) {
-                orbGlowRadius = 30
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                withAnimation(.easeInOut(duration: 0.5)) {
-                    orbGlowRadius = 10
-                }
+                orbGlowRadius = 10
             }
         }
     }

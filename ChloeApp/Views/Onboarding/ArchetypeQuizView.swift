@@ -2,54 +2,59 @@ import SwiftUI
 
 struct ArchetypeQuizView: View {
     @ObservedObject var viewModel: OnboardingViewModel
-    @State private var q1Answer: ArchetypeChoice? = nil
-    @State private var q2Answer: ArchetypeChoice? = nil
-    @State private var q3Answer: ArchetypeChoice? = nil
-    @State private var q4Answer: ArchetypeChoice? = nil
+    @State private var answers: [Int: ArchetypeChoice] = [:]
 
     @State private var wordRevealID = UUID()
     @State private var cardsAppeared = false
 
     private let columns = [GridItem(.flexible(), spacing: Spacing.xs), GridItem(.flexible(), spacing: Spacing.xs)]
 
-    // Q1 options
-    private let q1Options: [(choice: ArchetypeChoice, title: String, description: String)] = [
-        (.a, "Magnetic", "The room goes quiet — effortless."),
-        (.b, "Commanding", "One look, and they fall in line."),
-        (.c, "Inspiring", "You speak and something shifts inside them."),
-        (.d, "Electric", "You walk in — everything changes."),
+    private let pages: [(question: String, options: [(choice: ArchetypeChoice, title: String, description: String)])] = [
+        (
+            question: "When you imagine your most powerful self, she is...",
+            options: [
+                (.a, "Magnetic", "The room goes quiet — effortless."),
+                (.b, "Commanding", "One look, and they fall in line."),
+                (.c, "Inspiring", "You speak and something shifts inside them."),
+                (.d, "Electric", "You walk in — everything changes."),
+            ]
+        ),
+        (
+            question: "Your secret weapon is...",
+            options: [
+                (.a, "Warmth", "They let their guard down around you."),
+                (.b, "Intuition", "You know before they say a word."),
+                (.c, "Drive", "Nothing stands between you and the vision."),
+                (.d, "Mystery", "They can't stop wondering about you."),
+            ]
+        ),
+        (
+            question: "When life gets heavy, you reset by...",
+            options: [
+                (.a, "Reflecting", "Stillness, silence, pages of truth."),
+                (.b, "Moving", "Sweat, motion, letting the body lead."),
+                (.c, "Creating", "Pouring the chaos into something beautiful."),
+                (.d, "Escaping", "New air, new streets, disappearing for a while."),
+            ]
+        ),
+        (
+            question: "In your dream relationship, he's drawn to your...",
+            options: [
+                (.a, "Sensuality", "A slow glance that says everything."),
+                (.b, "Standards", "The quiet power of 'I don't settle.'"),
+                (.c, "Depth", "You see through him — and he craves it."),
+                (.d, "Wildness", "Unpredictable, untamed, utterly alive."),
+            ]
+        ),
     ]
 
-    // Q2 options
-    private let q2Options: [(choice: ArchetypeChoice, title: String, description: String)] = [
-        (.a, "Warmth", "They let their guard down around you."),
-        (.b, "Intuition", "You know before they say a word."),
-        (.c, "Drive", "Nothing stands between you and the vision."),
-        (.d, "Mystery", "They can't stop wondering about you."),
-    ]
+    private var currentPage: (question: String, options: [(choice: ArchetypeChoice, title: String, description: String)]) {
+        pages[viewModel.quizPage]
+    }
 
-    // Q3 options
-    private let q3Options: [(choice: ArchetypeChoice, title: String, description: String)] = [
-        (.a, "Reflecting", "Stillness, silence, pages of truth."),
-        (.b, "Moving", "Sweat, motion, letting the body lead."),
-        (.c, "Creating", "Pouring the chaos into something beautiful."),
-        (.d, "Escaping", "New air, new streets, disappearing for a while."),
-    ]
-
-    // Q4 options
-    private let q4Options: [(choice: ArchetypeChoice, title: String, description: String)] = [
-        (.a, "Sensuality", "A slow glance that says everything."),
-        (.b, "Standards", "The quiet power of 'I don't settle.'"),
-        (.c, "Depth", "You see through him — and he craves it."),
-        (.d, "Wildness", "Unpredictable, untamed, utterly alive."),
-    ]
-
-    private let questions = [
-        "When you imagine your most powerful self, she is...",
-        "Your secret weapon is...",
-        "When life gets heavy, you reset by...",
-        "In your dream relationship, he's drawn to your...",
-    ]
+    private var currentAnswer: ArchetypeChoice? {
+        answers[viewModel.quizPage]
+    }
 
     var body: some View {
         VStack(spacing: Spacing.lg) {
@@ -59,10 +64,13 @@ struct ArchetypeQuizView: View {
             Spacer().frame(height: 80)
 
             questionView(
-                question: questions[viewModel.quizPage],
-                options: optionsForPage(viewModel.quizPage),
-                selected: answerForPage(viewModel.quizPage),
-                onSelect: { setAnswer($0, for: viewModel.quizPage) }
+                question: currentPage.question,
+                options: currentPage.options,
+                selected: currentAnswer,
+                onSelect: { choice in
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    answers[viewModel.quizPage] = choice
+                }
             )
 
             Spacer()
@@ -74,17 +82,17 @@ struct ArchetypeQuizView: View {
                     }
                 } else {
                     viewModel.preferences.archetypeAnswers = ArchetypeAnswers(
-                        energy: q1Answer,
-                        strength: q2Answer,
-                        recharge: q3Answer,
-                        allure: q4Answer
+                        energy: answers[0],
+                        strength: answers[1],
+                        recharge: answers[2],
+                        allure: answers[3]
                     )
                     viewModel.nextStep()
                 }
             } label: {
                 ChloeButtonLabel(
                     title: "Continue",
-                    isEnabled: answerForPage(viewModel.quizPage) != nil
+                    isEnabled: currentAnswer != nil
                 )
             }
             .buttonStyle(PressableButtonStyle())
@@ -103,39 +111,6 @@ struct ArchetypeQuizView: View {
         }
         .onAppear {
             cardsAppeared = true
-        }
-    }
-
-    // MARK: - Helpers
-
-    private func optionsForPage(_ page: Int) -> [(choice: ArchetypeChoice, title: String, description: String)] {
-        switch page {
-        case 0: return q1Options
-        case 1: return q2Options
-        case 2: return q3Options
-        case 3: return q4Options
-        default: return q1Options
-        }
-    }
-
-    private func answerForPage(_ page: Int) -> ArchetypeChoice? {
-        switch page {
-        case 0: return q1Answer
-        case 1: return q2Answer
-        case 2: return q3Answer
-        case 3: return q4Answer
-        default: return nil
-        }
-    }
-
-    private func setAnswer(_ choice: ArchetypeChoice, for page: Int) {
-        UIImpactFeedbackGenerator(style: .light).impactOccurred()
-        switch page {
-        case 0: q1Answer = choice
-        case 1: q2Answer = choice
-        case 2: q3Answer = choice
-        case 3: q4Answer = choice
-        default: break
         }
     }
 
