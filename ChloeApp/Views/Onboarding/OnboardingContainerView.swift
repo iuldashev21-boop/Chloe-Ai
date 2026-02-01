@@ -3,16 +3,16 @@ import SwiftUI
 struct OnboardingContainerView: View {
     @StateObject private var viewModel = OnboardingViewModel()
 
-    /// Total quiz steps (excluding WelcomeIntro at 0 and Complete at 8)
-    private let quizStepCount = 7
+    /// Total quiz steps (excluding WelcomeIntro at 0 and Complete at 3)
+    private let quizStepCount = 2
 
     private var isWelcomeIntro: Bool { viewModel.currentStep == 0 }
-    private var isComplete: Bool { viewModel.currentStep == 8 }
+    private var isComplete: Bool { viewModel.currentStep == 3 }
 
-    /// 1-based quiz step index for display (steps 1–7)
+    /// 1-based quiz step index for display (steps 1–2)
     private var displayStep: Int { viewModel.currentStep }
 
-    /// Progress fraction across quiz steps 1–7
+    /// Progress fraction across quiz steps 1–2
     private var quizProgress: CGFloat {
         guard !isWelcomeIntro, !isComplete else { return isComplete ? 1 : 0 }
         return CGFloat(viewModel.currentStep) / CGFloat(quizStepCount)
@@ -33,13 +33,8 @@ struct OnboardingContainerView: View {
                 TabView(selection: $viewModel.currentStep) {
                     WelcomeIntroView(viewModel: viewModel, onContinue: { viewModel.nextStep() }).tag(0)
                     NameStepView(viewModel: viewModel).tag(1)
-                    RelationshipStatusView(viewModel: viewModel).tag(2)
-                    PrimaryGoalView(viewModel: viewModel).tag(3)
-                    CoreDesireView(viewModel: viewModel).tag(4)
-                    PainPointView(viewModel: viewModel).tag(5)
-                    VibeCheckView(viewModel: viewModel).tag(6)
-                    ArchetypeQuizView(viewModel: viewModel).tag(7)
-                    OnboardingCompleteView(viewModel: viewModel).tag(8)
+                    ArchetypeQuizView(viewModel: viewModel).tag(2)
+                    OnboardingCompleteView(viewModel: viewModel).tag(3)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .animation(.easeInOut, value: viewModel.currentStep)

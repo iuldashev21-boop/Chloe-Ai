@@ -5,6 +5,8 @@ struct ArchetypeQuizView: View {
     @State private var quizPage = 0
     @State private var q1Answer: ArchetypeChoice? = nil
     @State private var q2Answer: ArchetypeChoice? = nil
+    @State private var q3Answer: ArchetypeChoice? = nil
+    @State private var q4Answer: ArchetypeChoice? = nil
 
     private let columns = [GridItem(.flexible(), spacing: Spacing.xs), GridItem(.flexible(), spacing: Spacing.xs)]
 
@@ -24,49 +26,97 @@ struct ArchetypeQuizView: View {
         (.d, "Mystery", "An allure that keeps them curious"),
     ]
 
+    // Q3 options
+    private let q3Options: [(choice: ArchetypeChoice, title: String, description: String)] = [
+        (.a, "Reflecting", "Journaling, silence, inner work"),
+        (.b, "Moving", "Gym, walks, physical energy release"),
+        (.c, "Creating", "Music, art, pouring it into beauty"),
+        (.d, "Escaping", "Spontaneity, new places, breaking routine"),
+    ]
+
+    // Q4 options
+    private let q4Options: [(choice: ArchetypeChoice, title: String, description: String)] = [
+        (.a, "Sensuality", "Your softness and magnetic presence"),
+        (.b, "Standards", "Your poise and unshakeable boundaries"),
+        (.c, "Depth", "Your mind and emotional intelligence"),
+        (.d, "Wildness", "Your unpredictability and fearless honesty"),
+    ]
+
+    private let questions = [
+        "When you imagine your most powerful self, she is...",
+        "Your secret weapon is...",
+        "When life gets heavy, you reset by...",
+        "In your dream relationship, he's drawn to your...",
+    ]
+
     var body: some View {
         VStack(spacing: Spacing.lg) {
             Spacer()
 
-            ChloeAvatar(size: 40)
+            ChloeAvatar(size: 100)
 
-            if quizPage == 0 {
-                questionView(
-                    question: "When you imagine your most powerful self, she is...",
-                    options: q1Options,
-                    selected: q1Answer,
-                    onSelect: { q1Answer = $0 }
-                )
-            } else {
-                questionView(
-                    question: "Your secret weapon is...",
-                    options: q2Options,
-                    selected: q2Answer,
-                    onSelect: { q2Answer = $0 }
-                )
-            }
+            questionView(
+                question: questions[quizPage],
+                options: optionsForPage(quizPage),
+                selected: answerForPage(quizPage),
+                onSelect: { setAnswer($0, for: quizPage) }
+            )
 
             Spacer()
 
             Button {
-                if quizPage == 0 {
-                    withAnimation(.easeInOut) { quizPage = 1 }
+                if quizPage < 3 {
+                    withAnimation(.easeInOut) { quizPage += 1 }
                 } else {
                     viewModel.preferences.archetypeAnswers = ArchetypeAnswers(
                         energy: q1Answer,
-                        strength: q2Answer
+                        strength: q2Answer,
+                        recharge: q3Answer,
+                        allure: q4Answer
                     )
                     viewModel.nextStep()
                 }
             } label: {
                 ChloeButtonLabel(
                     title: "Continue",
-                    isEnabled: quizPage == 0 ? q1Answer != nil : q2Answer != nil
+                    isEnabled: answerForPage(quizPage) != nil
                 )
             }
             .buttonStyle(PressableButtonStyle())
             .padding(.horizontal, Spacing.screenHorizontal)
             .padding(.bottom, Spacing.xl)
+        }
+    }
+
+    // MARK: - Helpers
+
+    private func optionsForPage(_ page: Int) -> [(choice: ArchetypeChoice, title: String, description: String)] {
+        switch page {
+        case 0: return q1Options
+        case 1: return q2Options
+        case 2: return q3Options
+        case 3: return q4Options
+        default: return q1Options
+        }
+    }
+
+    private func answerForPage(_ page: Int) -> ArchetypeChoice? {
+        switch page {
+        case 0: return q1Answer
+        case 1: return q2Answer
+        case 2: return q3Answer
+        case 3: return q4Answer
+        default: return nil
+        }
+    }
+
+    private func setAnswer(_ choice: ArchetypeChoice, for page: Int) {
+        switch page {
+        case 0: q1Answer = choice
+        case 1: q2Answer = choice
+        case 2: q3Answer = choice
+        case 3: q4Answer = choice
+        default: break
         }
     }
 

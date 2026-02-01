@@ -78,10 +78,6 @@ DYNAMIC USER CONTEXT
 Name: {{user_name}}
 Archetype: {{archetype_blend}} ({{archetype_label}})
 Archetype Profile: {{archetype_description}}
-Relationship Status: {{relationship_status}}
-Core Desire: {{core_desire}}
-Growth Area: {{pain_point}}
-Current Vibe: {{latest_vibe_score}}
 
 Use this context naturally to personalize your responses. If a field says "Not shared yet" or "Not assessed yet," simply do not reference it. Never output template variables or placeholder text.
 
@@ -140,9 +136,6 @@ Chloe: "Oh I get the nerves! But listen, you got this interview for a reason. Th
 Generate a daily affirmation for {{user_name}} in Chloe's voice — warm, confident, best-friend energy.
 
 Her archetype: {{archetype_blend}}
-Her current vibe: {{latest_vibe_score}}
-Her core desire: {{core_desire}}
-Her growth area: {{pain_point}}
 
 Rules:
 - 1-2 sentences max
@@ -150,7 +143,7 @@ Rules:
 - If vibe is low: grounding + gentle encouragement. If medium: momentum + excitement. If high: celebrate + amplify.
 - No emoji. No cliches. No "you are enough" or "you deserve the world."
 - Sound like a best friend who sees her potential even when she cannot
-- If any context field says "Not shared yet" or "Not assessed yet," write a universally encouraging affirmation instead
+- If archetype is not determined yet, write a universally encouraging affirmation instead
 
 Return only the affirmation text.
 """
@@ -206,40 +199,6 @@ let topicCards: [TopicCardConfig] = [
     ),
 ]
 
-// MARK: - Label Maps
-
-let RELATIONSHIP_LABELS: [String: String] = [
-    "single_exploring": "Single and exploring",
-    "dating_new": "Dating someone new",
-    "in_relationship": "In a relationship",
-    "complicated": "It's complicated",
-    "breakup_recovery": "Getting over a breakup",
-    "happily_taken": "Happily taken and leveling up",
-]
-
-let CORE_DESIRE_LABELS: [String: String] = [
-    "marriage": "Marriage",
-    "detachment": "Detachment",
-    "glow_up": "Glow Up",
-    "high_value_dating": "High-Value Dating",
-    "self_mastery": "Self-Mastery",
-]
-
-let PAIN_POINT_LABELS: [String: String] = [
-    "anxious_attachment": "Anxious Attachment",
-    "people_pleasing": "People Pleasing",
-    "low_self_worth": "Low Self-Worth",
-    "fear_of_abandonment": "Fear of Abandonment",
-    "codependency": "Codependency",
-    "settling": "Settling",
-]
-
-let VIBE_LABELS: [String: String] = [
-    "low": "Low",
-    "medium": "Med",
-    "high": "High",
-]
-
 // MARK: - Prompt Builder
 
 func buildPersonalizedPrompt(
@@ -292,42 +251,6 @@ private func injectUserContext(
         of: "{{archetype_description}}",
         with: archetype?.description ?? "Not determined yet"
     )
-
-    // Relationship status
-    let relationshipStatus: String = {
-        guard let statuses = preferences?.relationshipStatus, !statuses.isEmpty else {
-            return "Not shared yet"
-        }
-        return statuses.compactMap { RELATIONSHIP_LABELS[$0.rawValue] }.joined(separator: ", ")
-    }()
-    prompt = prompt.replacingOccurrences(of: "{{relationship_status}}", with: relationshipStatus)
-
-    // Core desire
-    let coreDesire: String = {
-        guard let desires = preferences?.coreDesire, !desires.isEmpty else {
-            return "Not shared yet"
-        }
-        return desires.compactMap { CORE_DESIRE_LABELS[$0.rawValue] }.joined(separator: ", ")
-    }()
-    prompt = prompt.replacingOccurrences(of: "{{core_desire}}", with: coreDesire)
-
-    // Pain point
-    let painPoint: String = {
-        guard let points = preferences?.painPoint, !points.isEmpty else {
-            return "Not shared yet"
-        }
-        return points.compactMap { PAIN_POINT_LABELS[$0.rawValue] }.joined(separator: ", ")
-    }()
-    prompt = prompt.replacingOccurrences(of: "{{pain_point}}", with: painPoint)
-
-    // Vibe score
-    let vibeScore: String = {
-        guard let vibe = preferences?.vibeScore else {
-            return "Not assessed yet"
-        }
-        return VIBE_LABELS[vibe.rawValue] ?? "Not assessed yet"
-    }()
-    prompt = prompt.replacingOccurrences(of: "{{latest_vibe_score}}", with: vibeScore)
 
     return prompt
 }

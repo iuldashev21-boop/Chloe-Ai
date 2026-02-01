@@ -41,11 +41,6 @@
 		A10000330000000000000001 /* EmailLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000330000000000000001 /* EmailLoginView.swift */; };
 		A10000340000000000000001 /* OnboardingContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000340000000000000001 /* OnboardingContainerView.swift */; };
 		A10000350000000000000001 /* NameStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000350000000000000001 /* NameStepView.swift */; };
-		A10000360000000000000001 /* RelationshipStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000360000000000000001 /* RelationshipStatusView.swift */; };
-		A10000370000000000000001 /* PrimaryGoalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000370000000000000001 /* PrimaryGoalView.swift */; };
-		A10000380000000000000001 /* CoreDesireView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000380000000000000001 /* CoreDesireView.swift */; };
-		A10000390000000000000001 /* PainPointView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000390000000000000001 /* PainPointView.swift */; };
-		A10000400000000000000001 /* VibeCheckView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000400000000000000001 /* VibeCheckView.swift */; };
 		A10000410000000000000001 /* ArchetypeQuizView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000410000000000000001 /* ArchetypeQuizView.swift */; };
 		A10000420000000000000001 /* OnboardingCompleteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000420000000000000001 /* OnboardingCompleteView.swift */; };
 		A10000430000000000000001 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000430000000000000001 /* MainTabView.swift */; };
@@ -142,11 +137,6 @@
 		A20000330000000000000001 /* EmailLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailLoginView.swift; sourceTree = "<group>"; };
 		A20000340000000000000001 /* OnboardingContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingContainerView.swift; sourceTree = "<group>"; };
 		A20000350000000000000001 /* NameStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NameStepView.swift; sourceTree = "<group>"; };
-		A20000360000000000000001 /* RelationshipStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelationshipStatusView.swift; sourceTree = "<group>"; };
-		A20000370000000000000001 /* PrimaryGoalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryGoalView.swift; sourceTree = "<group>"; };
-		A20000380000000000000001 /* CoreDesireView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDesireView.swift; sourceTree = "<group>"; };
-		A20000390000000000000001 /* PainPointView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PainPointView.swift; sourceTree = "<group>"; };
-		A20000400000000000000001 /* VibeCheckView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VibeCheckView.swift; sourceTree = "<group>"; };
 		A20000410000000000000001 /* ArchetypeQuizView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchetypeQuizView.swift; sourceTree = "<group>"; };
 		A20000420000000000000001 /* OnboardingCompleteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCompleteView.swift; sourceTree = "<group>"; };
 		A20000430000000000000001 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
@@ -306,11 +296,6 @@
 			children = (
 				A20000340000000000000001 /* OnboardingContainerView.swift */,
 				A20000350000000000000001 /* NameStepView.swift */,
-				A20000360000000000000001 /* RelationshipStatusView.swift */,
-				A20000370000000000000001 /* PrimaryGoalView.swift */,
-				A20000380000000000000001 /* CoreDesireView.swift */,
-				A20000390000000000000001 /* PainPointView.swift */,
-				A20000400000000000000001 /* VibeCheckView.swift */,
 				A20000410000000000000001 /* ArchetypeQuizView.swift */,
 				A20000420000000000000001 /* OnboardingCompleteView.swift */,
 				F20000170000000000000001 /* WelcomeIntroView.swift */,
@@ -573,11 +558,6 @@
 				A10000330000000000000001 /* EmailLoginView.swift in Sources */,
 				A10000340000000000000001 /* OnboardingContainerView.swift in Sources */,
 				A10000350000000000000001 /* NameStepView.swift in Sources */,
-				A10000360000000000000001 /* RelationshipStatusView.swift in Sources */,
-				A10000370000000000000001 /* PrimaryGoalView.swift in Sources */,
-				A10000380000000000000001 /* CoreDesireView.swift in Sources */,
-				A10000390000000000000001 /* PainPointView.swift in Sources */,
-				A10000400000000000000001 /* VibeCheckView.swift in Sources */,
 				A10000410000000000000001 /* ArchetypeQuizView.swift in Sources */,
 				A10000420000000000000001 /* OnboardingCompleteView.swift in Sources */,
 				A10000430000000000000001 /* MainTabView.swift in Sources */,

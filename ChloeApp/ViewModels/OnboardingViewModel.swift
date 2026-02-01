@@ -11,7 +11,7 @@ class OnboardingViewModel: ObservableObject {
     @Published var preferences = OnboardingPreferences()
     @Published var isComplete = false
 
-    let totalSteps = 9
+    let totalSteps = 4
 
     var progress: Double {
         Double(currentStep) / Double(totalSteps)
@@ -40,11 +40,6 @@ class OnboardingViewModel: ObservableObject {
         profile.preferences = preferences
         profile.onboardingComplete = true
         profile.updatedAt = Date()
-
-        // Save initial vibe score if set
-        if let vibe = preferences.vibeScore {
-            StorageService.shared.saveLatestVibe(vibe)
-        }
 
         try? StorageService.shared.saveProfile(profile)
         isComplete = true
