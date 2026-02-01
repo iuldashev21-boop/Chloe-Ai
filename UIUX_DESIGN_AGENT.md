@@ -28,8 +28,8 @@ You reject mediocrity. You despise "AI slop" — the generic, soulless interface
 
 Chloe's visual identity is **PREMIUM FEMININE AI ASSISTANT**:
 
-- **Primary palette:** Warm cream (`#FFF8F0`), soft rose gold (`#B76E79`), muted blush (`#E8D4D0`)
-- **Typography:** Playfair Display for headings (elegant, editorial), SF Pro for body (clean, readable)
+- **Primary palette:** Warm cream (`#FFF8F0`), soft rose gold (`#B76E79`), muted peach (`#E8B4A8`)
+- **Typography:** CormorantGaramond-BoldItalic for hero greetings, Cinzel-Regular for buttons/headers, SF Pro for body (clean, readable)
 - **Feeling:** Like walking into a high-end boutique or luxury spa — sophisticated, warm, empowering
 - **NOT:** Clinical, cold, generic chatbot, startup-y, tech-bro aesthetic
 

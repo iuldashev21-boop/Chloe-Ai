@@ -4,45 +4,39 @@
 
 ChloeApp is a native iOS app (Swift/SwiftUI, iOS 17+) — a feminine energy coaching companion powered by Gemini AI. Originally prototyped as an Expo/React Native web app, it was pivoted to native iOS. The backend logic (models, services, prompts, safety, archetype classification, API calls) is fully implemented. The app builds and runs.
 
-**What's left:** 5 of 8 main views are "Coming soon" stubs, plus the ArchetypeQuizView in onboarding needs to be built. The backend is ready — we need UI.
+**Current state:** Most views are fully built. SanctuaryView is the main hub with working chat, journal, history, vision board, settings. GoalsView and AffirmationsView exist but are orphaned (not reachable from sidebar navigation).
 
 ---
 
 ## Current State
 
 ### Done
-- All Models (Profile, Message, Conversation, JournalEntry, VisionItem, Goal, Affirmation, Archetype, OnboardingPreferences, TopicCard, DailyUsage)
+- All Models (Profile, Message, Conversation, JournalEntry, VisionItem, Goal, Affirmation, Archetype, OnboardingPreferences, DailyUsage)
 - All Services (GeminiService, StorageService, SafetyService, ArchetypeService, AnalystService)
 - All ViewModels (Auth, Chat, Onboarding, Journal, Goals, VisionBoard, Affirmations)
 - Theme system (Colors, Fonts, Spacing)
-- Reusable components (SelectionChip, ChloeAvatar, GradientBackground, ChatBubble, ChatInputBar, TypingIndicator, DisclaimerText)
-- Working views: WelcomeView, EmailLoginView, ContentView (root routing), OnboardingContainerView, all onboarding steps except ArchetypeQuizView, ChatView, MainTabView, SettingsView (minimal)
-- Constants/Prompts (system prompt, affirmation template, analyst prompt, topic cards, label maps)
+- Reusable components (BentoGridCard, BloomTextModifier, CameraPickerView, ChatBubble, ChatInputBar, ChloeAvatar, ChloeButtonLabel, DisclaimerText, EtherealDustParticles, GradientBackground, LuminousOrb, OnboardingCard, OrbStardustEmitter, PlusBloomMenu, PressableButtonStyle, ShimmerTextModifier, TypingIndicator)
+- Working views: EmailLoginView, ContentView (root routing), WelcomeIntroView, OnboardingContainerView, NameStepView, ArchetypeQuizView, OnboardingCompleteView, SanctuaryView, SidebarView, JournalView, JournalEntryEditorView, JournalDetailView, HistoryView, VisionBoardView, AddVisionSheet, GoalsView, AffirmationsView, SettingsView
+- Constants/Prompts (system prompt, affirmation template, analyst prompt)
 
-### Stubs (need full UI)
-1. `ArchetypeQuizView.swift` — onboarding step 6 (has placeholder "Coming soon")
-2. `HomeView.swift` — main landing screen (has placeholder)
-3. `AffirmationsView.swift` — AI affirmation list (has placeholder)
-4. `JournalView.swift` — journal entries list (has placeholder)
-5. `GoalsView.swift` — goal tracking (has placeholder)
-6. `VisionBoardView.swift` — vision board grid (has placeholder)
-7. `ProfileView.swift` — user profile + stats (has placeholder)
-8. `SettingsView.swift` — minimal, only has Sign Out button
+### Orphaned (exist but not in sidebar navigation)
+- `GoalsView.swift` — Goal tracking (built, but no sidebar entry)
+- `AffirmationsView.swift` — AI affirmation list (built, but no sidebar entry)
 
 ---
 
 ## Design System Reference
 
-### Colors (hex values)
+### Colors (hex values from Colors.swift)
 ```
-chloeBackground     = #FFF5F0   (Soft beige)
+chloeBackground     = #FFF8F0   (Warm cream)
 chloeSurface        = #FAFAFA   (Off-white)
-chloePrimary        = #A25B66   (Dusty rose)
+chloePrimary        = #B76E79   (Rose gold)
 chloePrimaryLight   = #FFF0EB   (Light pink)
 chloePrimaryDark    = #8A4A55   (Dark rose)
 chloeAccent         = #F4A896   (Peachy rose)
-chloeAccentMuted    = #E8B4A8   (Muted peachy)
-chloeTextPrimary    = #1A1A1A   (Dark gray)
+chloeAccentMuted    = #E8B4A8   (Muted peach)
+chloeTextPrimary    = #2D2324   (Near-black brown)
 chloeTextSecondary  = #6B6B6B   (Medium gray)
 chloeTextTertiary   = #9A9A9A   (Light gray)
 chloeBorder         = #E5E5E5   (Light border)
@@ -50,21 +44,38 @@ chloeBorderWarm     = #F0E0DA   (Warm border)
 chloeUserBubble     = #F0F0F0   (Chat user bubble)
 chloeGradientStart  = #FFF8F5   (Gradient start)
 chloeGradientEnd    = #FEEAE2   (Gradient end)
+chloeRosewood       = #8E5A5E   (Muted rose — shadows, dividers)
+chloeEtherealGold   = #F3E5AB   (Gold — orb core, particles)
 ```
 
-### Fonts
+### Fonts (from Fonts.swift)
+
+Custom font files: Cinzel-Regular, CormorantGaramond-BoldItalic, TenorSans-Regular
+
 ```
-Heading: PlayfairDisplay-Regular, PlayfairDisplay-Medium
-Body:    Inter-Regular, Inter-Medium
+Hero/Greeting: CormorantGaramond-BoldItalic (custom)
+Buttons/Headers: Cinzel-Regular (custom)
+Sidebar Logo: TenorSans-Regular (custom)
+Body/UI: SF Pro system font
 
 Named Styles:
-  .chloeLargeTitle    — 28pt PlayfairDisplay-Medium
-  .chloeTitle         — 22pt PlayfairDisplay-Medium
-  .chloeTitle2        — 20pt PlayfairDisplay-Regular
-  .chloeHeadline      — 17pt Inter-Medium
-  .chloeSubheadline   — 15pt Inter-Medium
-  .chloeBodyDefault   — 16pt Inter-Regular
-  .chloeCaption       — 13pt Inter-Regular
+  .chloeLargeTitle         — 28pt SF Pro medium
+  .chloeTitle              — 22pt SF Pro medium
+  .chloeTitle2             — 20pt SF Pro regular
+  .chloeHeadline           — 17pt SF Pro medium
+  .chloeSubheadline        — 15pt SF Pro medium
+  .chloeBodyDefault        — 17pt SF Pro regular
+  .chloeBodyLight          — 17pt SF Pro light
+  .chloeCaption            — 14pt SF Pro regular
+  .chloeCaptionLight       — 14pt SF Pro light
+  .chloeButton             — 15pt Cinzel-Regular
+  .chloeGreeting           — 38pt CormorantGaramond-BoldItalic
+  .chloeOnboardingQuestion — 34pt CormorantGaramond-BoldItalic
+  .chloeStatus             — 11pt Cinzel-Regular
+  .chloeProgressLabel      — 11pt SF Pro light
+  .chloeSidebarSectionHeader — 12pt Cinzel-Regular
+  .chloeSidebarMenuItem    — 15pt SF Pro regular
+  .chloeSidebarChatItem    — 14pt SF Pro regular
 ```
 
 ### Spacing Constants
@@ -84,6 +95,9 @@ enum Spacing {
     static let cardPadding: CGFloat = 16
     static let cornerRadius: CGFloat = 12
     static let cornerRadiusLarge: CGFloat = 20
+    static let orbSize: CGFloat = 80
+    static let orbSizeSanctuary: CGFloat = 120
+    static let sanctuaryOrbY: CGFloat = 0.25
 }
 ```
 
@@ -91,31 +105,44 @@ enum Spacing {
 
 ## Reusable Components Catalog
 
-### SelectionChip
-```swift
-struct SelectionChip: View {
-    let title: String
-    let isSelected: Bool
-    var action: () -> Void
-}
-// Selected: chloePrimary bg, white text
-// Unselected: chloePrimaryLight bg, chloePrimary text, faint border
-// Corner radius: cornerRadiusLarge (20pt)
-```
-
 ### ChloeAvatar
 ```swift
 struct ChloeAvatar: View {
     var size: CGFloat = 40
 }
-// Image: "chloe-logo", circular, 2pt chloeBorderWarm border
+// >=80pt: LuminousOrb, <80pt: "chloe-logo" image
 ```
 
 ### GradientBackground
 ```swift
 struct GradientBackground: View
-// LinearGradient: chloeGradientStart → chloeGradientEnd (top→bottom), ignores safe area
+// LinearGradient: chloeGradientStart → chloeGradientEnd, ignores safe area
 // Also available as: .chloeBackground() view modifier
+```
+
+### ChloeButtonLabel
+```swift
+// Primary CTA — Cinzel 15pt, ALL-CAPS, tracking 3, capsule shape
+// Background: chloePrimary (full / 0.45 disabled)
+// Shadow: black 0.15, radius 20, y 10
+```
+
+### PressableButtonStyle
+```swift
+// Press feedback — scale 1.0 → 0.96
+// Shadow: chloePrimary 0.3/r8/y4 → 0.15/r4/y2
+```
+
+### BentoGridCard
+```swift
+// Container card — cornerRadius 28, ultraThinMaterial, rosewood shadow
+```
+
+### OnboardingCard
+```swift
+// Card selector — title (15pt medium) + description (14pt light)
+// Selected: chloePrimaryLight bg, chloePrimary text
+// Unselected: chloeSurface bg
 ```
 
 ### ChatBubble
@@ -141,6 +168,17 @@ struct TypingIndicator: View
 // 3 animated dots, chloeAccentMuted color, chloePrimaryLight bg
 ```
 
+### LuminousOrb
+```swift
+// Canvas-based breathing blob, radial gold → rose gradient
+// 5-stop gradient, outer glow, breathing animation
+```
+
+### PlusBloomMenu
+```swift
+// 3-item radial menu, 44pt circles, spring animated
+```
+
 ### DisclaimerText
 ```swift
 struct DisclaimerText: View {
@@ -155,7 +193,7 @@ struct DisclaimerText: View {
 ### Profile
 ```swift
 struct Profile: Codable, Identifiable {
-    let id: String                         // UUID
+    let id: String
     var email: String
     var displayName: String
     var onboardingComplete: Bool
@@ -205,12 +243,18 @@ struct Message: Codable, Identifiable {
 
 ### JournalEntry
 ```swift
+enum JournalMood: String, CaseIterable, Hashable {
+    case happy, calm, grateful, anxious, sad, angry, hopeful, tired
+    var emoji: String { ... }
+    var label: String { ... }
+}
+
 struct JournalEntry: Codable, Identifiable {
     let id: String
     var userId: String?
     var title: String
     var content: String
-    var mood: String            // Free-form string (will add JournalMood enum)
+    var mood: String
     var createdAt: Date
 }
 ```
@@ -264,49 +308,39 @@ struct UserArchetype: Codable {
 }
 ```
 
-### TopicCardConfig
-```swift
-struct TopicCardConfig: Codable {
-    var id: String
-    var title: String
-    var subtitle: String
-    var icon: String            // SF Symbol name
-    var color: TopicCardColor   // .pink | .gold | .purple
-    var prompt: String
-}
-```
-
 ---
 
 ## Navigation Structure
 
-### MainTabView
-Uses `NavigationSplitView` with sidebar (`.detailOnly` on phone). Sidebar items defined by `SidebarItem` enum:
+### SanctuaryView + SidebarView
+SanctuaryView is the main hub. It includes:
+- LuminousOrb with greeting text
+- Chat input and messages
+- Slide-out SidebarView (custom, not NavigationSplitView)
 
+SidebarView destinations are defined by `SidebarDestination` enum:
 ```swift
-enum SidebarItem: String, CaseIterable, Identifiable {
-    case home = "Home"              // icon: "house"
-    case chat = "Chat"              // icon: "bubble.left.and.bubble.right"
-    case journal = "Journal"        // icon: "book"
-    case visionBoard = "Vision Board" // icon: "photo.on.rectangle"
-    case affirmations = "Affirmations" // icon: "sparkles"
-    case goals = "Goals"            // icon: "target"
-    case settings = "Settings"      // icon: "gearshape"
-    case profile = "Profile"        // icon: "person.circle"
+enum SidebarDestination {
+    case journal, history, visionBoard, settings
 }
 ```
 
-The `detailView(for:)` method switches on the item to show the corresponding view.
+Navigation items in sidebar:
+- New Chat (action, not destination)
+- Journal → JournalView
+- History → HistoryView
+- Vision Board → VisionBoardView
+- Settings → SettingsView
 
 ### ContentView (Root Routing)
 ```
-!isAuthenticated → WelcomeView
+!isAuthenticated → EmailLoginView
 isAuthenticated && !onboardingComplete → OnboardingContainerView
-Both true → MainTabView
+Both true → SanctuaryView
 ```
 
-### Onboarding Flow (8 steps)
-0: NameStepView, 1: RelationshipStatusView, 2: PrimaryGoalView, 3: CoreDesireView, 4: PainPointView, 5: VibeCheckView, 6: ArchetypeQuizView, 7: OnboardingCompleteView
+### Onboarding Flow (4 steps)
+0: WelcomeIntroView, 1: NameStepView, 2: ArchetypeQuizView (4 sub-questions), 3: OnboardingCompleteView
 
 ---
 
@@ -316,85 +350,11 @@ Both true → MainTabView
 2. **Fonts**: Use `.chloeTitle`, `.chloeHeadline`, `.chloeBodyDefault`, `.chloeCaption` etc.
 3. **Colors**: Use `.chloePrimary`, `.chloeTextPrimary/.Secondary/.Tertiary`, `.chloeSurface`, `.chloeBorder`
 4. **Spacing**: Use `Spacing.screenHorizontal`, `.cardPadding`, `.cornerRadius`
-5. **Cards**: `.chloeSurface` background + `.chloeBorder` stroke + `Spacing.cornerRadius`
-6. **Filters/Selection**: Use `SelectionChip` component
+5. **Cards**: BentoGridCard or `.chloeSurface` background + `.chloeBorder` stroke + `Spacing.cornerRadius`
+6. **Buttons**: ChloeButtonLabel for primary CTAs, PressableButtonStyle for interactive cards
 7. **ViewModels**: `@MainActor` on all ViewModels
 8. **Previews**: `#Preview` blocks on every view
-9. **Onboarding views**: `@ObservedObject var viewModel: OnboardingViewModel`, vertical layout, SelectionChip answers, "Continue" button calling `viewModel.nextStep()`
-
----
-
-## Views to Implement (8 total)
-
-### 1. ArchetypeQuizView (Onboarding Step 6)
-- **File:** `ChloeApp/Views/Onboarding/ArchetypeQuizView.swift`
-- 4 questions (energy, strength, recharge, allure), each with 4 answer choices (a/b/c/d)
-- Step through one at a time with "Continue" button
-- Store answers in `viewModel.preferences.archetypeAnswers`
-- On final answer, call `viewModel.nextStep()`
-- Use card-style vertical answer options (not SelectionChip — use full-width tappable cards)
-
-### 2. HomeView (First screen after onboarding)
-- **File:** `ChloeApp/Views/Main/HomeView.swift`
-- **New component:** `ChloeApp/Views/Components/TopicCardView.swift`
-- Greeting: "Hey, {name}!" with time-of-day subtitle + ChloeAvatar
-- Quick chat card: tappable card navigating to ChatView
-- Topic cards: horizontal scroll of 3 cards from `topicCards` constant
-- Daily affirmation card (generated once per day via GeminiService, cached in UserDefaults by date key)
-- Current vibe pill (if available from StorageService)
-
-### 3. AffirmationsView
-- **File:** `ChloeApp/Views/Main/AffirmationsView.swift`
-- **Modify:** `ChloeApp/ViewModels/AffirmationsViewModel.swift` — add `generateNewAffirmation()` method
-- Filter toggle: All / Saved (using SelectionChip)
-- List of affirmation cards (text + date + heart toggle for save)
-- Toolbar sparkles button to generate new affirmation via Gemini API
-- Empty state with prompt to generate first affirmation
-
-### 4. JournalView
-- **File:** `ChloeApp/Views/Main/JournalView.swift`
-- **New files:** `JournalEntryEditorView.swift` (sheet), `JournalDetailView.swift` (read-only)
-- **Modify:** `ChloeApp/Models/JournalEntry.swift` — add `JournalMood` enum
-- List of entries with mood emoji, title, date
-- Swipe-to-delete
-- "+" toolbar button opens editor sheet
-- Editor: mood selector (horizontal scroll of mood chips), title field, content TextEditor
-- Detail view: full entry display
-- 8 moods: Happy 😊, Calm 😌, Anxious 😰, Sad 😢, Angry 😠, Hopeful 🌱, Confident 💪, Grateful 🙏
-
-### 5. GoalsView
-- **File:** `ChloeApp/Views/Main/GoalsView.swift`
-- **Modify:** `ChloeApp/ViewModels/GoalsViewModel.swift` — add `deleteGoal()` method
-- Status filter bar: Active / Completed / Paused / All (SelectionChips)
-- Goal rows with status circle (tap to toggle), title, description snippet
-- Swipe actions for delete
-- "+" toolbar button opens add-goal sheet (title + optional description)
-- Status badges with distinct colors
-
-### 6. VisionBoardView
-- **File:** `ChloeApp/Views/Main/VisionBoardView.swift`
-- **New file:** `ChloeApp/Views/Main/AddVisionSheet.swift`
-- **Modify:** `ChloeApp/Models/VisionItem.swift` — add `displayName` and `icon` extensions on VisionCategory
-- Category filter: horizontal scroll of chips (All + 6 categories)
-- 2-column LazyVGrid of vision cards
-- Cards: gradient placeholder, title overlay, category badge
-- Context menu to delete
-- "+" opens add sheet: title, category picker, optional PhotosPicker
-
-### 7. ProfileView
-- **File:** `ChloeApp/Views/Main/ProfileView.swift`
-- User avatar (initials circle), display name with inline edit
-- Archetype card (label + blend description) if set
-- 2x2 stats grid: conversations, journal entries, vision items, goals
-- "Member since" date
-- All data from StorageService
-
-### 8. SettingsView (expand)
-- **File:** `ChloeApp/Views/Main/SettingsView.swift`
-- Account section: Sign Out (existing)
-- Data section: "Clear All Data" with destructive confirmation alert
-- Notifications section: toggle placeholders (Daily Affirmation, Journal Reminder) — store in UserDefaults
-- About section: version + build number
+9. **Onboarding views**: `@ObservedObject var viewModel: OnboardingViewModel`, vertical layout, OnboardingCard answers, "Continue" button calling `viewModel.nextStep()`
 
 ---
 
@@ -410,7 +370,6 @@ Both true → MainTabView
 - `/Users/secondary/ChloeApp/ChloeApp/Models/Affirmation.swift`
 - `/Users/secondary/ChloeApp/ChloeApp/Models/Archetype.swift`
 - `/Users/secondary/ChloeApp/ChloeApp/Models/OnboardingPreferences.swift`
-- `/Users/secondary/ChloeApp/ChloeApp/Models/TopicCard.swift`
 - `/Users/secondary/ChloeApp/ChloeApp/Models/DailyUsage.swift`
 
 ### ViewModels
@@ -422,41 +381,44 @@ Both true → MainTabView
 - `/Users/secondary/ChloeApp/ChloeApp/ViewModels/VisionBoardViewModel.swift`
 - `/Users/secondary/ChloeApp/ChloeApp/ViewModels/AffirmationsViewModel.swift`
 
-### Views — Stubs to Rewrite
-- `/Users/secondary/ChloeApp/ChloeApp/Views/Onboarding/ArchetypeQuizView.swift`
-- `/Users/secondary/ChloeApp/ChloeApp/Views/Main/HomeView.swift`
-- `/Users/secondary/ChloeApp/ChloeApp/Views/Main/AffirmationsView.swift`
-- `/Users/secondary/ChloeApp/ChloeApp/Views/Main/JournalView.swift`
-- `/Users/secondary/ChloeApp/ChloeApp/Views/Main/GoalsView.swift`
-- `/Users/secondary/ChloeApp/ChloeApp/Views/Main/VisionBoardView.swift`
-- `/Users/secondary/ChloeApp/ChloeApp/Views/Main/ProfileView.swift`
-- `/Users/secondary/ChloeApp/ChloeApp/Views/Main/SettingsView.swift`
-
-### Views — New Files Needed
-- `/Users/secondary/ChloeApp/ChloeApp/Views/Components/TopicCardView.swift`
-- `/Users/secondary/ChloeApp/ChloeApp/Views/Main/JournalEntryEditorView.swift`
-- `/Users/secondary/ChloeApp/ChloeApp/Views/Main/JournalDetailView.swift`
-- `/Users/secondary/ChloeApp/ChloeApp/Views/Main/AddVisionSheet.swift`
-
-### Views — Working (reference for patterns)
+### Views
 - `/Users/secondary/ChloeApp/ChloeApp/Views/App/ContentView.swift`
-- `/Users/secondary/ChloeApp/ChloeApp/Views/Auth/WelcomeView.swift`
 - `/Users/secondary/ChloeApp/ChloeApp/Views/Auth/EmailLoginView.swift`
+- `/Users/secondary/ChloeApp/ChloeApp/Views/Onboarding/WelcomeIntroView.swift`
 - `/Users/secondary/ChloeApp/ChloeApp/Views/Onboarding/OnboardingContainerView.swift`
 - `/Users/secondary/ChloeApp/ChloeApp/Views/Onboarding/NameStepView.swift`
-- `/Users/secondary/ChloeApp/ChloeApp/Views/Onboarding/VibeCheckView.swift`
+- `/Users/secondary/ChloeApp/ChloeApp/Views/Onboarding/ArchetypeQuizView.swift`
 - `/Users/secondary/ChloeApp/ChloeApp/Views/Onboarding/OnboardingCompleteView.swift`
-- `/Users/secondary/ChloeApp/ChloeApp/Views/Main/ChatView.swift`
-- `/Users/secondary/ChloeApp/ChloeApp/Views/Main/MainTabView.swift`
+- `/Users/secondary/ChloeApp/ChloeApp/Views/Main/SanctuaryView.swift`
+- `/Users/secondary/ChloeApp/ChloeApp/Views/Main/SidebarView.swift`
+- `/Users/secondary/ChloeApp/ChloeApp/Views/Main/JournalView.swift`
+- `/Users/secondary/ChloeApp/ChloeApp/Views/Main/JournalEntryEditorView.swift`
+- `/Users/secondary/ChloeApp/ChloeApp/Views/Main/JournalDetailView.swift`
+- `/Users/secondary/ChloeApp/ChloeApp/Views/Main/HistoryView.swift`
+- `/Users/secondary/ChloeApp/ChloeApp/Views/Main/GoalsView.swift`
+- `/Users/secondary/ChloeApp/ChloeApp/Views/Main/VisionBoardView.swift`
+- `/Users/secondary/ChloeApp/ChloeApp/Views/Main/AddVisionSheet.swift`
+- `/Users/secondary/ChloeApp/ChloeApp/Views/Main/AffirmationsView.swift`
+- `/Users/secondary/ChloeApp/ChloeApp/Views/Main/SettingsView.swift`
 
 ### Components
-- `/Users/secondary/ChloeApp/ChloeApp/Views/Components/SelectionChip.swift`
-- `/Users/secondary/ChloeApp/ChloeApp/Views/Components/ChloeAvatar.swift`
-- `/Users/secondary/ChloeApp/ChloeApp/Views/Components/GradientBackground.swift`
+- `/Users/secondary/ChloeApp/ChloeApp/Views/Components/BentoGridCard.swift`
+- `/Users/secondary/ChloeApp/ChloeApp/Views/Components/BloomTextModifier.swift`
+- `/Users/secondary/ChloeApp/ChloeApp/Views/Components/CameraPickerView.swift`
 - `/Users/secondary/ChloeApp/ChloeApp/Views/Components/ChatBubble.swift`
 - `/Users/secondary/ChloeApp/ChloeApp/Views/Components/ChatInputBar.swift`
-- `/Users/secondary/ChloeApp/ChloeApp/Views/Components/TypingIndicator.swift`
+- `/Users/secondary/ChloeApp/ChloeApp/Views/Components/ChloeAvatar.swift`
+- `/Users/secondary/ChloeApp/ChloeApp/Views/Components/ChloeButtonLabel.swift`
 - `/Users/secondary/ChloeApp/ChloeApp/Views/Components/DisclaimerText.swift`
+- `/Users/secondary/ChloeApp/ChloeApp/Views/Components/EtherealDustParticles.swift`
+- `/Users/secondary/ChloeApp/ChloeApp/Views/Components/GradientBackground.swift`
+- `/Users/secondary/ChloeApp/ChloeApp/Views/Components/LuminousOrb.swift`
+- `/Users/secondary/ChloeApp/ChloeApp/Views/Components/OnboardingCard.swift`
+- `/Users/secondary/ChloeApp/ChloeApp/Views/Components/OrbStardustEmitter.swift`
+- `/Users/secondary/ChloeApp/ChloeApp/Views/Components/PlusBloomMenu.swift`
+- `/Users/secondary/ChloeApp/ChloeApp/Views/Components/PressableButtonStyle.swift`
+- `/Users/secondary/ChloeApp/ChloeApp/Views/Components/ShimmerTextModifier.swift`
+- `/Users/secondary/ChloeApp/ChloeApp/Views/Components/TypingIndicator.swift`
 
 ### Services
 - `/Users/secondary/ChloeApp/ChloeApp/Services/StorageService.swift`

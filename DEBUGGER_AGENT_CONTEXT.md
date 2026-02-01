@@ -42,19 +42,18 @@ xcrun simctl launch "iPhone 17 Pro" com.chloeapp.ChloeApp
 │   ├── Profile.swift                 — User profile + UserFact + FactCategory + SubscriptionTier
 │   ├── Message.swift                 — Chat message + MessageRole enum
 │   ├── Conversation.swift            — Conversation metadata
-│   ├── JournalEntry.swift            — Journal entry + MoodCheckin
+│   ├── JournalEntry.swift            — Journal entry + JournalMood enum
 │   ├── VisionItem.swift              — Vision board item + VisionCategory enum
 │   ├── Goal.swift                    — Goal + GoalStatus enum
 │   ├── Affirmation.swift             — Daily affirmation
 │   ├── Archetype.swift               — ArchetypeId, UserArchetype, AnalystResult, ExtractedFact
 │   ├── OnboardingPreferences.swift   — All onboarding enums (RelationshipStatus, PrimaryGoal, CoreDesire, PainPoint, VibeScore, ArchetypeAnswers, ArchetypeChoice)
-│   ├── TopicCard.swift               — TopicCardConfig + TopicCardColor
 │   └── DailyUsage.swift              — Rate limiting tracker
 │
 ├── ViewModels/
 │   ├── AuthViewModel.swift           — Authentication state (@MainActor)
 │   ├── ChatViewModel.swift           — Chat logic, safety, rate limiting, analysis triggers (@MainActor)
-│   ├── OnboardingViewModel.swift     — 8-step onboarding flow (@MainActor)
+│   ├── OnboardingViewModel.swift     — 4-step onboarding flow (@MainActor)
 │   ├── JournalViewModel.swift        — CRUD for journal entries (@MainActor)
 │   ├── GoalsViewModel.swift          — CRUD for goals + status toggling (@MainActor)
 │   ├── VisionBoardViewModel.swift    — CRUD for vision items (@MainActor)
@@ -64,40 +63,43 @@ xcrun simctl launch "iPhone 17 Pro" com.chloeapp.ChloeApp
 │   ├── App/
 │   │   └── ContentView.swift         — Root routing: auth → onboarding → main
 │   ├── Auth/
-│   │   ├── WelcomeView.swift         — Landing screen with "Get Started"
 │   │   └── EmailLoginView.swift      — Email input → signIn
 │   ├── Onboarding/
-│   │   ├── OnboardingContainerView.swift — TabView with 8 pages + progress bar
-│   │   ├── NameStepView.swift        — Step 0: Name input
-│   │   ├── RelationshipStatusView.swift — Step 1: Multi-select chips
-│   │   ├── PrimaryGoalView.swift     — Step 2: Multi-select chips
-│   │   ├── CoreDesireView.swift      — Step 3: Multi-select chips
-│   │   ├── PainPointView.swift       — Step 4: Multi-select chips
-│   │   ├── VibeCheckView.swift       — Step 5: Single-select chips
-│   │   ├── ArchetypeQuizView.swift   — Step 6: 4-question quiz
-│   │   └── OnboardingCompleteView.swift — Step 7: Completion + confetti
+│   │   ├── WelcomeIntroView.swift    — Step 0: Welcome landing with "Begin" button
+│   │   ├── OnboardingContainerView.swift — TabView with 4 steps + progress bar
+│   │   ├── NameStepView.swift        — Step 1: Name input
+│   │   ├── ArchetypeQuizView.swift   — Step 2: 4-question quiz (4 sub-pages)
+│   │   └── OnboardingCompleteView.swift — Step 3: Completion + confetti
 │   ├── Main/
-│   │   ├── MainTabView.swift         — NavigationSplitView sidebar
-│   │   ├── HomeView.swift            — Dashboard with greeting, topics, affirmation
-│   │   ├── ChatView.swift            — Working chat with Chloe
+│   │   ├── SanctuaryView.swift       — Main hub with chat, orb, greeting, sidebar
+│   │   ├── SidebarView.swift         — Slide-out sidebar navigation
 │   │   ├── JournalView.swift         — Journal entries list
 │   │   ├── JournalEntryEditorView.swift — Create/edit journal entry sheet
 │   │   ├── JournalDetailView.swift   — Read-only journal detail
+│   │   ├── HistoryView.swift         — Chat conversation history
 │   │   ├── GoalsView.swift           — Goal tracking
 │   │   ├── VisionBoardView.swift     — Vision board grid
 │   │   ├── AddVisionSheet.swift      — Add vision item sheet
 │   │   ├── AffirmationsView.swift    — AI affirmations list
-│   │   ├── ProfileView.swift         — User profile + stats
 │   │   └── SettingsView.swift        — Settings + sign out
 │   └── Components/
-│       ├── SelectionChip.swift       — Reusable chip button
-│       ├── ChloeAvatar.swift         — Circular avatar with "chloe-logo"
-│       ├── GradientBackground.swift  — Background gradient + .chloeBackground() modifier
-│       ├── TopicCardView.swift       — Topic card for home screen
+│       ├── BentoGridCard.swift       — Container card with ultraThinMaterial
+│       ├── BloomTextModifier.swift   — Left-to-right text reveal animation
+│       ├── CameraPickerView.swift    — UIKit camera wrapper
 │       ├── ChatBubble.swift          — User/Chloe message bubble
 │       ├── ChatInputBar.swift        — Text input + send button
-│       ├── TypingIndicator.swift     — Animated typing dots
-│       └── DisclaimerText.swift      — AI disclaimer text
+│       ├── ChloeAvatar.swift         — Circular avatar (orb or logo)
+│       ├── ChloeButtonLabel.swift    — Primary CTA button (Cinzel, capsule)
+│       ├── DisclaimerText.swift      — AI disclaimer text
+│       ├── EtherealDustParticles.swift — Atmospheric particle effect
+│       ├── GradientBackground.swift  — Background gradient + .chloeBackground() modifier
+│       ├── LuminousOrb.swift         — Canvas-based breathing blob orb
+│       ├── OnboardingCard.swift      — Card selector for onboarding
+│       ├── OrbStardustEmitter.swift  — Particle emitter around orb
+│       ├── PlusBloomMenu.swift       — Radial action menu
+│       ├── PressableButtonStyle.swift — Press feedback button style
+│       ├── ShimmerTextModifier.swift — Shimmer sweep text effect
+│       └── TypingIndicator.swift     — Animated typing dots
 │
 ├── Services/
 │   ├── StorageService.swift          — UserDefaults persistence (singleton)
@@ -108,11 +110,11 @@ xcrun simctl launch "iPhone 17 Pro" com.chloeapp.ChloeApp
 │
 ├── Theme/
 │   ├── Colors.swift                  — Color extensions (hex values)
-│   ├── Fonts.swift                   — Font extensions (PlayfairDisplay + Inter)
+│   ├── Fonts.swift                   — Font extensions (Cinzel + CormorantGaramond + SF Pro system)
 │   └── Spacing.swift                 — Spacing constants
 │
 ├── Constants/
-│   ├── Prompts.swift                 — System prompts, templates, topic cards, label maps, prompt builders
+│   ├── Prompts.swift                 — System prompts, templates, prompt builders
 │   └── CrisisResponses.swift         — Crisis hotline responses
 │
 ├── Extensions/
@@ -120,7 +122,7 @@ xcrun simctl launch "iPhone 17 Pro" com.chloeapp.ChloeApp
 │   ├── String+Utils.swift            — .trimmed, .isBlank, .truncated(to:)
 │   └── Date+Formatting.swift         — .shortDate, .timeOnly, .relativeDescription, .journalHeader
 │
-├── Resources/Fonts/                  — PlayfairDisplay + Inter .ttf files
+├── Resources/Fonts/                  — Cinzel, CormorantGaramond-BoldItalic, TenorSans .ttf files
 └── Assets.xcassets/                  — App icons, chloe-logo image
 ```
 
@@ -228,8 +230,8 @@ User swipes to delete → viewModel.deleteEntry(at:)
 - Three crisis types with different hotline resources
 
 ### 5. Prompt Building
-- Template variables: `{{user_name}}`, `{{archetype_blend}}`, `{{archetype_label}}`, `{{archetype_description}}`, `{{relationship_status}}`, `{{core_desire}}`, `{{pain_point}}`, `{{latest_vibe_score}}`
-- Fallbacks: "Not shared yet", "Not determined yet", "Not assessed yet"
+- Template variables: `{{user_name}}`, `{{archetype_blend}}`, `{{archetype_label}}`, `{{archetype_description}}`
+- Fallbacks: "Not determined yet" (archetype fields), "babe" (empty name)
 - System prompt instructs Chloe to never output these fallback strings
 
 ---
@@ -294,15 +296,13 @@ xcrun simctl boot "iPhone 17 Pro" 2>/dev/null || true
 ```
 
 ### Key Flows to Test
-1. **Auth**: Launch → Welcome → Email login → authenticated
-2. **Onboarding**: 8 steps (name → relationship → goal → desire → pain → vibe → archetype quiz → complete)
-3. **Chat**: Send message → get response → check safety → check rate limit
+1. **Auth**: Launch → Email login → authenticated
+2. **Onboarding**: 4 steps (welcome intro → name → archetype quiz → complete)
+3. **Chat**: Send message in Sanctuary → get response → check safety → check rate limit
 4. **Journal**: Create entry → view list → open detail → delete
-5. **Goals**: Add goal → toggle status → filter by status → delete
-6. **Vision Board**: Add item → view grid → filter by category → delete
-7. **Affirmations**: Generate → view list → toggle save → filter saved
-8. **Profile**: View stats → edit name
-9. **Settings**: Clear data → sign out
+5. **Vision Board**: Add item → view grid → filter by category → delete
+6. **History**: View conversation list → select conversation
+7. **Settings**: Clear data → sign out
 
 ---
 

@@ -41,9 +41,9 @@ This is strictly an iOS app. No web app work until explicitly requested.
 │   ├── Models/                 (Codable structs)
 │   ├── Views/
 │   │   ├── App/               (ContentView — root routing)
-│   │   ├── Auth/              (Welcome, Email login)
-│   │   ├── Onboarding/        (8-step onboarding flow)
-│   │   ├── Main/              (Home, Chat, Journal, Goals, etc.)
+│   │   ├── Auth/              (Email login)
+│   │   ├── Onboarding/        (4-step onboarding flow: Welcome → Name → Archetype Quiz → Complete)
+│   │   ├── Main/              (Sanctuary, Journal, History, VisionBoard, Goals, Affirmations, Settings, etc.)
 │   │   └── Components/        (Reusable UI components)
 │   ├── ViewModels/            (ObservableObject VMs)
 │   ├── Services/              (Gemini, Storage, Safety, etc.)
