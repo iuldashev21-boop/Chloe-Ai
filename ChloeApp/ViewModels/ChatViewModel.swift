@@ -7,6 +7,7 @@ class ChatViewModel: ObservableObject {
     @Published var inputText = ""
     @Published var isTyping = false
     @Published var errorMessage: String?
+    @Published var conversationTitle: String = "New Conversation"
 
     private let geminiService = GeminiService.shared
     private let safetyService = SafetyService.shared
@@ -116,16 +117,37 @@ class ChatViewModel: ObservableObject {
         inputText = ""
         errorMessage = nil
         isTyping = false
+        conversationTitle = "New Conversation"
     }
 
     func loadConversation(id: String) {
         conversationId = id
         messages = storageService.loadMessages(forConversation: id)
+        conversationTitle = storageService.loadConversation(id: id)?.title ?? "New Conversation"
     }
 
     private func saveMessages() {
         guard let id = conversationId else { return }
         try? storageService.saveMessages(messages, forConversation: id)
+
+        // Create or update conversation metadata
+        var convo = storageService.loadConversation(id: id)
+            ?? Conversation(id: id, title: "New Conversation")
+        convo.updatedAt = Date()
+        try? storageService.saveConversation(convo)
+
+        // Generate title from first user message (one-time)
+        if convo.title == "New Conversation",
+           let firstUserMsg = messages.first(where: { $0.role == .user }) {
+            Task {
+                if let title = try? await geminiService.generateTitle(for: firstUserMsg.text) {
+                    var updated = convo
+                    updated.title = title
+                    try? storageService.saveConversation(updated)
+                    conversationTitle = title
+                }
+            }
+        }
     }
 
     private func triggerBackgroundAnalysis() async {

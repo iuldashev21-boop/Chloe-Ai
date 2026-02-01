@@ -179,19 +179,42 @@ struct SanctuaryView: View {
             }
         }
         .animation(.spring(response: 0.5, dampingFraction: 0.85), value: chatActive)
-        .overlay(alignment: .topLeading) {
-            if !chatActive && !sidebarOpen {
-                Button { openSidebar() } label: {
-                    Image(systemName: "line.3.horizontal")
-                        .font(.system(size: 18, weight: .medium))
-                        .foregroundColor(.chloeTextSecondary)
-                        .frame(width: 44, height: 44)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(.ultraThinMaterial)
-                        )
+        .overlay(alignment: .top) {
+            if !sidebarOpen {
+                HStack {
+                    Button { openSidebar() } label: {
+                        Image(systemName: "line.3.horizontal")
+                            .font(.system(size: 18, weight: .medium))
+                            .foregroundColor(.chloeTextSecondary)
+                            .frame(width: 44, height: 44)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(.ultraThinMaterial)
+                            )
+                    }
+
+                    Spacer()
+
+                    if chatActive {
+                        Button {
+                            chatVM.startNewChat()
+                            ghostMessages = []
+                            withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
+                                chatActive = false
+                            }
+                        } label: {
+                            Image(systemName: "square.and.pencil")
+                                .font(.system(size: 18, weight: .medium))
+                                .foregroundColor(.chloeTextSecondary)
+                                .frame(width: 44, height: 44)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(.ultraThinMaterial)
+                                )
+                        }
+                    }
                 }
-                .padding(.leading, Spacing.screenHorizontal)
+                .padding(.horizontal, Spacing.screenHorizontal)
                 .opacity(appeared ? 1 : 0)
                 .animation(.easeIn(duration: 0.4).delay(0.5), value: appeared)
                 .transition(.opacity)
@@ -264,40 +287,7 @@ struct SanctuaryView: View {
     // MARK: - Chat Layout
 
     private var chatLayout: some View {
-        GeometryReader { geo in
-            VStack(spacing: 0) {
-                // Custom top bar
-                HStack {
-                    Button {
-                        withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
-                            chatActive = false
-                        }
-                    } label: {
-                        Image(systemName: "chevron.left")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.chloePrimary)
-                            .frame(width: 44, height: 44)
-                    }
-
-                    Spacer()
-
-                    HStack(spacing: Spacing.xxs) {
-                        ChloeAvatar(size: 28, isThinking: chatVM.isTyping)
-                        Text("Chat with Chloe")
-                            .font(.chloeHeadline)
-                            .foregroundColor(.chloeTextPrimary)
-                    }
-
-                    Spacer()
-
-                    // Invisible spacer to balance the back button
-                    Color.clear.frame(width: 44, height: 44)
-                }
-                .padding(.horizontal, Spacing.screenHorizontal)
-                .padding(.top, geo.safeAreaInsets.top)
-                .padding(.bottom, Spacing.xs)
-                .background(.ultraThinMaterial)
-
+        VStack(spacing: 0) {
                 ScrollViewReader { proxy in
                     ScrollView {
                         LazyVStack(spacing: Spacing.xs) {
@@ -385,8 +375,6 @@ struct SanctuaryView: View {
 
                 chatInputBar
             }
-        }
-        .ignoresSafeArea(.container, edges: .top)
     }
 
     // MARK: - Shared Input Bar
