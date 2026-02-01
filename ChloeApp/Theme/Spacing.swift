@@ -1,4 +1,4 @@
-import Foundation
+import SwiftUI
 
 enum Spacing {
     /// 4pt
@@ -37,4 +37,7 @@ enum Spacing {
     static let orbSizeSanctuary: CGFloat = 120
     /// Sanctuary orb vertical position (fraction of screen height)
     static let sanctuaryOrbY: CGFloat = 0.25
+
+    /// Canonical spring for all UI transitions
+    static let chloeSpring = Animation.spring(response: 0.45, dampingFraction: 0.8)
 }
