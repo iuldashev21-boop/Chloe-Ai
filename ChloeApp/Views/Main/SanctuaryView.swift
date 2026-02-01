@@ -168,7 +168,12 @@ struct SanctuaryView: View {
 
     private var mainContentWrapper: some View {
         ZStack {
-            GradientBackground()
+            LinearGradient(
+                colors: [Color(hex: "#FFF8F0"), Color(hex: "#FDF2E9")],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
 
             if chatActive {
                 chatLayout
@@ -185,7 +190,7 @@ struct SanctuaryView: View {
                     Button { openSidebar() } label: {
                         Image(systemName: "line.3.horizontal")
                             .font(.system(size: 18, weight: .medium))
-                            .foregroundColor(.chloeTextSecondary)
+                            .foregroundColor(.chloePrimary)
                             .frame(width: 44, height: 44)
                             .background(
                                 RoundedRectangle(cornerRadius: 12)
@@ -206,7 +211,7 @@ struct SanctuaryView: View {
                         } label: {
                             Image(systemName: "square.and.pencil")
                                 .font(.system(size: 18, weight: .medium))
-                                .foregroundColor(.chloeTextSecondary)
+                                .foregroundColor(.chloePrimary)
                                 .frame(width: 44, height: 44)
                                 .background(
                                     RoundedRectangle(cornerRadius: 12)

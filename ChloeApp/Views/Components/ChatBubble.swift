@@ -14,10 +14,15 @@ struct ChatBubble: View {
             Text(message.text)
                 .font(.chloeBodyDefault)
                 .foregroundColor(.chloeTextPrimary)
+                .lineSpacing(6)
                 .padding(.horizontal, Spacing.sm)
                 .padding(.vertical, Spacing.xs)
-                .background(isUser ? Color.chloeUserBubble : Color.chloePrimaryLight)
-                .cornerRadius(Spacing.cornerRadius)
+                .background(isUser ? Color.chloePrimary.opacity(0.12) : Color.white)
+                .cornerRadius(16)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(isUser ? Color.clear : Color.chloePrimary, lineWidth: 0.5)
+                )
 
             if !isUser { Spacer(minLength: 60) }
         }

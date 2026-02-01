@@ -44,7 +44,7 @@ struct ChatInputBar: View {
                     .font(.chloeInputPlaceholder(16))
                     .lineLimit(1...5)
                     .placeholder(when: text.isBlank) {
-                        Text("Talk to Chloe...")
+                        Text("What's on your heart?")
                             .font(.chloeInputPlaceholder(16))
                             .foregroundColor(.chloeTextTertiary)
                     }
@@ -74,6 +74,8 @@ struct ChatInputBar: View {
             .padding(.horizontal, Spacing.screenHorizontal)
             .padding(.vertical, Spacing.xs)
         }
+        .background(.ultraThinMaterial)
+        .shadow(color: Color.chloePrimary.opacity(0.1), radius: 15, y: -5)
     }
 }
 
