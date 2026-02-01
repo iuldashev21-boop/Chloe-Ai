@@ -330,7 +330,7 @@ struct SanctuaryView: View {
                     }
 
                     Color.clear
-                        .frame(height: 8)
+                        .frame(height: 24)
                         .id("bottomSpacer")
                 }
                 .padding(.horizontal, Spacing.screenHorizontal)
