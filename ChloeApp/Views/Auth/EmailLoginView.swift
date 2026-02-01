@@ -38,31 +38,33 @@ struct EmailLoginView: View {
                 }
 
                 // MARK: - Email field
-                TextField("Email", text: $email, prompt: Text("Email").foregroundColor(.chloeRosewood))
+                TextField("Email", text: $email, prompt: Text("Email").font(.system(size: 17, weight: .light).italic()).foregroundColor(.chloeRosewood))
                     .font(.chloeBodyDefault)
                     .keyboardType(.emailAddress)
                     .textContentType(.emailAddress)
                     .autocapitalization(.none)
-                    .padding(Spacing.sm)
+                    .padding(.horizontal, Spacing.sm)
+                    .frame(height: 52)
                     .background(.ultraThinMaterial)
-                    .clipShape(RoundedRectangle(cornerRadius: 28))
+                    .clipShape(RoundedRectangle(cornerRadius: Spacing.cornerRadiusLarge))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 28)
-                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                        RoundedRectangle(cornerRadius: Spacing.cornerRadiusLarge)
+                            .stroke(Color(hex: "#E8D4D0"), lineWidth: 0.5)
                     )
                     .padding(.horizontal, Spacing.screenHorizontal)
                     .accessibilityLabel("Email address")
 
                 // MARK: - Password field
-                SecureField("Password", text: $password, prompt: Text("Password").foregroundColor(.chloeRosewood))
+                SecureField("Password", text: $password, prompt: Text("Password").font(.system(size: 17, weight: .light).italic()).foregroundColor(.chloeRosewood))
                     .font(.chloeBodyDefault)
                     .textContentType(.password)
-                    .padding(Spacing.sm)
+                    .padding(.horizontal, Spacing.sm)
+                    .frame(height: 52)
                     .background(.ultraThinMaterial)
-                    .clipShape(RoundedRectangle(cornerRadius: 28))
+                    .clipShape(RoundedRectangle(cornerRadius: Spacing.cornerRadiusLarge))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 28)
-                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                        RoundedRectangle(cornerRadius: Spacing.cornerRadiusLarge)
+                            .stroke(Color(hex: "#E8D4D0"), lineWidth: 0.5)
                     )
                     .padding(.horizontal, Spacing.screenHorizontal)
                     .accessibilityLabel("Password")
