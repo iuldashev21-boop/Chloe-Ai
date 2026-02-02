@@ -71,9 +71,7 @@ struct UserFact: Codable, Identifiable {
 }
 
 enum FactCategory: String, Codable {
-    case relationship
-    case preference
-    case lifeEvent = "life_event"
-    case personality
-    case goal
+    case relationshipHistory = "RELATIONSHIP_HISTORY"
+    case goal = "GOAL"
+    case trigger = "TRIGGER"
 }

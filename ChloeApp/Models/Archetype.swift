@@ -24,6 +24,13 @@ struct AnalystResult: Codable {
     var vibeReason: String
     var summary: String
 
+    enum CodingKeys: String, CodingKey {
+        case facts = "new_facts"
+        case vibeScore = "vibe_score"
+        case vibeReason = "vibe_reasoning"
+        case summary = "session_summary"
+    }
+
     init(
         facts: [ExtractedFact] = [],
         vibeScore: VibeScore = .medium,

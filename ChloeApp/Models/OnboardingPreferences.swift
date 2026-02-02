@@ -17,9 +17,9 @@ struct OnboardingPreferences: Codable {
 }
 
 enum VibeScore: String, Codable, CaseIterable {
-    case low = "low"
-    case medium = "medium"
-    case high = "high"
+    case low = "LOW"
+    case medium = "MEDIUM"
+    case high = "HIGH"
 }
 
 struct ArchetypeAnswers: Codable {
