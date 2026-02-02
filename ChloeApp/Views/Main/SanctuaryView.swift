@@ -29,7 +29,6 @@ struct SanctuaryView: View {
     // Camera & Photo picker
     @State private var showCamera = false
     @State private var showPhotoPicker = false
-    @State private var selectedImage: UIImage? = nil
     @State private var selectedPhotoItem: PhotosPickerItem? = nil
     @State private var showFileImporter = false
     @State private var profileImageData: Data?
@@ -146,7 +145,11 @@ struct SanctuaryView: View {
         }
         .fullScreenCover(isPresented: $showCamera) {
             CameraPickerView { image in
-                selectedImage = image
+                chatVM.pendingImage = image
+                if !chatActive { activateChat() }
+                if chatVM.inputText.isEmpty {
+                    chatVM.inputText = "What do you think of this?"
+                }
             }
             .ignoresSafeArea()
         }
@@ -158,7 +161,7 @@ struct SanctuaryView: View {
                 defer { url.stopAccessingSecurityScopedResource() }
                 if let data = try? Data(contentsOf: url),
                    let image = UIImage(data: data) {
-                    selectedImage = image
+                    chatVM.pendingImage = image
                     if !chatActive { activateChat() }
                     if chatVM.inputText.isEmpty {
                         chatVM.inputText = "What do you think of this?"
@@ -173,20 +176,13 @@ struct SanctuaryView: View {
             Task {
                 if let data = try? await item.loadTransferable(type: Data.self),
                    let image = UIImage(data: data) {
-                    selectedImage = image
+                    chatVM.pendingImage = image
                     if !chatActive { activateChat() }
-                    chatVM.inputText = chatVM.inputText.isEmpty ? "What do you think of this?" : chatVM.inputText
+                    if chatVM.inputText.isEmpty {
+                        chatVM.inputText = "What do you think of this?"
+                    }
                 }
                 selectedPhotoItem = nil
-            }
-        }
-        .onChange(of: selectedImage) {
-            // Also handle camera-picked images
-            if selectedImage != nil && !chatActive {
-                activateChat()
-                if chatVM.inputText.isEmpty {
-                    chatVM.inputText = "What do you think of this?"
-                }
             }
         }
         .onChange(of: showSettings) {
@@ -453,6 +449,7 @@ struct SanctuaryView: View {
         } else {
             ChatInputBar(
                 text: $chatVM.inputText,
+                pendingImage: $chatVM.pendingImage,
                 onSend: {
                     UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                     if !chatActive { activateChat() }

@@ -11,18 +11,33 @@ struct ChatBubble: View {
         HStack {
             if isUser { Spacer(minLength: 60) }
 
-            Text(message.text)
-                .font(.system(size: 17, weight: isUser ? .medium : .light))
-                .foregroundColor(.chloeTextPrimary)
-                .lineSpacing(8.5)
-                .padding(.horizontal, Spacing.sm)
-                .padding(.vertical, Spacing.xs)
-                .background(isUser ? Color.chloeUserBubble : Color.chloePrimaryLight)
-                .cornerRadius(16)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16)
-                        .stroke(isUser ? Color.clear : Color.chloePrimary, lineWidth: 0.5)
-                )
+            VStack(alignment: isUser ? .trailing : .leading, spacing: Spacing.xxxs) {
+                // Image (if present)
+                if let imageUri = message.imageUri,
+                   let uiImage = UIImage(contentsOfFile: imageUri) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxWidth: 240)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+
+                // Text (if non-empty)
+                if !message.text.isEmpty {
+                    Text(message.text)
+                        .font(.system(size: 17, weight: isUser ? .medium : .light))
+                        .foregroundColor(.chloeTextPrimary)
+                        .lineSpacing(8.5)
+                }
+            }
+            .padding(.horizontal, Spacing.sm)
+            .padding(.vertical, Spacing.xs)
+            .background(isUser ? Color.chloeUserBubble : Color.chloePrimaryLight)
+            .cornerRadius(16)
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(isUser ? Color.clear : Color.chloePrimary, lineWidth: 0.5)
+            )
 
             if !isUser { Spacer(minLength: 60) }
         }

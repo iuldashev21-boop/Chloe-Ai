@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 class StorageService {
     static let shared = StorageService()
@@ -22,6 +23,21 @@ class StorageService {
     func loadProfile() -> Profile? {
         guard let data = defaults.data(forKey: "profile") else { return nil }
         return try? decoder.decode(Profile.self, from: data)
+    }
+
+    // MARK: - Chat Images
+
+    func saveChatImage(_ image: UIImage) -> String? {
+        guard let data = image.jpegData(compressionQuality: 0.7) else { return nil }
+        let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let filename = "chat_\(UUID().uuidString).jpg"
+        let url = dir.appendingPathComponent(filename)
+        do {
+            try data.write(to: url)
+            return url.path
+        } catch {
+            return nil
+        }
     }
 
     // MARK: - Profile Image

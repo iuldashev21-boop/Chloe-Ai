@@ -5,6 +5,7 @@ import SwiftUI
 class ChatViewModel: ObservableObject {
     @Published var messages: [Message] = []
     @Published var inputText = ""
+    @Published var pendingImage: UIImage? = nil
     @Published var isTyping = false
     @Published var errorMessage: String?
     @Published var conversationTitle: String = "New Conversation"
@@ -45,15 +46,23 @@ class ChatViewModel: ObservableObject {
 
     func sendMessage() async {
         let text = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !text.isEmpty else { return }
+        let image = pendingImage
+        guard !text.isEmpty || image != nil else { return }
 
         inputText = ""
+        pendingImage = nil
         errorMessage = nil
+
+        // Save image to disk if present
+        var imageUri: String? = nil
+        if let image {
+            imageUri = storageService.saveChatImage(image)
+        }
 
         // Safety check
         let safetyResult = safetyService.checkSafety(message: text)
         if safetyResult.blocked, let crisisType = safetyResult.crisisType {
-            let userMsg = Message(conversationId: conversationId, role: .user, text: text)
+            let userMsg = Message(conversationId: conversationId, role: .user, text: text, imageUri: imageUri)
             messages.append(userMsg)
 
             let crisisResponse = safetyService.getCrisisResponse(for: crisisType)
@@ -74,7 +83,7 @@ class ChatViewModel: ObservableObject {
             && usage.messageCount == FREE_DAILY_MESSAGE_LIMIT - 1
 
         // Add user message
-        let userMsg = Message(conversationId: conversationId, role: .user, text: text)
+        let userMsg = Message(conversationId: conversationId, role: .user, text: text, imageUri: imageUri)
         messages.append(userMsg)
 
         // Increment daily usage

@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 enum GeminiError: Error, LocalizedError {
     case noAPIKey
@@ -72,10 +73,36 @@ class GeminiService {
 
         let recentMessages = Array(messages.suffix(MAX_CONVERSATION_HISTORY))
 
-        let geminiContents = recentMessages.map { msg -> [String: Any] in
-            [
+        let geminiContents: [[String: Any]] = recentMessages.enumerated().map { index, msg in
+            var parts: [[String: Any]] = []
+
+            // Only attach image data for the latest message to save tokens
+            let isLatest = index == recentMessages.count - 1
+            if let imageUri = msg.imageUri {
+                if isLatest, let imageData = loadImageData(from: imageUri) {
+                    parts.append([
+                        "inlineData": [
+                            "mimeType": "image/jpeg",
+                            "data": imageData.base64EncodedString()
+                        ]
+                    ])
+                } else if !isLatest {
+                    parts.append(["text": "[User shared an image]"])
+                }
+            }
+
+            if !msg.text.isEmpty {
+                parts.append(["text": msg.text])
+            }
+
+            // Ensure at least one part exists
+            if parts.isEmpty {
+                parts.append(["text": "[Image]"])
+            }
+
+            return [
                 "role": msg.role == .user ? "user" : "model",
-                "parts": [["text": msg.text]],
+                "parts": parts,
             ]
         }
 
@@ -236,6 +263,23 @@ class GeminiService {
         } catch is URLError {
             throw GeminiError.timeout
         }
+    }
+
+    private func loadImageData(from path: String) -> Data? {
+        guard let image = UIImage(contentsOfFile: path) else { return nil }
+        // Resize if needed to stay under Gemini's ~4MB per-image limit
+        let maxDimension: CGFloat = 1024
+        let size = image.size
+        var targetImage = image
+        if size.width > maxDimension || size.height > maxDimension {
+            let scale = min(maxDimension / size.width, maxDimension / size.height)
+            let newSize = CGSize(width: size.width * scale, height: size.height * scale)
+            let renderer = UIGraphicsImageRenderer(size: newSize)
+            targetImage = renderer.image { _ in
+                image.draw(in: CGRect(origin: .zero, size: newSize))
+            }
+        }
+        return targetImage.jpegData(compressionQuality: 0.8)
     }
 
     private func extractText(from data: Data) throws -> String? {

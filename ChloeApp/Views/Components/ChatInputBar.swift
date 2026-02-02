@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ChatInputBar: View {
     @Binding var text: String
+    @Binding var pendingImage: UIImage?
     var onSend: () -> Void
     var onRecentsPressed: () -> Void = {}
     var onTakePhoto: () -> Void = {}
@@ -10,38 +11,75 @@ struct ChatInputBar: View {
 
     @State private var showAddSheet = false
 
+    private var canSend: Bool {
+        !text.isBlank || pendingImage != nil
+    }
+
     var body: some View {
-        HStack(spacing: Spacing.xxs) {
-            // Plus button
-            Button {
-                showAddSheet = true
-            } label: {
-                Image(systemName: "plus")
-                    .font(.system(size: 18, weight: .light))
-                    .foregroundColor(.chloeRosewood)
-                    .frame(width: 44, height: 44)
+        VStack(spacing: Spacing.xxxs) {
+            // Image preview thumbnail
+            if let image = pendingImage {
+                HStack {
+                    ZStack(alignment: .topTrailing) {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 60, height: 60)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.chloeBorderWarm, lineWidth: 0.5)
+                            )
+
+                        Button {
+                            withAnimation(.easeOut(duration: 0.2)) {
+                                pendingImage = nil
+                            }
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.system(size: 18))
+                                .foregroundStyle(.white, Color.chloeTextTertiary)
+                        }
+                        .offset(x: 6, y: -6)
+                    }
+                    Spacer()
+                }
+                .padding(.horizontal, Spacing.sm)
+                .transition(.scale.combined(with: .opacity))
             }
 
-            // Text field
-            TextField("", text: $text, axis: .vertical)
-                .font(.chloeInputPlaceholder(16))
-                .lineLimit(1...5)
-                .placeholder(when: text.isBlank) {
-                    Text("What's on your heart?")
-                        .font(.chloeInputPlaceholder(16))
-                        .foregroundColor(.chloeTextTertiary)
+            HStack(spacing: Spacing.xxs) {
+                // Plus button
+                Button {
+                    showAddSheet = true
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 18, weight: .light))
+                        .foregroundColor(.chloeRosewood)
+                        .frame(width: 44, height: 44)
                 }
 
-            // Mic / Send button
-            Button {
-                if !text.isBlank {
-                    onSend()
+                // Text field
+                TextField("", text: $text, axis: .vertical)
+                    .font(.chloeInputPlaceholder(16))
+                    .lineLimit(1...5)
+                    .placeholder(when: text.isBlank) {
+                        Text("What's on your heart?")
+                            .font(.chloeInputPlaceholder(16))
+                            .foregroundColor(.chloeTextTertiary)
+                    }
+
+                // Mic / Send button
+                Button {
+                    if canSend {
+                        onSend()
+                    }
+                } label: {
+                    Image(systemName: canSend ? "arrow.up.circle.fill" : "mic")
+                        .font(.system(size: canSend ? 24 : 18, weight: .light))
+                        .foregroundColor(canSend ? .chloePrimary : .chloeTextTertiary)
+                        .contentTransition(.symbolEffect(.replace))
                 }
-            } label: {
-                Image(systemName: text.isBlank ? "mic" : "arrow.up.circle.fill")
-                    .font(.system(size: text.isBlank ? 18 : 24, weight: .light))
-                    .foregroundColor(text.isBlank ? .chloeTextTertiary : .chloePrimary)
-                    .contentTransition(.symbolEffect(.replace))
             }
         }
         .padding(.horizontal, Spacing.sm)
@@ -85,8 +123,8 @@ private extension View {
 #Preview {
     VStack {
         Spacer()
-        ChatInputBar(text: .constant(""), onSend: {})
-        ChatInputBar(text: .constant("Hello"), onSend: {})
+        ChatInputBar(text: .constant(""), pendingImage: .constant(nil), onSend: {})
+        ChatInputBar(text: .constant("Hello"), pendingImage: .constant(nil), onSend: {})
     }
     .background(Color.chloeBackground)
 }
