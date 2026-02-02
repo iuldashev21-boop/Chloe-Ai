@@ -32,6 +32,7 @@ struct SanctuaryView: View {
     @State private var selectedPhotoItem: PhotosPickerItem? = nil
     @State private var showFileImporter = false
     @State private var profileImageData: Data?
+    @State private var showOfflineAlert = false
 
     private var screenWidth: CGFloat {
         UIApplication.shared.connectedScenes
@@ -95,7 +96,10 @@ struct SanctuaryView: View {
                     }
                 },
                 onDeleteConversation: { id in
-                    SyncDataService.shared.deleteConversation(id: id)
+                    guard SyncDataService.shared.deleteConversation(id: id) else {
+                        showOfflineAlert = true
+                        return
+                    }
                     loadConversations()
                     if chatVM.conversationId == id {
                         chatVM.startNewChat()
@@ -140,6 +144,11 @@ struct SanctuaryView: View {
         }
         .navigationDestination(isPresented: $showVisionBoard) { VisionBoardView() }
         .navigationDestination(isPresented: $showSettings) { SettingsView() }
+        .alert("You're Offline", isPresented: $showOfflineAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("You need an internet connection to delete conversations.")
+        }
         .sheet(isPresented: $showRecentsSheet) {
             recentsSheet
         }

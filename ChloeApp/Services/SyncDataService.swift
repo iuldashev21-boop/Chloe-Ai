@@ -354,12 +354,13 @@ class SyncDataService {
         }
     }
 
-    func deleteConversation(id: String) {
+    /// Returns `false` if offline (deletion blocked to prevent orphaned cloud data).
+    @discardableResult
+    func deleteConversation(id: String) -> Bool {
+        guard network.isConnected else { return false }
         local.deleteConversation(id: id)
-        guard network.isConnected else { return }
-        Task {
-            try? await remote.deleteConversation(id: id)
-        }
+        Task { try? await remote.deleteConversation(id: id) }
+        return true
     }
 
     private func pushConversationToCloud(_ conversation: Conversation) {
