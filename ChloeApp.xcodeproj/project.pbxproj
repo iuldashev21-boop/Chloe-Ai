@@ -89,7 +89,25 @@
 		F10000260000000000000001 /* FlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000260000000000000001 /* FlowLayout.swift */; };
 		F10000280000000000000001 /* PlayfairDisplay-Italic-VF.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F20000280000000000000001 /* PlayfairDisplay-Italic-VF.ttf */; };
 		F10000290000000000000001 /* NotificationPrimingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000290000000000000001 /* NotificationPrimingView.swift */; };
+		T10000010000000000000001 /* SafetyServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T20000010000000000000001 /* SafetyServiceTests.swift */; };
+		T10000020000000000000001 /* PromptBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T20000020000000000000001 /* PromptBuilderTests.swift */; };
+		T10000030000000000000001 /* AnalystServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T20000030000000000000001 /* AnalystServiceTests.swift */; };
+		T10000040000000000000001 /* StorageServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T20000040000000000000001 /* StorageServiceTests.swift */; };
+		T10000050000000000000001 /* StreakServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T20000050000000000000001 /* StreakServiceTests.swift */; };
+		T10000060000000000000001 /* InsightQueueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T20000060000000000000001 /* InsightQueueTests.swift */; };
+		T10000070000000000000001 /* CrisisResponseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T20000070000000000000001 /* CrisisResponseTests.swift */; };
+		T10000080000000000000001 /* DailyUsageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T20000080000000000000001 /* DailyUsageTests.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		TC0000010000000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A90000010000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A60000010000000000000001;
+			remoteInfo = ChloeApp;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		6E0D67819E2FDC56855D65EC /* GlowUpStreak.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GlowUpStreak.swift; sourceTree = "<group>"; };
@@ -171,6 +189,15 @@
 		F20000260000000000000001 /* FlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowLayout.swift; sourceTree = "<group>"; };
 		F20000280000000000000001 /* PlayfairDisplay-Italic-VF.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlayfairDisplay-Italic-VF.ttf"; sourceTree = "<group>"; };
 		F20000290000000000000001 /* NotificationPrimingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPrimingView.swift; sourceTree = "<group>"; };
+		T20000010000000000000001 /* SafetyServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafetyServiceTests.swift; sourceTree = "<group>"; };
+		T20000020000000000000001 /* PromptBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptBuilderTests.swift; sourceTree = "<group>"; };
+		T20000030000000000000001 /* AnalystServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalystServiceTests.swift; sourceTree = "<group>"; };
+		T20000040000000000000001 /* StorageServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageServiceTests.swift; sourceTree = "<group>"; };
+		T20000050000000000000001 /* StreakServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakServiceTests.swift; sourceTree = "<group>"; };
+		T20000060000000000000001 /* InsightQueueTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightQueueTests.swift; sourceTree = "<group>"; };
+		T20000070000000000000001 /* CrisisResponseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrisisResponseTests.swift; sourceTree = "<group>"; };
+		T20000080000000000000001 /* DailyUsageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyUsageTests.swift; sourceTree = "<group>"; };
+		T30000010000000000000001 /* ChloeAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ChloeAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -187,6 +214,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		T40000010000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -194,6 +228,7 @@
 			isa = PBXGroup;
 			children = (
 				A50000020000000000000001 /* ChloeApp */,
+				T50000010000000000000001 /* ChloeAppTests */,
 				A50000030000000000000001 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -221,6 +256,7 @@
 			isa = PBXGroup;
 			children = (
 				A30000010000000000000001 /* ChloeApp.app */,
+				T30000010000000000000001 /* ChloeAppTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -403,6 +439,21 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
+		T50000010000000000000001 /* ChloeAppTests */ = {
+			isa = PBXGroup;
+			children = (
+				T20000010000000000000001 /* SafetyServiceTests.swift */,
+				T20000020000000000000001 /* PromptBuilderTests.swift */,
+				T20000030000000000000001 /* AnalystServiceTests.swift */,
+				T20000040000000000000001 /* StorageServiceTests.swift */,
+				T20000050000000000000001 /* StreakServiceTests.swift */,
+				T20000060000000000000001 /* InsightQueueTests.swift */,
+				T20000070000000000000001 /* CrisisResponseTests.swift */,
+				T20000080000000000000001 /* DailyUsageTests.swift */,
+			);
+			path = ChloeAppTests;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -431,6 +482,24 @@
 			productReference = A30000010000000000000001 /* ChloeApp.app */;
 			productType = "com.apple.product-type.application";
 		};
+		T60000010000000000000001 /* ChloeAppTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = T80000010000000000000001 /* Build configuration list for PBXNativeTarget "ChloeAppTests" */;
+			buildPhases = (
+				T70000010000000000000001 /* Sources */,
+				T40000010000000000000001 /* Frameworks */,
+				T70000020000000000000001 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				TD0000010000000000000001 /* PBXTargetDependency */,
+			);
+			name = ChloeAppTests;
+			productName = ChloeAppTests;
+			productReference = T30000010000000000000001 /* ChloeAppTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -443,6 +512,10 @@
 				TargetAttributes = {
 					A60000010000000000000001 = {
 						CreatedOnToolsVersion = 15.4;
+					};
+					T60000010000000000000001 = {
+						CreatedOnToolsVersion = 15.4;
+						TestTargetID = A60000010000000000000001;
 					};
 				};
 			};
@@ -468,6 +541,7 @@
 			projectRoot = "";
 			targets = (
 				A60000010000000000000001 /* ChloeApp */,
+				T60000010000000000000001 /* ChloeAppTests */,
 			);
 		};
 /* End PBXProject section */
@@ -482,6 +556,13 @@
 				F10000220000000000000001 /* Cinzel-Regular.ttf in Resources */,
 				F10000230000000000000001 /* CormorantGaramond-BoldItalic.ttf in Resources */,
 				F10000280000000000000001 /* PlayfairDisplay-Italic-VF.ttf in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		T70000020000000000000001 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -566,7 +647,30 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		T70000010000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				T10000010000000000000001 /* SafetyServiceTests.swift in Sources */,
+				T10000020000000000000001 /* PromptBuilderTests.swift in Sources */,
+				T10000030000000000000001 /* AnalystServiceTests.swift in Sources */,
+				T10000040000000000000001 /* StorageServiceTests.swift in Sources */,
+				T10000050000000000000001 /* StreakServiceTests.swift in Sources */,
+				T10000060000000000000001 /* InsightQueueTests.swift in Sources */,
+				T10000070000000000000001 /* CrisisResponseTests.swift in Sources */,
+				T10000080000000000000001 /* DailyUsageTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		TD0000010000000000000001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A60000010000000000000001 /* ChloeApp */;
+			targetProxy = TC0000010000000000000001 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		B10000010000000000000001 /* Debug */ = {
@@ -748,6 +852,42 @@
 			};
 			name = Release;
 		};
+		TB0000010000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chloepocket.app.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ChloeApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ChloeApp";
+			};
+			name = Debug;
+		};
+		TB0000020000000000000001 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chloepocket.app.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ChloeApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ChloeApp";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -765,6 +905,15 @@
 			buildConfigurations = (
 				B10000010000000000000001 /* Debug */,
 				B10000020000000000000001 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		T80000010000000000000001 /* Build configuration list for PBXNativeTarget "ChloeAppTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				TB0000010000000000000001 /* Debug */,
+				TB0000020000000000000001 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

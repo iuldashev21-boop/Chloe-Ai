@@ -8,6 +8,7 @@ class ChatViewModel: ObservableObject {
     @Published var isTyping = false
     @Published var errorMessage: String?
     @Published var conversationTitle: String = "New Conversation"
+    @Published var isLimitReached = false
 
     private let geminiService = GeminiService.shared
     private let safetyService = SafetyService.shared
@@ -16,6 +17,12 @@ class ChatViewModel: ObservableObject {
 
     private var isAnalyzing = false
     private var backgroundObserver: Any?
+
+    private let goodbyeTemplates: [String] = [
+        "Hey — I loved talking to you today. I'm going to recharge, but I'll be right here tomorrow. You've got this tonight. \u{1F49C}",
+        "That's a wrap for today, babe. Let everything we talked about settle. I'll be back tomorrow with fresh energy for you.",
+        "I'm signing off for now, but I'm not going anywhere. Sleep on it, and come find me tomorrow. I'll be waiting.",
+    ]
 
     var conversationId: String?
 
@@ -56,13 +63,15 @@ class ChatViewModel: ObservableObject {
             return
         }
 
-        // Rate limiting
+        // Rate limiting — block at 6th message (after goodbye on 5th)
         var usage = storageService.loadDailyUsage()
         let profile = storageService.loadProfile()
         if profile?.subscriptionTier != .premium && usage.messageCount >= FREE_DAILY_MESSAGE_LIMIT {
-            errorMessage = "You've reached your daily free message limit. Upgrade to Premium for unlimited messages."
+            isLimitReached = true
             return
         }
+        let isLastFreeMessage = profile?.subscriptionTier != .premium
+            && usage.messageCount == FREE_DAILY_MESSAGE_LIMIT - 1
 
         // Add user message
         let userMsg = Message(conversationId: conversationId, role: .user, text: text)
@@ -87,11 +96,19 @@ class ChatViewModel: ObservableObject {
                 return ArchetypeService.shared.classify(answers: answers)
             }()
 
-            let systemPrompt = buildPersonalizedPrompt(
+            var systemPrompt = buildPersonalizedPrompt(
                 displayName: profile?.displayName ?? "babe",
                 preferences: profile?.preferences,
                 archetype: archetype
             )
+
+            // Soft spiral override — per-message, not per-session
+            if safetyService.checkSoftSpiral(message: text) {
+                // Replace whatever mode was set with GENTLE SUPPORT
+                if let range = systemPrompt.range(of: #"CURRENT MODE: [^\n]+"#, options: .regularExpression) {
+                    systemPrompt.replaceSubrange(range, with: "CURRENT MODE: GENTLE SUPPORT")
+                }
+            }
 
             let userFacts = storageService.loadUserFacts()
                 .filter { $0.isActive }
@@ -106,6 +123,16 @@ class ChatViewModel: ObservableObject {
             let chloeMsg = Message(conversationId: conversationId, role: .chloe, text: response)
             messages.append(chloeMsg)
             saveMessages()
+
+            // Append warm goodbye after last free message
+            if isLastFreeMessage {
+                try? await Task.sleep(nanoseconds: 1_500_000_000)
+                let goodbye = goodbyeTemplates.randomElement() ?? goodbyeTemplates[0]
+                let goodbyeMsg = Message(conversationId: conversationId, role: .chloe, text: goodbye)
+                messages.append(goodbyeMsg)
+                saveMessages()
+                isLimitReached = true
+            }
 
             // Background analysis trigger (every 3 messages)
             let msgsSinceAnalysis = storageService.loadMessagesSinceAnalysis() + 1
@@ -143,6 +170,7 @@ class ChatViewModel: ObservableObject {
         inputText = ""
         errorMessage = nil
         isTyping = false
+        isLimitReached = false
         conversationTitle = "New Conversation"
     }
 

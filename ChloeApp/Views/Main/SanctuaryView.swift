@@ -446,25 +446,83 @@ struct SanctuaryView: View {
 
     // MARK: - Shared Input Bar
 
+    @ViewBuilder
     private var chatInputBar: some View {
-        ChatInputBar(
-            text: $chatVM.inputText,
-            onSend: {
-                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-                if !chatActive { activateChat() }
-                Task { await chatVM.sendMessage() }
-            },
-            onRecentsPressed: { showRecentsSheet = true },
-            onTakePhoto: {
-                showCamera = true
-            },
-            onUploadImage: {
-                showPhotoPicker = true
-            },
-            onPickFile: {
-                showFileImporter = true
+        if chatVM.isLimitReached {
+            rechargingCard
+        } else {
+            ChatInputBar(
+                text: $chatVM.inputText,
+                onSend: {
+                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                    if !chatActive { activateChat() }
+                    Task { await chatVM.sendMessage() }
+                },
+                onRecentsPressed: { showRecentsSheet = true },
+                onTakePhoto: {
+                    showCamera = true
+                },
+                onUploadImage: {
+                    showPhotoPicker = true
+                },
+                onPickFile: {
+                    showFileImporter = true
+                }
+            )
+        }
+    }
+
+    // MARK: - Recharging Card
+
+    private var rechargingCard: some View {
+        VStack(spacing: Spacing.sm) {
+            Image(systemName: "moon.stars.fill")
+                .font(.system(size: 36))
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [.chloePrimary, .chloePrimary.opacity(0.5)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+
+            Text("Chloe is recharging")
+                .font(.chloeHeadline)
+                .foregroundColor(.chloeTextPrimary)
+
+            Text("She'll be back tomorrow with fresh energy for you.")
+                .font(.chloeBodyDefault)
+                .foregroundColor(.chloeTextSecondary)
+                .multilineTextAlignment(.center)
+
+            Button {
+                // TODO: Navigate to paywall / premium purchase
+            } label: {
+                Text("Unlock Unlimited")
+                    .font(.chloeBodyDefault.weight(.semibold))
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, Spacing.xs)
+                    .background(
+                        Capsule()
+                            .fill(
+                                LinearGradient(
+                                    colors: [.chloePrimary, .chloePrimary.opacity(0.7)],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                    )
             }
+            .padding(.top, Spacing.xxs)
+        }
+        .padding(Spacing.lg)
+        .background(
+            RoundedRectangle(cornerRadius: Spacing.cornerRadiusLarge)
+                .fill(Color.chloePrimaryLight.opacity(0.5))
         )
+        .padding(.horizontal, Spacing.screenHorizontal)
+        .padding(.bottom, Spacing.sm)
     }
 
     // MARK: - Recents Sheet

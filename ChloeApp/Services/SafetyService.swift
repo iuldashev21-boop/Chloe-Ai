@@ -52,7 +52,36 @@ class SafetyService {
         #"\b(complete(ly)?\s*dissociat)\b"#,
     ]
 
+    // MARK: - Soft Spiral Patterns (non-crisis, low-energy states)
+
+    private let softSpiralPatterns: [String] = [
+        #"\bfeeling\s+numb\b"#,
+        #"\bfeeling\s+hollow\b"#,
+        #"\bfeeling\s+nothing\b"#,
+        #"\bempty\s+inside\b"#,
+        #"\bcan'?t\s+get\s+out\s+of\s+bed\b"#,
+        #"\bcan'?t\s+move\b"#,
+        #"\bcan'?t\s+function\b"#,
+        #"\beverything\s+feels\s+heavy\b"#,
+        #"\bjust\s+existing\b"#,
+        #"\bgoing\s+through\s+the\s+motions\b"#,
+        #"\bshutting\s+down\b"#,
+        #"\bdisconnected\s+from\s+everything\b"#,
+        #"\bdisconnected\s+from\s+myself\b"#,
+        #"\bdon'?t\s+feel\s+like\s+myself\b"#,
+        #"\bcan'?t\s+feel\s+anything\b"#,
+        #"\bemotionally\s+drained\b"#,
+        #"\bemotionally\s+exhausted\b"#,
+        #"\bemotionally\s+flat\b"#,
+        #"\brunning\s+on\s+autopilot\b"#,
+        #"\brunning\s+on\s+empty\b"#,
+    ]
+
     // MARK: - Public API
+
+    func checkSoftSpiral(message: String) -> Bool {
+        return matchesAny(patterns: softSpiralPatterns, in: message)
+    }
 
     func checkSafety(message: String) -> SafetyCheckResult {
         if matchesAny(patterns: selfHarmPatterns, in: message) {
