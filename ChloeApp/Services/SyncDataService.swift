@@ -437,6 +437,13 @@ class SyncDataService {
     func saveVisionItems(_ items: [VisionItem]) throws {
         try local.saveVisionItems(items)
         pushVisionItemsToCloud(items)
+        // Upload any local image files to Supabase Storage
+        for item in items {
+            if let path = item.imageUri, FileManager.default.fileExists(atPath: path),
+               let data = try? Data(contentsOf: URL(fileURLWithPath: path)) {
+                pushVisionImageToCloud(data, itemId: item.id)
+            }
+        }
     }
 
     func loadVisionItems() -> [VisionItem] {
@@ -446,6 +453,11 @@ class SyncDataService {
     private func pushVisionItemsToCloud(_ items: [VisionItem]) {
         guard network.isConnected else { hasPendingChanges = true; return }
         Task { try? await remote.upsertVisionItems(items) }
+    }
+
+    private func pushVisionImageToCloud(_ data: Data, itemId: String) {
+        guard network.isConnected else { hasPendingChanges = true; return }
+        Task { try? await remote.uploadVisionImage(data, itemId: itemId) }
     }
 
     // MARK: - User Facts (+ cloud sync)
