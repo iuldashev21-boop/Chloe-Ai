@@ -15,6 +15,7 @@ struct SanctuaryView: View {
     @State private var sidebarOpen = false
     @State private var conversations: [Conversation] = []
     @State private var latestVibe: VibeScore? = nil
+    @State private var streak: GlowUpStreak? = nil
 
     // Recents sheet
     @State private var showRecentsSheet = false
@@ -52,6 +53,7 @@ struct SanctuaryView: View {
                 isOpen: $sidebarOpen,
                 conversations: conversations,
                 latestVibe: latestVibe,
+                streak: streak,
                 currentConversationId: chatVM.conversationId,
                 displayName: displayName,
                 profileImageData: profileImageData,
@@ -619,6 +621,8 @@ struct SanctuaryView: View {
         conversations = StorageService.shared.loadConversations()
             .sorted(by: { $0.updatedAt > $1.updatedAt })
         latestVibe = StorageService.shared.loadLatestVibe()
+        let loadedStreak = StorageService.shared.loadStreak()
+        streak = loadedStreak.currentStreak > 0 ? loadedStreak : nil
     }
 }
 

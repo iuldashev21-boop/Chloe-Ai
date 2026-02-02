@@ -9,8 +9,20 @@ class AnalystService {
 
     // MARK: - Background Analysis
 
-    func analyze(messages: [Message]) async throws -> AnalystResult {
-        return try await geminiService.analyzeConversation(messages: messages)
+    func analyze(
+        messages: [Message],
+        userFacts: [String] = [],
+        lastSummary: String? = nil,
+        currentVibe: VibeScore? = nil,
+        displayName: String? = nil
+    ) async throws -> AnalystResult {
+        return try await geminiService.analyzeConversation(
+            messages: messages,
+            userFacts: userFacts,
+            lastSummary: lastSummary,
+            currentVibe: currentVibe,
+            displayName: displayName
+        )
     }
 
     // MARK: - Fact Merging

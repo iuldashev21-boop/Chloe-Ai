@@ -18,6 +18,7 @@ class JournalViewModel: ObservableObject {
     func addEntry(_ entry: JournalEntry) {
         entries.insert(entry, at: 0)
         persistEntries()
+        StreakService.shared.recordActivity(source: .journal)
     }
 
     func deleteEntry(at offsets: IndexSet) {

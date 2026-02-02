@@ -45,6 +45,31 @@ class GeminiService {
             systemInstruction += "\n\nWhat you know about this user:\n\(userFacts.joined(separator: "\n"))"
         }
 
+        // Session handover: inject last session context on first message of new conversation
+        let isNewConversation = messages.count <= 1
+        if isNewConversation, let lastSummary = StorageService.shared.loadLatestSummary() {
+            systemInstruction += """
+
+            \n<session_context>
+            The user's last session was about: "\(lastSummary)".
+            If relevant, casually mention it early in the conversation. E.g., "How did that dinner go?"
+            Do not force it if the user starts a completely new topic.
+            </session_context>
+            """
+        }
+
+        // Pattern insight injection (skip on first message of new conversation to avoid overload)
+        if !isNewConversation, let insight = StorageService.shared.popInsight() {
+            systemInstruction += """
+
+            \n<internal_insight>
+            The Analyst detected a pattern: "\(insight)".
+            Wait for a natural moment in this conversation to gently point this out to the user.
+            Do not force it, but use it to show you are listening deeply.
+            </internal_insight>
+            """
+        }
+
         let recentMessages = Array(messages.suffix(MAX_CONVERSATION_HISTORY))
 
         let geminiContents = recentMessages.map { msg -> [String: Any] in
@@ -78,12 +103,30 @@ class GeminiService {
 
     // MARK: - Analyze Conversation
 
-    func analyzeConversation(messages: [Message]) async throws -> AnalystResult {
+    func analyzeConversation(
+        messages: [Message],
+        userFacts: [String] = [],
+        lastSummary: String? = nil,
+        currentVibe: VibeScore? = nil,
+        displayName: String? = nil
+    ) async throws -> AnalystResult {
         guard !apiKey.isEmpty else { throw GeminiError.noAPIKey }
 
         let conversationText = messages
             .map { "\($0.role == .user ? "User" : "Chloe"): \($0.text)" }
             .joined(separator: "\n\n")
+
+        // Build structured context dossier
+        let dossier = """
+        <context_dossier>
+          USER NAME: \(displayName ?? "Unknown")
+          CURRENT VIBE SCORE: \(currentVibe?.rawValue ?? "UNKNOWN")
+          KNOWN FACTS: \(userFacts.joined(separator: "; "))
+          LAST SESSION SUMMARY: \(lastSummary ?? "No previous session")
+        </context_dossier>
+        """
+
+        let fullText = dossier + "\n\n--- CURRENT CONVERSATION ---\n" + conversationText
 
         let body: [String: Any] = [
             "system_instruction": [
@@ -92,7 +135,7 @@ class GeminiService {
             "contents": [
                 [
                     "role": "user",
-                    "parts": [["text": conversationText]],
+                    "parts": [["text": fullText]],
                 ],
             ],
             "generationConfig": [

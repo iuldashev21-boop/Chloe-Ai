@@ -14,7 +14,27 @@ class ChatViewModel: ObservableObject {
     private let storageService = StorageService.shared
     private let analystService = AnalystService.shared
 
+    private var isAnalyzing = false
+    private var backgroundObserver: Any?
+
     var conversationId: String?
+
+    init() {
+        backgroundObserver = NotificationCenter.default.addObserver(
+            forName: .appDidEnterBackground,
+            object: nil,
+            queue: nil
+        ) { [weak self] _ in
+            guard let self else { return }
+            Task { await self.triggerAnalysisIfPending() }
+        }
+    }
+
+    deinit {
+        if let observer = backgroundObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+    }
 
     func sendMessage() async {
         let text = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -51,6 +71,12 @@ class ChatViewModel: ObservableObject {
         // Increment daily usage
         usage.messageCount += 1
         try? storageService.saveDailyUsage(usage)
+
+        // Record streak activity
+        StreakService.shared.recordActivity(source: .chat)
+
+        // Cancel engagement notifications on re-engagement
+        NotificationService.shared.cancelEngagementNotifications()
 
         isTyping = true
 
@@ -151,27 +177,70 @@ class ChatViewModel: ObservableObject {
     }
 
     private func triggerBackgroundAnalysis() async {
+        guard !isAnalyzing else { return }
         guard !messages.isEmpty else { return }
+        isAnalyzing = true
+        defer { isAnalyzing = false }
+
         do {
-            let result = try await analystService.analyze(messages: messages)
+            let profile = storageService.loadProfile()
+            let existingFacts = storageService.loadUserFacts()
+            let factStrings = existingFacts.filter { $0.isActive }.map { $0.fact }
+            let lastSummary = storageService.loadLatestSummary()
+            let currentVibe = storageService.loadLatestVibe()
+            let displayName = profile?.displayName
+
+            let result = try await analystService.analyze(
+                messages: messages,
+                userFacts: factStrings,
+                lastSummary: lastSummary,
+                currentVibe: currentVibe,
+                displayName: displayName
+            )
 
             await MainActor.run {
                 // Update vibe
                 storageService.saveLatestVibe(result.vibeScore)
 
+                // Save session summary for fallback notifications
+                storageService.saveLatestSummary(result.summary)
+
                 // Merge facts
-                let existingFacts = storageService.loadUserFacts()
                 let lastMessageId = messages.last?.id
                 let updatedFacts = analystService.mergeNewFacts(
                     existing: existingFacts,
                     from: result,
-                    userId: storageService.loadProfile()?.id,
+                    userId: profile?.id,
                     sourceMessageId: lastMessageId
                 )
                 try? storageService.saveUserFacts(updatedFacts)
+
+                // Schedule engagement notification if analyst flagged one
+                if let opportunity = result.engagementOpportunity,
+                   opportunity.triggerNotification,
+                   let text = opportunity.notificationText {
+                    let name = profile?.displayName ?? "babe"
+                    let processedText = text.replacingOccurrences(of: "[Name]", with: name)
+                    NotificationService.shared.scheduleEngagementNotification(text: processedText)
+                }
+
+                // Push pattern to insight queue for Chloe to surface later
+                if let pattern = result.engagementOpportunity?.patternDetected {
+                    storageService.pushInsight(pattern)
+                }
             }
         } catch {
             // Background analysis failures are silent
         }
+    }
+
+    // MARK: - Background Analysis on App Exit
+
+    func triggerAnalysisIfPending() async {
+        guard !isAnalyzing else { return }
+        let pending = storageService.loadMessagesSinceAnalysis()
+        guard pending > 0, !messages.isEmpty else { return }
+        storageService.saveMessagesSinceAnalysis(0)
+        await triggerBackgroundAnalysis()
     }
 }

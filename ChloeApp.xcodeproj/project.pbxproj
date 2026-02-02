@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		151900B32794215F9A9B6E5A /* StreakService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A174B26D7E896B09C9D56F71 /* StreakService.swift */; };
 		3EF786585C46034254C21D71 /* DailyUsage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8B72291CB2B25437CC979C4 /* DailyUsage.swift */; };
 		A10000010000000000000001 /* ChloeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000001 /* ChloeApp.swift */; };
 		A10000020000000000000001 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000020000000000000001 /* ContentView.swift */; };
@@ -56,6 +57,8 @@
 		A10000580000000000000001 /* DisclaimerText.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000580000000000000001 /* DisclaimerText.swift */; };
 		A10000590000000000000001 /* Prompts.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000590000000000000001 /* Prompts.swift */; };
 		A10000600000000000000001 /* CrisisResponses.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000600000000000000001 /* CrisisResponses.swift */; };
+		B1B0BC73FECF454521A45C59 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74CE56D38B6D47E52BFB444E /* NotificationService.swift */; };
+		B95D54A9FAB2885D920CBFD0 /* GlowUpStreak.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E0D67819E2FDC56855D65EC /* GlowUpStreak.swift */; };
 		C10000010000000000000001 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = C20000010000000000000001 /* Lottie */; };
 		C10000020000000000000001 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = C20000020000000000000001 /* Kingfisher */; };
 		C10000030000000000000001 /* ExyteChat in Frameworks */ = {isa = PBXBuildFile; productRef = C20000030000000000000001 /* ExyteChat */; };
@@ -63,16 +66,13 @@
 		C10000050000000000000001 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = C20000050000000000000001 /* MarkdownUI */; };
 		C10000060000000000000001 /* TelemetryDeck in Frameworks */ = {isa = PBXBuildFile; productRef = C20000060000000000000001 /* TelemetryDeck */; };
 		F10000010000000000000001 /* CameraPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000010000000000000001 /* CameraPickerView.swift */; };
-		F10000020000000000000099 /* BentoGridCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000020000000000000099 /* BentoGridCard.swift */; };
 		F10000020000000000000001 /* ChloeButtonLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000020000000000000001 /* ChloeButtonLabel.swift */; };
+		F10000020000000000000099 /* BentoGridCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000020000000000000099 /* BentoGridCard.swift */; };
 		F10000040000000000000001 /* LuminousOrb.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000040000000000000001 /* LuminousOrb.swift */; };
 		F10000050000000000000001 /* OrbStardustEmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000050000000000000001 /* OrbStardustEmitter.swift */; };
 		F10000060000000000000001 /* PlusBloomMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000060000000000000001 /* PlusBloomMenu.swift */; };
 		F10000070000000000000001 /* PressableButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000070000000000000001 /* PressableButtonStyle.swift */; };
 		F10000090000000000000001 /* ShimmerTextModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000090000000000000001 /* ShimmerTextModifier.swift */; };
-		F10000240000000000000001 /* EtherealDustParticles.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000240000000000000001 /* EtherealDustParticles.swift */; };
-		F10000250000000000000001 /* BloomTextModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000250000000000000001 /* BloomTextModifier.swift */; };
-		F10000260000000000000001 /* FlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000260000000000000001 /* FlowLayout.swift */; };
 		F10000110000000000000001 /* AddVisionSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000110000000000000001 /* AddVisionSheet.swift */; };
 		F10000120000000000000001 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000120000000000000001 /* HistoryView.swift */; };
 		F10000130000000000000001 /* JournalDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000130000000000000001 /* JournalDetailView.swift */; };
@@ -84,10 +84,17 @@
 		F10000210000000000000001 /* TenorSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F20000210000000000000001 /* TenorSans-Regular.ttf */; };
 		F10000220000000000000001 /* Cinzel-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F20000220000000000000001 /* Cinzel-Regular.ttf */; };
 		F10000230000000000000001 /* CormorantGaramond-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F20000230000000000000001 /* CormorantGaramond-BoldItalic.ttf */; };
+		F10000240000000000000001 /* EtherealDustParticles.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000240000000000000001 /* EtherealDustParticles.swift */; };
+		F10000250000000000000001 /* BloomTextModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000250000000000000001 /* BloomTextModifier.swift */; };
+		F10000260000000000000001 /* FlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000260000000000000001 /* FlowLayout.swift */; };
 		F10000280000000000000001 /* PlayfairDisplay-Italic-VF.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F20000280000000000000001 /* PlayfairDisplay-Italic-VF.ttf */; };
+		F10000290000000000000001 /* NotificationPrimingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000290000000000000001 /* NotificationPrimingView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		6E0D67819E2FDC56855D65EC /* GlowUpStreak.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GlowUpStreak.swift; sourceTree = "<group>"; };
+		74CE56D38B6D47E52BFB444E /* NotificationService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		A174B26D7E896B09C9D56F71 /* StreakService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StreakService.swift; sourceTree = "<group>"; };
 		A20000010000000000000001 /* ChloeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChloeApp.swift; sourceTree = "<group>"; };
 		A20000020000000000000001 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		A20000030000000000000001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -141,16 +148,13 @@
 		A30000010000000000000001 /* ChloeApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChloeApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B8B72291CB2B25437CC979C4 /* DailyUsage.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DailyUsage.swift; sourceTree = "<group>"; };
 		F20000010000000000000001 /* CameraPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPickerView.swift; sourceTree = "<group>"; };
-		F20000020000000000000099 /* BentoGridCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BentoGridCard.swift; sourceTree = "<group>"; };
 		F20000020000000000000001 /* ChloeButtonLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChloeButtonLabel.swift; sourceTree = "<group>"; };
+		F20000020000000000000099 /* BentoGridCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BentoGridCard.swift; sourceTree = "<group>"; };
 		F20000040000000000000001 /* LuminousOrb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LuminousOrb.swift; sourceTree = "<group>"; };
 		F20000050000000000000001 /* OrbStardustEmitter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrbStardustEmitter.swift; sourceTree = "<group>"; };
 		F20000060000000000000001 /* PlusBloomMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlusBloomMenu.swift; sourceTree = "<group>"; };
 		F20000070000000000000001 /* PressableButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PressableButtonStyle.swift; sourceTree = "<group>"; };
 		F20000090000000000000001 /* ShimmerTextModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShimmerTextModifier.swift; sourceTree = "<group>"; };
-		F20000240000000000000001 /* EtherealDustParticles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EtherealDustParticles.swift; sourceTree = "<group>"; };
-		F20000250000000000000001 /* BloomTextModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BloomTextModifier.swift; sourceTree = "<group>"; };
-		F20000260000000000000001 /* FlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowLayout.swift; sourceTree = "<group>"; };
 		F20000110000000000000001 /* AddVisionSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddVisionSheet.swift; sourceTree = "<group>"; };
 		F20000120000000000000001 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		F20000130000000000000001 /* JournalDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JournalDetailView.swift; sourceTree = "<group>"; };
@@ -162,7 +166,11 @@
 		F20000210000000000000001 /* TenorSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "TenorSans-Regular.ttf"; sourceTree = "<group>"; };
 		F20000220000000000000001 /* Cinzel-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Cinzel-Regular.ttf"; sourceTree = "<group>"; };
 		F20000230000000000000001 /* CormorantGaramond-BoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "CormorantGaramond-BoldItalic.ttf"; sourceTree = "<group>"; };
+		F20000240000000000000001 /* EtherealDustParticles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EtherealDustParticles.swift; sourceTree = "<group>"; };
+		F20000250000000000000001 /* BloomTextModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BloomTextModifier.swift; sourceTree = "<group>"; };
+		F20000260000000000000001 /* FlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowLayout.swift; sourceTree = "<group>"; };
 		F20000280000000000000001 /* PlayfairDisplay-Italic-VF.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlayfairDisplay-Italic-VF.ttf"; sourceTree = "<group>"; };
+		F20000290000000000000001 /* NotificationPrimingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPrimingView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -230,6 +238,7 @@
 				A20000180000000000000001 /* OnboardingPreferences.swift */,
 				A20000190000000000000001 /* Archetype.swift */,
 				B8B72291CB2B25437CC979C4 /* DailyUsage.swift */,
+				6E0D67819E2FDC56855D65EC /* GlowUpStreak.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -307,6 +316,7 @@
 				F20000260000000000000001 /* FlowLayout.swift */,
 				A20000570000000000000001 /* GradientBackground.swift */,
 				F20000040000000000000001 /* LuminousOrb.swift */,
+				F20000290000000000000001 /* NotificationPrimingView.swift */,
 				F20000050000000000000001 /* OrbStardustEmitter.swift */,
 				F20000180000000000000001 /* OnboardingCard.swift */,
 				F20000060000000000000001 /* PlusBloomMenu.swift */,
@@ -339,6 +349,8 @@
 				A20000220000000000000001 /* ArchetypeService.swift */,
 				A20000230000000000000001 /* SafetyService.swift */,
 				A20000240000000000000001 /* AnalystService.swift */,
+				74CE56D38B6D47E52BFB444E /* NotificationService.swift */,
+				A174B26D7E896B09C9D56F71 /* StreakService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -547,6 +559,10 @@
 				F10000180000000000000001 /* OnboardingCard.swift in Sources */,
 				F10000250000000000000001 /* BloomTextModifier.swift in Sources */,
 				F10000260000000000000001 /* FlowLayout.swift in Sources */,
+				F10000290000000000000001 /* NotificationPrimingView.swift in Sources */,
+				B95D54A9FAB2885D920CBFD0 /* GlowUpStreak.swift in Sources */,
+				B1B0BC73FECF454521A45C59 /* NotificationService.swift in Sources */,
+				151900B32794215F9A9B6E5A /* StreakService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

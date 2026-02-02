@@ -3,6 +3,7 @@ import SwiftUI
 struct ContentView: View {
     @StateObject private var authVM = AuthViewModel()
     @State private var onboardingComplete = false
+    @State private var showNotificationPriming = false
 
     // TEMP: Set to true to bypass auth/onboarding for UI testing
     private let debugSkipToMain = false
@@ -36,6 +37,29 @@ struct ContentView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .onboardingDidComplete)) { _ in
             onboardingComplete = true
+            if !StorageService.shared.hasShownNotificationPriming() {
+                showNotificationPriming = true
+            }
+        }
+        .sheet(isPresented: $showNotificationPriming) {
+            NotificationPrimingView(
+                displayName: StorageService.shared.loadProfile()?.displayName ?? "babe",
+                onEnable: {
+                    StorageService.shared.setNotificationPrimingShown()
+                    showNotificationPriming = false
+                    Task {
+                        let granted = await NotificationService.shared.requestPermission()
+                        if !granted {
+                            StorageService.shared.setNotificationDeniedAfterPriming()
+                        }
+                    }
+                },
+                onSkip: {
+                    StorageService.shared.setNotificationPrimingShown()
+                    showNotificationPriming = false
+                }
+            )
+            .interactiveDismissDisabled()
         }
         .onChange(of: authVM.isAuthenticated) { _, newValue in
             if !newValue {

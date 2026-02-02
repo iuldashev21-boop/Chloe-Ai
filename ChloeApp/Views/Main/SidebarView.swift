@@ -8,6 +8,7 @@ struct SidebarView: View {
     @Binding var isOpen: Bool
     var conversations: [Conversation]
     var latestVibe: VibeScore?
+    var streak: GlowUpStreak?
     var currentConversationId: String?
     var displayName: String = "babe"
     var profileImageData: Data? = nil
@@ -53,6 +54,20 @@ struct SidebarView: View {
             navItem(icon: "text.book.closed", label: "Journal") { onNavigate(.journal) }
             navItem(icon: "clock", label: "History") { onNavigate(.history) }
             navItem(icon: "rectangle.on.rectangle.angled", label: "Vision Board") { onNavigate(.visionBoard) }
+
+            // Glow Up Streak
+            if let streak, streak.currentStreak > 0 {
+                HStack(spacing: Spacing.xxs) {
+                    Image(systemName: "flame.fill")
+                        .font(.system(size: 14))
+                        .foregroundColor(.chloePrimary)
+                    Text("\(streak.currentStreak) day streak")
+                        .font(.chloeSidebarChatItem)
+                        .foregroundColor(.chloeTextSecondary)
+                }
+                .padding(.horizontal, Spacing.lg)
+                .padding(.vertical, Spacing.xs)
+            }
 
             Spacer().frame(height: Spacing.lg)
 
@@ -283,6 +298,7 @@ struct SidebarView: View {
             Conversation(title: "Goal setting session"),
         ],
         latestVibe: .medium,
+        streak: GlowUpStreak(currentStreak: 5, longestStreak: 12, lastActiveDate: "2026-02-02"),
         currentConversationId: nil,
         displayName: "Temo",
         onNewChat: {},

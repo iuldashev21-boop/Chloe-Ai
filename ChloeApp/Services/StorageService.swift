@@ -207,6 +207,127 @@ class StorageService {
         return defaults.integer(forKey: "messages_since_analysis")
     }
 
+    // MARK: - Streak
+
+    func saveStreak(_ streak: GlowUpStreak) {
+        if let data = try? encoder.encode(streak) {
+            defaults.set(data, forKey: "glow_up_streak")
+        }
+    }
+
+    func loadStreak() -> GlowUpStreak {
+        guard let data = defaults.data(forKey: "glow_up_streak"),
+              let streak = try? decoder.decode(GlowUpStreak.self, from: data) else {
+            return GlowUpStreak()
+        }
+        return streak
+    }
+
+    // MARK: - Latest Summary
+
+    func saveLatestSummary(_ summary: String) {
+        defaults.set(summary, forKey: "latest_summary")
+    }
+
+    func loadLatestSummary() -> String? {
+        return defaults.string(forKey: "latest_summary")
+    }
+
+    // MARK: - Insight Queue (FIFO with dedup + expiry)
+
+    private struct StoredInsight: Codable {
+        let text: String
+        let createdAt: Date
+    }
+
+    func pushInsight(_ insight: String) {
+        var queue = loadInsightQueue()
+        // Dedup: skip if a similar insight already exists (case-insensitive substring)
+        let lowered = insight.lowercased()
+        let isDuplicate = queue.contains { lowered.contains($0.text.lowercased()) || $0.text.lowercased().contains(lowered) }
+        guard !isDuplicate else { return }
+        queue.append(StoredInsight(text: insight, createdAt: Date()))
+        saveInsightQueue(queue)
+    }
+
+    func popInsight() -> String? {
+        var queue = loadInsightQueue()
+        let expiryDate = Calendar.current.date(byAdding: .day, value: -14, to: Date()) ?? Date()
+        // Skip and discard expired insights
+        while let first = queue.first {
+            if first.createdAt < expiryDate {
+                queue.removeFirst()
+            } else {
+                break
+            }
+        }
+        guard !queue.isEmpty else {
+            saveInsightQueue(queue)
+            return nil
+        }
+        let oldest = queue.removeFirst()
+        saveInsightQueue(queue)
+        return oldest.text
+    }
+
+    private func loadInsightQueue() -> [StoredInsight] {
+        guard let data = defaults.data(forKey: "insight_queue") else { return [] }
+        return (try? decoder.decode([StoredInsight].self, from: data)) ?? []
+    }
+
+    private func saveInsightQueue(_ queue: [StoredInsight]) {
+        if let data = try? encoder.encode(queue) {
+            defaults.set(data, forKey: "insight_queue")
+        }
+    }
+
+    // MARK: - Notification Rate Limiting (generic notifications only)
+
+    func incrementGenericNotificationCount() {
+        resetNotificationWeekIfNeeded()
+        let count = defaults.integer(forKey: "generic_notif_count")
+        defaults.set(count + 1, forKey: "generic_notif_count")
+    }
+
+    func getGenericNotificationCountThisWeek() -> Int {
+        resetNotificationWeekIfNeeded()
+        return defaults.integer(forKey: "generic_notif_count")
+    }
+
+    func canSendGenericNotification() -> Bool {
+        return getGenericNotificationCountThisWeek() < 3
+    }
+
+    private func resetNotificationWeekIfNeeded() {
+        let calendar = Calendar.current
+        let now = Date()
+        let weekStart = calendar.dateInterval(of: .weekOfYear, for: now)?.start ?? now
+        let storedWeekStart = defaults.object(forKey: "notif_week_start") as? Date
+
+        if storedWeekStart == nil || storedWeekStart! < weekStart {
+            defaults.set(weekStart, forKey: "notif_week_start")
+            defaults.set(0, forKey: "generic_notif_count")
+        }
+    }
+
+    // MARK: - Notification Permission Priming
+
+    func setNotificationPrimingShown() {
+        defaults.set(true, forKey: "notification_priming_shown")
+    }
+
+    func hasShownNotificationPriming() -> Bool {
+        return defaults.bool(forKey: "notification_priming_shown")
+    }
+
+    func setNotificationDeniedAfterPriming() {
+        defaults.set(true, forKey: "notification_denied_after_priming")
+    }
+
+    func wasNotificationDeniedAfterPriming() -> Bool {
+        return defaults.bool(forKey: "notification_denied_after_priming")
+    }
+
     // MARK: - Clear All
 
     func clearAll() {
@@ -220,6 +341,9 @@ class StorageService {
             "profile", "conversations", "journal_entries", "goals",
             "affirmations", "vision_items", "user_facts", "latest_vibe",
             "daily_usage", "messages_since_analysis",
+            "glow_up_streak", "latest_summary", "insight_queue",
+            "generic_notif_count", "notif_week_start",
+            "notification_priming_shown", "notification_denied_after_priming",
         ]
         keys.forEach { defaults.removeObject(forKey: $0) }
     }
