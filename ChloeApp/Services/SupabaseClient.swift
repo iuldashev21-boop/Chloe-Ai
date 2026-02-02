@@ -42,7 +42,20 @@ struct SupabaseConfig {
     }
 }
 
-let supabase = SupabaseClient(
-    supabaseURL: SupabaseConfig.url,
-    supabaseKey: SupabaseConfig.anonKey
-)
+let supabase: SupabaseClient = {
+    let encoder = JSONEncoder()
+    encoder.keyEncodingStrategy = .convertToSnakeCase
+    encoder.dateEncodingStrategy = .iso8601
+
+    let decoder = JSONDecoder()
+    decoder.keyDecodingStrategy = .convertFromSnakeCase
+    decoder.dateDecodingStrategy = .iso8601
+
+    return SupabaseClient(
+        supabaseURL: SupabaseConfig.url,
+        supabaseKey: SupabaseConfig.anonKey,
+        options: .init(
+            db: .init(encoder: encoder, decoder: decoder)
+        )
+    )
+}()

@@ -365,7 +365,13 @@ class SyncDataService {
 
     private func pushConversationToCloud(_ conversation: Conversation) {
         guard network.isConnected else { hasPendingChanges = true; return }
-        Task { try? await remote.upsertConversation(conversation) }
+        Task {
+            do {
+                try await remote.upsertConversation(conversation)
+            } catch {
+                hasPendingChanges = true
+            }
+        }
     }
 
     // MARK: - Messages (+ cloud sync)
