@@ -44,7 +44,7 @@ struct EmailLoginView: View {
                             )
                         )
 
-                    Text("ENTER YOUR SANCTUARY")
+                    Text(authVM.isSignUpMode ? "CREATE YOUR SANCTUARY" : "ENTER YOUR SANCTUARY")
                         .font(.custom(ChloeFont.headerDisplay, size: 13))
                         .tracking(3)
                         .foregroundColor(.chloeRosewood)
@@ -93,11 +93,27 @@ struct EmailLoginView: View {
                         .padding(.horizontal, Spacing.screenHorizontal)
                         .accessibilityLabel("Password")
 
-                    // MARK: - Sign In button
+                    // MARK: - Error message
+                    if let errorMessage = authVM.errorMessage {
+                        Text(errorMessage)
+                            .font(.chloeCaption)
+                            .foregroundColor(.red.opacity(0.9))
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, Spacing.screenHorizontal)
+                            .transition(.opacity)
+                    }
+
+                    // MARK: - Sign In / Sign Up button
                     Button {
-                        Task { await authVM.signIn(email: email) }
+                        Task {
+                            if authVM.isSignUpMode {
+                                await authVM.signUp(email: email, password: password)
+                            } else {
+                                await authVM.signIn(email: email, password: password)
+                            }
+                        }
                     } label: {
-                        Text("SIGN IN")
+                        Text(authVM.isSignUpMode ? "CREATE ACCOUNT" : "SIGN IN")
                             .font(.chloeButton)
                             .tracking(3)
                             .foregroundColor(.white)
@@ -106,7 +122,7 @@ struct EmailLoginView: View {
                             .background(
                                 ZStack {
                                     Capsule().fill(.ultraThinMaterial)
-                                    Capsule().fill(Color.chloePrimary.opacity(email.isBlank ? 0.4 : 0.8))
+                                    Capsule().fill(Color.chloePrimary.opacity(email.isBlank || password.count < 6 ? 0.4 : 0.8))
                                     LinearGradient(
                                         colors: [.clear, .white.opacity(0.25), .clear],
                                         startPoint: .leading,
@@ -134,21 +150,33 @@ struct EmailLoginView: View {
                             .clipShape(Capsule())
                             .shadow(color: Color(hex: "#B76E79").opacity(0.2), radius: 15, y: 8)
                     }
-                    .disabled(email.isBlank)
+                    .disabled(email.isBlank || password.count < 6 || authVM.isLoading)
                     .buttonStyle(PressableButtonStyle())
                     .padding(.horizontal, Spacing.screenHorizontal)
                     .onAppear { startShimmerLoop() }
 
-                    // MARK: - Sign Up link
+                    // MARK: - Sign Up / Sign In toggle
                     Button {
-                        // TODO: navigate to sign-up
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            authVM.isSignUpMode.toggle()
+                            authVM.errorMessage = nil
+                        }
                     } label: {
-                        (Text("Don't have an account? ")
-                            .font(.chloeCaption)
-                            .foregroundColor(.chloeTextSecondary)
-                        + Text("Sign Up")
-                            .font(.chloeCaption)
-                            .foregroundColor(.chloePrimary))
+                        if authVM.isSignUpMode {
+                            (Text("Already have an account? ")
+                                .font(.chloeCaption)
+                                .foregroundColor(.chloeTextSecondary)
+                            + Text("Sign In")
+                                .font(.chloeCaption)
+                                .foregroundColor(.chloePrimary))
+                        } else {
+                            (Text("Don't have an account? ")
+                                .font(.chloeCaption)
+                                .foregroundColor(.chloeTextSecondary)
+                            + Text("Sign Up")
+                                .font(.chloeCaption)
+                                .foregroundColor(.chloePrimary))
+                        }
                     }
 
                     // MARK: - "or" divider
@@ -179,13 +207,21 @@ struct EmailLoginView: View {
                     .padding(.horizontal, Spacing.screenHorizontal)
 
                     // MARK: - Skip (Dev)
+                    #if DEBUG
                     Button {
-                        skipToMain()
+                        Task { await authVM.devSignIn() }
+                        // Also mark onboarding complete for skip flow
+                        var profile = StorageService.shared.loadProfile() ?? Profile()
+                        profile.onboardingComplete = true
+                        profile.updatedAt = Date()
+                        try? StorageService.shared.saveProfile(profile)
+                        NotificationCenter.default.post(name: .onboardingDidComplete, object: nil)
                     } label: {
                         Text("Skip (Dev)")
                             .font(.system(size: 14, weight: .light))
                             .foregroundColor(.chloePrimary)
                     }
+                    #endif
 
                     DisclaimerText()
                 }
@@ -228,21 +264,6 @@ struct EmailLoginView: View {
         }
     }
 
-    // MARK: - Dev skip (mirrors SettingsView.skipToMain)
-    private func skipToMain() {
-        var profile = StorageService.shared.loadProfile() ?? Profile()
-        if profile.email.isEmpty {
-            profile.email = "dev@chloe.test"
-        }
-        profile.onboardingComplete = true
-        profile.updatedAt = Date()
-        try? StorageService.shared.saveProfile(profile)
-
-        authVM.email = profile.email
-        authVM.isAuthenticated = true
-
-        NotificationCenter.default.post(name: .onboardingDidComplete, object: nil)
-    }
 }
 
 #Preview {

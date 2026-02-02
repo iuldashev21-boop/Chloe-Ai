@@ -108,7 +108,9 @@ struct SettingsView: View {
                     }
 
                     // Developer Mode Section
+                    #if DEBUG
                     devModeSection
+                    #endif
 
                     // Sign Out
                     Button {
@@ -245,6 +247,7 @@ struct SettingsView: View {
 
     // MARK: - Developer Mode
 
+    #if DEBUG
     private var devModeSection: some View {
         VStack(alignment: .leading, spacing: Spacing.xs) {
             Text("DEVELOPER")
@@ -349,24 +352,14 @@ struct SettingsView: View {
             .padding(.horizontal, Spacing.screenHorizontal)
         }
     }
+    #endif
 
+    #if DEBUG
     private func skipToMain() {
-        // Create a complete profile so auth + onboarding are satisfied
-        var profile = StorageService.shared.loadProfile() ?? Profile()
-        if profile.email.isEmpty {
-            profile.email = "dev@chloe.test"
-        }
-        profile.onboardingComplete = true
-        profile.updatedAt = Date()
-        try? StorageService.shared.saveProfile(profile)
-
-        // Update auth state
-        authVM.email = profile.email
-        authVM.isAuthenticated = true
-
-        // Signal onboarding complete
+        Task { await authVM.devSignIn() }
         NotificationCenter.default.post(name: .onboardingDidComplete, object: nil)
     }
+    #endif
 
     // MARK: - Section Builder
 

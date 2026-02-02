@@ -44,5 +44,11 @@
 	<string>Chloe needs photo library access so you can share images in chat.</string>
 	<key>GEMINI_API_KEY</key>
 	<string>$(GEMINI_API_KEY)</string>
+	<key>SUPABASE_URL</key>
+	<string>$(SUPABASE_URL)</string>
+	<key>SUPABASE_ANON_KEY</key>
+	<string>$(SUPABASE_ANON_KEY)</string>
+	<key>DEV_SUPABASE_PASSWORD</key>
+	<string>$(DEV_SUPABASE_PASSWORD)</string>
 </dict>
 </plist>
