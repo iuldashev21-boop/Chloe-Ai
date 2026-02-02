@@ -67,6 +67,9 @@
 		C10000060000000000000001 /* TelemetryDeck in Frameworks */ = {isa = PBXBuildFile; productRef = C20000060000000000000001 /* TelemetryDeck */; };
 		C10000070000000000000001 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = C20000070000000000000001 /* Supabase */; };
 		D30000010000000000000001 /* SupabaseClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = D20000010000000000000001 /* SupabaseClient.swift */; };
+		E30000010000000000000001 /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D30000020000000000000001 /* NetworkMonitor.swift */; };
+		E30000020000000000000001 /* SupabaseDataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D30000030000000000000001 /* SupabaseDataService.swift */; };
+		E30000030000000000000001 /* SyncDataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D30000040000000000000001 /* SyncDataService.swift */; };
 		F10000010000000000000001 /* CameraPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000010000000000000001 /* CameraPickerView.swift */; };
 		F10000020000000000000001 /* ChloeButtonLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000020000000000000001 /* ChloeButtonLabel.swift */; };
 		F10000020000000000000099 /* BentoGridCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000020000000000000099 /* BentoGridCard.swift */; };
@@ -201,6 +204,9 @@
 		T20000080000000000000001 /* DailyUsageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyUsageTests.swift; sourceTree = "<group>"; };
 		T30000010000000000000001 /* ChloeAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ChloeAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D20000010000000000000001 /* SupabaseClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseClient.swift; sourceTree = "<group>"; };
+		D30000020000000000000001 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
+		D30000030000000000000001 /* SupabaseDataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseDataService.swift; sourceTree = "<group>"; };
+		D30000040000000000000001 /* SyncDataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncDataService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -392,6 +398,9 @@
 				74CE56D38B6D47E52BFB444E /* NotificationService.swift */,
 				A174B26D7E896B09C9D56F71 /* StreakService.swift */,
 				D20000010000000000000001 /* SupabaseClient.swift */,
+				D30000020000000000000001 /* NetworkMonitor.swift */,
+				D30000030000000000000001 /* SupabaseDataService.swift */,
+				D30000040000000000000001 /* SyncDataService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -652,6 +661,9 @@
 				B1B0BC73FECF454521A45C59 /* NotificationService.swift in Sources */,
 				151900B32794215F9A9B6E5A /* StreakService.swift in Sources */,
 				D30000010000000000000001 /* SupabaseClient.swift in Sources */,
+				E30000010000000000000001 /* NetworkMonitor.swift in Sources */,
+				E30000020000000000000001 /* SupabaseDataService.swift in Sources */,
+				E30000030000000000000001 /* SyncDataService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -34,9 +34,9 @@ struct ChloeApp: App {
 
         case .background:
             // Schedule fallback vibe check with last session context
-            let profile = StorageService.shared.loadProfile()
+            let profile = SyncDataService.shared.loadProfile()
             let displayName = profile?.displayName
-            let lastSummary = StorageService.shared.loadLatestSummary()
+            let lastSummary = SyncDataService.shared.loadLatestSummary()
             NotificationService.shared.scheduleFallbackVibeCheck(
                 displayName: displayName,
                 lastSummary: lastSummary

@@ -13,7 +13,7 @@ class ChatViewModel: ObservableObject {
 
     private let geminiService = GeminiService.shared
     private let safetyService = SafetyService.shared
-    private let storageService = StorageService.shared
+    private let storageService = SyncDataService.shared
     private let analystService = AnalystService.shared
 
     private var isAnalyzing = false
@@ -105,10 +105,13 @@ class ChatViewModel: ObservableObject {
                 return ArchetypeService.shared.classify(answers: answers)
             }()
 
+            let currentVibe = storageService.loadLatestVibe()
+
             var systemPrompt = buildPersonalizedPrompt(
                 displayName: profile?.displayName ?? "babe",
                 preferences: profile?.preferences,
-                archetype: archetype
+                archetype: archetype,
+                vibeScore: currentVibe
             )
 
             // Soft spiral override — per-message, not per-session
@@ -123,10 +126,17 @@ class ChatViewModel: ObservableObject {
                 .filter { $0.isActive }
                 .map { $0.fact }
 
+            // Load session context for GeminiService (decoupled from StorageService)
+            let isNewConversation = messages.count <= 1
+            let lastSummary = isNewConversation ? storageService.loadLatestSummary() : nil
+            let insight = !isNewConversation ? storageService.popInsight() : nil
+
             let response = try await geminiService.sendMessage(
                 messages: messages,
                 systemPrompt: systemPrompt,
-                userFacts: userFacts
+                userFacts: userFacts,
+                lastSummary: lastSummary,
+                insight: insight
             )
 
             let chloeMsg = Message(conversationId: conversationId, role: .chloe, text: response)

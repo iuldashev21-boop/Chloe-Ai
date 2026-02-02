@@ -60,7 +60,7 @@ class AuthViewModel: ObservableObject {
         Task {
             try? await supabase.auth.signOut()
         }
-        StorageService.shared.clearAll()
+        SyncDataService.shared.clearAll()
         isAuthenticated = false
         email = ""
         errorMessage = nil
@@ -77,7 +77,7 @@ class AuthViewModel: ObservableObject {
                 isAuthenticated = true
             } catch {
                 // No valid session — fall back to local profile check
-                if let profile = StorageService.shared.loadProfile(),
+                if let profile = SyncDataService.shared.loadProfile(),
                    !profile.email.isEmpty {
                     email = profile.email
                     isAuthenticated = true
@@ -115,13 +115,13 @@ class AuthViewModel: ObservableObject {
     }
 
     private func localDevSkip() {
-        var profile = StorageService.shared.loadProfile() ?? Profile()
+        var profile = SyncDataService.shared.loadProfile() ?? Profile()
         if profile.email.isEmpty {
             profile.email = "dev@chloe.test"
         }
         profile.onboardingComplete = true
         profile.updatedAt = Date()
-        try? StorageService.shared.saveProfile(profile)
+        try? SyncDataService.shared.saveProfile(profile)
         self.email = profile.email
         isAuthenticated = true
     }
@@ -130,10 +130,10 @@ class AuthViewModel: ObservableObject {
     // MARK: - Helpers
 
     private func syncProfileFromSession(_ user: User) {
-        var profile = StorageService.shared.loadProfile() ?? Profile(id: user.id.uuidString)
+        var profile = SyncDataService.shared.loadProfile() ?? Profile(id: user.id.uuidString)
         profile.email = user.email ?? profile.email
         profile.updatedAt = Date()
-        try? StorageService.shared.saveProfile(profile)
+        try? SyncDataService.shared.saveProfile(profile)
     }
 
     private func friendlyError(_ error: Error) -> String {

@@ -1,6 +1,12 @@
 import Foundation
 import UIKit
 
+/// Shared struct for insight queue entries (used by StorageService + SyncDataService)
+struct InsightEntry: Codable {
+    let text: String
+    let createdAt: Date
+}
+
 class StorageService {
     static let shared = StorageService()
 
@@ -251,18 +257,13 @@ class StorageService {
 
     // MARK: - Insight Queue (FIFO with dedup + expiry)
 
-    private struct StoredInsight: Codable {
-        let text: String
-        let createdAt: Date
-    }
-
     func pushInsight(_ insight: String) {
         var queue = loadInsightQueue()
         // Dedup: skip if a similar insight already exists (case-insensitive substring)
         let lowered = insight.lowercased()
         let isDuplicate = queue.contains { lowered.contains($0.text.lowercased()) || $0.text.lowercased().contains(lowered) }
         guard !isDuplicate else { return }
-        queue.append(StoredInsight(text: insight, createdAt: Date()))
+        queue.append(InsightEntry(text: insight, createdAt: Date()))
         saveInsightQueue(queue)
     }
 
@@ -286,12 +287,22 @@ class StorageService {
         return oldest.text
     }
 
-    private func loadInsightQueue() -> [StoredInsight] {
-        guard let data = defaults.data(forKey: "insight_queue") else { return [] }
-        return (try? decoder.decode([StoredInsight].self, from: data)) ?? []
+    /// Load raw insight entries (for cloud sync)
+    func loadInsightEntries() -> [InsightEntry] {
+        return loadInsightQueue()
     }
 
-    private func saveInsightQueue(_ queue: [StoredInsight]) {
+    /// Replace insight queue from cloud data (for sync)
+    func replaceInsightEntries(_ entries: [InsightEntry]) {
+        saveInsightQueue(entries)
+    }
+
+    private func loadInsightQueue() -> [InsightEntry] {
+        guard let data = defaults.data(forKey: "insight_queue") else { return [] }
+        return (try? decoder.decode([InsightEntry].self, from: data)) ?? []
+    }
+
+    private func saveInsightQueue(_ queue: [InsightEntry]) {
         if let data = try? encoder.encode(queue) {
             defaults.set(data, forKey: "insight_queue")
         }

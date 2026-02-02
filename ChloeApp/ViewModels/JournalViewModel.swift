@@ -8,11 +8,11 @@ class JournalViewModel: ObservableObject {
     @Published var saveError: String?
 
     init() {
-        entries = StorageService.shared.loadJournalEntries()
+        entries = SyncDataService.shared.loadJournalEntries()
     }
 
     func loadEntries() {
-        entries = StorageService.shared.loadJournalEntries()
+        entries = SyncDataService.shared.loadJournalEntries()
     }
 
     func addEntry(_ entry: JournalEntry) {
@@ -28,7 +28,7 @@ class JournalViewModel: ObservableObject {
 
     private func persistEntries() {
         do {
-            try StorageService.shared.saveJournalEntries(entries)
+            try SyncDataService.shared.saveJournalEntries(entries)
             saveError = nil
         } catch {
             saveError = "Failed to save journal: \(error.localizedDescription)"

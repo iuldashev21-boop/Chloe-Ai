@@ -5,7 +5,7 @@ class NotificationService {
     static let shared = NotificationService()
 
     private let center = UNUserNotificationCenter.current()
-    private let storage = StorageService.shared
+    private let storage = SyncDataService.shared
 
     private init() {}
 

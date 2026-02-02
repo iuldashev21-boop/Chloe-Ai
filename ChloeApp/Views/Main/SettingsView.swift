@@ -160,8 +160,8 @@ struct SettingsView: View {
             Text("This will sign you out and return to the welcome screen. Your data will be cleared.")
         }
         .onAppear {
-            profile = StorageService.shared.loadProfile()
-            if let data = StorageService.shared.loadProfileImage() {
+            profile = SyncDataService.shared.loadProfile()
+            if let data = SyncDataService.shared.loadProfileImage() {
                 profileImage = UIImage(data: data)
             }
             withAnimation(Spacing.chloeSpring) {
@@ -172,7 +172,7 @@ struct SettingsView: View {
             Button("Choose Photo") { showPhotoPicker = true }
             if profileImage != nil {
                 Button("Remove Photo", role: .destructive) {
-                    try? StorageService.shared.deleteProfileImage()
+                    try? SyncDataService.shared.deleteProfileImage()
                     profileImage = nil
                 }
             }
@@ -186,11 +186,11 @@ struct SettingsView: View {
                    let uiImage = UIImage(data: data),
                    let jpegData = uiImage.jpegData(compressionQuality: 0.8) {
                     do {
-                        let path = try StorageService.shared.saveProfileImage(jpegData)
+                        let path = try SyncDataService.shared.saveProfileImage(jpegData)
                         var updated = profile ?? Profile()
                         updated.profileImageUri = path
                         updated.updatedAt = Date()
-                        try StorageService.shared.saveProfile(updated)
+                        try SyncDataService.shared.saveProfile(updated)
                         profile = updated
                         profileImage = uiImage
                     } catch {}

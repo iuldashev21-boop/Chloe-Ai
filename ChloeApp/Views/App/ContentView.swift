@@ -31,31 +31,33 @@ struct ContentView: View {
         .environmentObject(authVM)
         .onAppear {
             authVM.restoreSession()
-            if let profile = StorageService.shared.loadProfile() {
+            if let profile = SyncDataService.shared.loadProfile() {
                 onboardingComplete = profile.onboardingComplete
             }
+            // Pull latest data from Supabase on launch
+            Task { await SyncDataService.shared.syncFromCloud() }
         }
         .onReceive(NotificationCenter.default.publisher(for: .onboardingDidComplete)) { _ in
             onboardingComplete = true
-            if !StorageService.shared.hasShownNotificationPriming() {
+            if !SyncDataService.shared.hasShownNotificationPriming() {
                 showNotificationPriming = true
             }
         }
         .sheet(isPresented: $showNotificationPriming) {
             NotificationPrimingView(
-                displayName: StorageService.shared.loadProfile()?.displayName ?? "babe",
+                displayName: SyncDataService.shared.loadProfile()?.displayName ?? "babe",
                 onEnable: {
-                    StorageService.shared.setNotificationPrimingShown()
+                    SyncDataService.shared.setNotificationPrimingShown()
                     showNotificationPriming = false
                     Task {
                         let granted = await NotificationService.shared.requestPermission()
                         if !granted {
-                            StorageService.shared.setNotificationDeniedAfterPriming()
+                            SyncDataService.shared.setNotificationDeniedAfterPriming()
                         }
                     }
                 },
                 onSkip: {
-                    StorageService.shared.setNotificationPrimingShown()
+                    SyncDataService.shared.setNotificationPrimingShown()
                     showNotificationPriming = false
                 }
             )

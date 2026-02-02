@@ -206,26 +206,30 @@ Return only the affirmation text.
 func buildPersonalizedPrompt(
     displayName: String,
     preferences: OnboardingPreferences?,
-    archetype: UserArchetype?
+    archetype: UserArchetype?,
+    vibeScore: VibeScore? = nil
 ) -> String {
     return injectUserContext(
         template: Prompts.chloeSystem,
         displayName: displayName,
         preferences: preferences,
-        archetype: archetype
+        archetype: archetype,
+        vibeScore: vibeScore
     )
 }
 
 func buildAffirmationPrompt(
     displayName: String,
     preferences: OnboardingPreferences?,
-    archetype: UserArchetype?
+    archetype: UserArchetype?,
+    vibeScore: VibeScore? = nil
 ) -> String {
     return injectUserContext(
         template: Prompts.affirmationTemplate,
         displayName: displayName,
         preferences: preferences,
-        archetype: archetype
+        archetype: archetype,
+        vibeScore: vibeScore
     )
 }
 
@@ -233,7 +237,8 @@ private func injectUserContext(
     template: String,
     displayName: String,
     preferences: OnboardingPreferences?,
-    archetype: UserArchetype?
+    archetype: UserArchetype?,
+    vibeScore: VibeScore? = nil
 ) -> String {
     var prompt = template
 
@@ -258,7 +263,6 @@ private func injectUserContext(
     prompt = prompt.replacingOccurrences(of: "{{relationship_status}}", with: "Not shared yet")
 
     // Deterministic vibe mode gating — computed in Swift, not left to LLM
-    let vibeScore = StorageService.shared.loadLatestVibe()
     let vibeMode: String
     switch vibeScore {
     case .low:

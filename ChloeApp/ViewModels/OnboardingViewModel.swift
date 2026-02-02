@@ -37,13 +37,13 @@ class OnboardingViewModel: ObservableObject {
         preferences.onboardingCompleted = true
 
         // Save profile with preferences
-        var profile = StorageService.shared.loadProfile() ?? Profile()
+        var profile = SyncDataService.shared.loadProfile() ?? Profile()
         profile.displayName = preferences.name ?? ""
         profile.preferences = preferences
         profile.onboardingComplete = true
         profile.updatedAt = Date()
 
-        try? StorageService.shared.saveProfile(profile)
+        try? SyncDataService.shared.saveProfile(profile)
         isComplete = true
         NotificationCenter.default.post(name: .onboardingDidComplete, object: nil)
     }

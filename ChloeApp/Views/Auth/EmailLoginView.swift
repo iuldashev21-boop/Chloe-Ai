@@ -211,10 +211,10 @@ struct EmailLoginView: View {
                     Button {
                         Task { await authVM.devSignIn() }
                         // Also mark onboarding complete for skip flow
-                        var profile = StorageService.shared.loadProfile() ?? Profile()
+                        var profile = SyncDataService.shared.loadProfile() ?? Profile()
                         profile.onboardingComplete = true
                         profile.updatedAt = Date()
-                        try? StorageService.shared.saveProfile(profile)
+                        try? SyncDataService.shared.saveProfile(profile)
                         NotificationCenter.default.post(name: .onboardingDidComplete, object: nil)
                     } label: {
                         Text("Skip (Dev)")

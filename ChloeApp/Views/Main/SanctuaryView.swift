@@ -66,7 +66,7 @@ struct SanctuaryView: View {
                 },
                 onSelectConversation: { convo in
                     chatVM.conversationId = convo.id
-                    chatVM.messages = StorageService.shared.loadMessages(forConversation: convo.id)
+                    chatVM.messages = SyncDataService.shared.loadMessages(forConversation: convo.id)
                     withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
                         chatActive = true
                         sidebarOpen = false
@@ -88,14 +88,14 @@ struct SanctuaryView: View {
                     }
                 },
                 onRenameConversation: { id, newTitle in
-                    try? StorageService.shared.renameConversation(id: id, newTitle: newTitle)
+                    try? SyncDataService.shared.renameConversation(id: id, newTitle: newTitle)
                     loadConversations()
                     if chatVM.conversationId == id {
                         chatVM.conversationTitle = newTitle
                     }
                 },
                 onDeleteConversation: { id in
-                    StorageService.shared.deleteConversation(id: id)
+                    SyncDataService.shared.deleteConversation(id: id)
                     loadConversations()
                     if chatVM.conversationId == id {
                         chatVM.startNewChat()
@@ -106,7 +106,7 @@ struct SanctuaryView: View {
                     }
                 },
                 onToggleStarConversation: { id in
-                    try? StorageService.shared.toggleConversationStar(id: id)
+                    try? SyncDataService.shared.toggleConversationStar(id: id)
                     loadConversations()
                 }
             )
@@ -134,7 +134,7 @@ struct SanctuaryView: View {
         .navigationDestination(isPresented: $showHistory) {
             HistoryView { convo in
                 chatVM.conversationId = convo.id
-                chatVM.messages = StorageService.shared.loadMessages(forConversation: convo.id)
+                chatVM.messages = SyncDataService.shared.loadMessages(forConversation: convo.id)
                 chatActive = true
             }
         }
@@ -187,7 +187,7 @@ struct SanctuaryView: View {
         }
         .onChange(of: showSettings) {
             if !showSettings {
-                profileImageData = StorageService.shared.loadProfileImage()
+                profileImageData = SyncDataService.shared.loadProfileImage()
             }
         }
         .onChange(of: chatVM.messages.count) {
@@ -537,7 +537,7 @@ struct SanctuaryView: View {
                         Button {
                             showRecentsSheet = false
                             chatVM.conversationId = convo.id
-                            chatVM.messages = StorageService.shared.loadMessages(forConversation: convo.id)
+                            chatVM.messages = SyncDataService.shared.loadMessages(forConversation: convo.id)
                             withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
                                 chatActive = true
                             }
@@ -652,31 +652,31 @@ struct SanctuaryView: View {
     }
 
     private func loadUserData() {
-        if let profile = StorageService.shared.loadProfile() {
+        if let profile = SyncDataService.shared.loadProfile() {
             displayName = profile.displayName.isEmpty ? "babe" : profile.displayName
         }
-        profileImageData = StorageService.shared.loadProfileImage()
+        profileImageData = SyncDataService.shared.loadProfileImage()
     }
 
     private func loadGhostMessages() {
         // Load ghost messages from the current conversation if available,
         // otherwise fall back to the most recently updated conversation
-        let targetId: String? = chatVM.conversationId ?? StorageService.shared.loadConversations()
+        let targetId: String? = chatVM.conversationId ?? SyncDataService.shared.loadConversations()
             .sorted(by: { $0.updatedAt > $1.updatedAt })
             .first?.id
         guard let id = targetId else {
             ghostMessages = []
             return
         }
-        let messages = StorageService.shared.loadMessages(forConversation: id)
+        let messages = SyncDataService.shared.loadMessages(forConversation: id)
         ghostMessages = Array(messages.suffix(2))
     }
 
     private func loadConversations() {
-        conversations = StorageService.shared.loadConversations()
+        conversations = SyncDataService.shared.loadConversations()
             .sorted(by: { $0.updatedAt > $1.updatedAt })
-        latestVibe = StorageService.shared.loadLatestVibe()
-        let loadedStreak = StorageService.shared.loadStreak()
+        latestVibe = SyncDataService.shared.loadLatestVibe()
+        let loadedStreak = SyncDataService.shared.loadStreak()
         streak = loadedStreak.currentStreak > 0 ? loadedStreak : nil
     }
 }

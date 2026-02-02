@@ -8,7 +8,7 @@ class GoalsViewModel: ObservableObject {
     @Published var saveError: String?
 
     func loadGoals() {
-        goals = StorageService.shared.loadGoals()
+        goals = SyncDataService.shared.loadGoals()
     }
 
     func addGoal(_ goal: Goal) {
@@ -39,7 +39,7 @@ class GoalsViewModel: ObservableObject {
 
     private func persistGoals() {
         do {
-            try StorageService.shared.saveGoals(goals)
+            try SyncDataService.shared.saveGoals(goals)
             saveError = nil
         } catch {
             saveError = "Failed to save goals: \(error.localizedDescription)"

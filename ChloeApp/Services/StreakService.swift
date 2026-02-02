@@ -8,7 +8,7 @@ enum StreakActivitySource {
 class StreakService {
     static let shared = StreakService()
 
-    private let storage = StorageService.shared
+    private let storage = SyncDataService.shared
 
     private init() {}
 

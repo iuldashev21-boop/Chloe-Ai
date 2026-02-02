@@ -37,6 +37,8 @@ class GeminiService {
         messages: [Message],
         systemPrompt: String,
         userFacts: [String] = [],
+        lastSummary: String? = nil,
+        insight: String? = nil,
         temperature: Double = 0.8
     ) async throws -> String {
         guard !apiKey.isEmpty else { throw GeminiError.noAPIKey }
@@ -48,7 +50,7 @@ class GeminiService {
 
         // Session handover: inject last session context on first message of new conversation
         let isNewConversation = messages.count <= 1
-        if isNewConversation, let lastSummary = StorageService.shared.loadLatestSummary() {
+        if isNewConversation, let lastSummary {
             systemInstruction += """
 
             \n<session_context>
@@ -60,7 +62,7 @@ class GeminiService {
         }
 
         // Pattern insight injection (skip on first message of new conversation to avoid overload)
-        if !isNewConversation, let insight = StorageService.shared.popInsight() {
+        if !isNewConversation, let insight {
             systemInstruction += """
 
             \n<internal_insight>

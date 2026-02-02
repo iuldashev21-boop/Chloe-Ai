@@ -42,7 +42,7 @@ struct HistoryView: View {
         .toolbar(.visible, for: .navigationBar)
         .toolbarRole(.editor)
         .onAppear {
-            conversations = StorageService.shared.loadConversations()
+            conversations = SyncDataService.shared.loadConversations()
                 .sorted(by: { $0.updatedAt > $1.updatedAt })
         }
     }

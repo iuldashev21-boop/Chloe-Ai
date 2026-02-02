@@ -7,12 +7,12 @@ class AffirmationsViewModel: ObservableObject {
     @Published var isLoading = false
 
     func loadAffirmations() {
-        affirmations = StorageService.shared.loadAffirmations()
+        affirmations = SyncDataService.shared.loadAffirmations()
     }
 
     func toggleSaved(id: String) {
         guard let index = affirmations.firstIndex(where: { $0.id == id }) else { return }
         affirmations[index].isSaved.toggle()
-        try? StorageService.shared.saveAffirmations(affirmations)
+        try? SyncDataService.shared.saveAffirmations(affirmations)
     }
 }

@@ -8,7 +8,7 @@ class VisionBoardViewModel: ObservableObject {
     @Published var saveError: String?
 
     func loadItems() {
-        items = StorageService.shared.loadVisionItems()
+        items = SyncDataService.shared.loadVisionItems()
     }
 
     func addItem(_ item: VisionItem) {
@@ -49,7 +49,7 @@ class VisionBoardViewModel: ObservableObject {
 
     private func persistItems() {
         do {
-            try StorageService.shared.saveVisionItems(items)
+            try SyncDataService.shared.saveVisionItems(items)
             saveError = nil
         } catch {
             saveError = "Failed to save vision items: \(error.localizedDescription)"
