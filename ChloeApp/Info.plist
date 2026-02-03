@@ -50,5 +50,9 @@
 	<string>$(SUPABASE_ANON_KEY)</string>
 	<key>DEV_SUPABASE_PASSWORD</key>
 	<string>$(DEV_SUPABASE_PASSWORD)</string>
+	<key>PORTKEY_API_KEY</key>
+	<string>$(PORTKEY_API_KEY)</string>
+	<key>PORTKEY_VIRTUAL_KEY</key>
+	<string>$(PORTKEY_VIRTUAL_KEY)</string>
 </dict>
 </plist>

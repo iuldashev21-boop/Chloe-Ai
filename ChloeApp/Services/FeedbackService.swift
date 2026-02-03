@@ -66,18 +66,24 @@ class FeedbackService {
             reviewed: false
         )
 
+        // Send to Portkey FIRST (independent of Supabase)
+        NSLog("[FeedbackService] Checking Portkey trace ID: %@", PortkeyService.shared.lastTraceId ?? "nil")
+        if let traceId = PortkeyService.shared.lastTraceId {
+            let portkeyRating = feedback.rating == .helpful ? "1" : "-1"
+            NSLog("[FeedbackService] Sending to Portkey: traceId=%@, rating=%@", traceId, portkeyRating)
+            try? await PortkeyService.shared.sendFeedback(traceId: traceId, rating: portkeyRating)
+        } else {
+            NSLog("[FeedbackService] No Portkey trace ID - feedback not sent to Portkey")
+        }
+
+        // Then save to Supabase (may fail if table doesn't exist)
         do {
             try await supabase.from("feedback")
                 .insert(dto)
                 .execute()
-
-            // Also send to Portkey if configured
-            if let traceId = PortkeyService.shared.lastTraceId {
-                let portkeyRating = feedback.rating == .helpful ? "1" : "-1"
-                try? await PortkeyService.shared.sendFeedback(traceId: traceId, rating: portkeyRating)
-            }
         } catch {
-            throw FeedbackError.networkError(error)
+            NSLog("[FeedbackService] Supabase error (feedback table may not exist): %@", error.localizedDescription)
+            // Don't throw - Portkey feedback was already sent
         }
     }
 

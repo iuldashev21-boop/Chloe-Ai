@@ -69,7 +69,6 @@ class PortkeyService {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue(apiKey, forHTTPHeaderField: "x-portkey-api-key")
         request.setValue(virtualKey, forHTTPHeaderField: "x-portkey-virtual-key")
-        request.setValue("google", forHTTPHeaderField: "x-portkey-provider")
         request.timeoutInterval = timeoutInterval
 
         // Add metadata headers for tracking
@@ -89,10 +88,12 @@ class PortkeyService {
             ])
         }
 
+        // Model format: @{virtualKey}/{model}
+        let model = "@\(virtualKey)/gemini-2.0-flash"
+
         let body: [String: Any] = [
-            "model": "gemini-2.0-flash",
+            "model": model,
             "messages": allMessages,
-            "temperature": temperature,
             "max_tokens": 1024
         ]
 
@@ -102,7 +103,16 @@ class PortkeyService {
 
         // Extract trace ID from response headers
         if let httpResponse = response as? HTTPURLResponse {
-            lastTraceId = httpResponse.value(forHTTPHeaderField: "x-portkey-trace-id")
+            // Try multiple header name formats (case-insensitive lookup)
+            for (key, value) in httpResponse.allHeaderFields {
+                if let keyStr = key as? String,
+                   keyStr.lowercased() == "x-portkey-trace-id",
+                   let valueStr = value as? String {
+                    lastTraceId = valueStr
+                    NSLog("[Portkey] Captured trace ID: %@", valueStr)
+                    break
+                }
+            }
 
             if httpResponse.statusCode != 200 {
                 let errorText = String(data: data, encoding: .utf8) ?? "Unknown error"
@@ -125,22 +135,40 @@ class PortkeyService {
 
     /// Send feedback to Portkey for a specific trace
     func sendFeedback(traceId: String, rating: String) async throws {
-        guard !apiKey.isEmpty else { return }
+        NSLog("[Portkey] Sending feedback - traceId: %@, rating: %@", traceId, rating)
 
-        guard let url = URL(string: feedbackURL) else { return }
+        guard !apiKey.isEmpty else {
+            NSLog("[Portkey] ERROR: No API key for feedback")
+            return
+        }
+
+        guard let url = URL(string: feedbackURL) else {
+            NSLog("[Portkey] ERROR: Invalid feedback URL")
+            return
+        }
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue(apiKey, forHTTPHeaderField: "x-portkey-api-key")
 
+        // Value should be an integer: positive for good, negative for bad
+        let numericValue = rating == "1" ? 1 : -1
+
         let body: [String: Any] = [
             "trace_id": traceId,
-            "value": rating
+            "value": numericValue
         ]
+
+        NSLog("[Portkey] Feedback request body: %@", String(describing: body))
 
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
 
-        _ = try await URLSession.shared.data(for: request)
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        if let httpResponse = response as? HTTPURLResponse {
+            let responseText = String(data: data, encoding: .utf8) ?? "No body"
+            NSLog("[Portkey] Feedback response: status=%d, body=%@", httpResponse.statusCode, responseText)
+        }
     }
 }
