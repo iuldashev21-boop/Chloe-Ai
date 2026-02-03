@@ -100,6 +100,42 @@ class NotificationService {
         storage.incrementGenericNotificationCount()
     }
 
+    // MARK: - Daily Affirmation
+
+    /// Check if tomorrow's affirmation is already scheduled
+    func hasScheduledAffirmation() async -> Bool {
+        let requests = await center.pendingNotificationRequests()
+        return requests.contains { $0.identifier.hasPrefix("affirmation_") }
+    }
+
+    /// Schedule affirmation for random time between 7-9 AM tomorrow
+    func scheduleAffirmationNotification(text: String) {
+        let content = UNMutableNotificationContent()
+        content.title = "Chloe"
+        content.body = text
+        content.sound = .default
+
+        // Random hour between 7-9, random minute
+        let hour = Int.random(in: 7...8)
+        let minute = Int.random(in: 0...59)
+
+        var dateComponents = DateComponents()
+        dateComponents.hour = hour
+        dateComponents.minute = minute
+
+        // Next occurrence of this time (tomorrow if already past today)
+        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
+
+        let identifier = "affirmation_\(UUID().uuidString)"
+        let request = UNNotificationRequest(
+            identifier: identifier,
+            content: content,
+            trigger: trigger
+        )
+
+        center.add(request)
+    }
+
     // MARK: - Cancellation
 
     /// Cancel only generic notifications (fallback + streak). Called when app enters foreground.

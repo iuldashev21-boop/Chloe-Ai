@@ -1,4 +1,5 @@
 import SwiftUI
+import UserNotifications
 
 extension Notification.Name {
     static let appDidEnterBackground = Notification.Name("appDidEnterBackground")
@@ -32,6 +33,11 @@ struct ChloeApp: App {
             // Engagement notifications survive — only cleared when user sends a message
             NotificationService.shared.cancelGenericNotifications()
 
+            // Schedule tomorrow's affirmation if not already scheduled
+            Task {
+                await scheduleAffirmationIfNeeded()
+            }
+
         case .background:
             // Schedule fallback vibe check with last session context
             let profile = SyncDataService.shared.loadProfile()
@@ -57,5 +63,37 @@ struct ChloeApp: App {
         guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
               let window = scene.windows.first else { return }
         window.overrideUserInterfaceStyle = dark ? .dark : .light
+    }
+
+    private func scheduleAffirmationIfNeeded() async {
+        // Check if already scheduled
+        guard await !NotificationService.shared.hasScheduledAffirmation() else { return }
+
+        // Check notification permission
+        let settings = await UNUserNotificationCenter.current().notificationSettings()
+        guard settings.authorizationStatus == .authorized else { return }
+
+        // Load user context
+        let profile = SyncDataService.shared.loadProfile()
+        let displayName = profile?.displayName ?? "babe"
+        let preferences = profile?.preferences
+
+        // Compute archetype from answers if available
+        var archetype: UserArchetype?
+        if let answers = preferences?.archetypeAnswers {
+            archetype = ArchetypeService.shared.classify(answers: answers)
+        }
+
+        // Generate affirmation via Gemini
+        do {
+            let affirmation = try await GeminiService.shared.generateAffirmation(
+                displayName: displayName,
+                preferences: preferences,
+                archetype: archetype
+            )
+            NotificationService.shared.scheduleAffirmationNotification(text: affirmation)
+        } catch {
+            // Silent fail - will retry next app open
+        }
     }
 }
