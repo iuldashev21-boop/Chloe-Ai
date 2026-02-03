@@ -109,7 +109,9 @@ class PortkeyService {
                    keyStr.lowercased() == "x-portkey-trace-id",
                    let valueStr = value as? String {
                     lastTraceId = valueStr
+                    #if DEBUG
                     NSLog("[Portkey] Captured trace ID: %@", valueStr)
+                    #endif
                     break
                 }
             }
@@ -135,15 +137,21 @@ class PortkeyService {
 
     /// Send feedback to Portkey for a specific trace
     func sendFeedback(traceId: String, rating: String) async throws {
+        #if DEBUG
         NSLog("[Portkey] Sending feedback - traceId: %@, rating: %@", traceId, rating)
+        #endif
 
         guard !apiKey.isEmpty else {
+            #if DEBUG
             NSLog("[Portkey] ERROR: No API key for feedback")
+            #endif
             return
         }
 
         guard let url = URL(string: feedbackURL) else {
+            #if DEBUG
             NSLog("[Portkey] ERROR: Invalid feedback URL")
+            #endif
             return
         }
 
@@ -160,15 +168,22 @@ class PortkeyService {
             "value": numericValue
         ]
 
+        #if DEBUG
         NSLog("[Portkey] Feedback request body: %@", String(describing: body))
+        #endif
 
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
 
         let (data, response) = try await URLSession.shared.data(for: request)
 
+        #if DEBUG
         if let httpResponse = response as? HTTPURLResponse {
             let responseText = String(data: data, encoding: .utf8) ?? "No body"
             NSLog("[Portkey] Feedback response: status=%d, body=%@", httpResponse.statusCode, responseText)
         }
+        #else
+        _ = data
+        _ = response
+        #endif
     }
 }

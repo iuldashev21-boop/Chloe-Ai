@@ -76,9 +76,13 @@ class GeminiService {
         let recentMessages = Array(messages.suffix(MAX_CONVERSATION_HISTORY))
 
         // Route through Portkey if configured (for logging/analytics)
+        #if DEBUG
         print("[GeminiService] Checking Portkey configuration...")
+        #endif
         if PortkeyService.shared.isConfigured {
+            #if DEBUG
             print("[GeminiService] >>> ROUTING THROUGH PORTKEY <<<")
+            #endif
             return try await sendViaPortkey(
                 messages: recentMessages,
                 systemPrompt: systemInstruction,
@@ -89,7 +93,9 @@ class GeminiService {
         }
 
         // Direct Gemini API call (fallback)
+        #if DEBUG
         print("[GeminiService] Portkey not configured, using direct Gemini API")
+        #endif
         guard !apiKey.isEmpty else { throw GeminiError.noAPIKey }
 
         let geminiContents: [[String: Any]] = recentMessages.enumerated().map { index, msg in
@@ -155,7 +161,9 @@ class GeminiService {
         userId: String?,
         conversationId: String?
     ) async throws -> String {
+        #if DEBUG
         print("[GeminiService] sendViaPortkey called with \(messages.count) messages")
+        #endif
 
         // Convert messages to Portkey format (text only - images not supported via Portkey gateway)
         let portkeyMessages = messages.map { msg in
@@ -173,14 +181,18 @@ class GeminiService {
             metadata["conversation_id"] = conversationId
         }
 
+        #if DEBUG
         print("[GeminiService] Calling PortkeyService.chat()...")
+        #endif
         let response = try await PortkeyService.shared.chat(
             messages: portkeyMessages,
             systemPrompt: systemPrompt,
             metadata: metadata,
             temperature: temperature
         )
+        #if DEBUG
         print("[GeminiService] Got response from Portkey!")
+        #endif
         return response
     }
 
