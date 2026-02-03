@@ -10,6 +10,12 @@ struct ChloeApp: App {
     @AppStorage("isDarkMode") private var isDarkMode = false
     @Environment(\.scenePhase) private var scenePhase
 
+    init() {
+        #if DEBUG
+        UITestSupport.setupTestEnvironment()
+        #endif
+    }
+
     var body: some Scene {
         WindowGroup {
             ContentView()

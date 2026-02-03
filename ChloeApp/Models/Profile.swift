@@ -9,6 +9,9 @@ struct Profile: Codable, Identifiable {
     var subscriptionTier: SubscriptionTier
     var subscriptionExpiresAt: Date?
     var profileImageUri: String?
+    var isBlocked: Bool
+    var blockedAt: Date?
+    var blockedReason: String?
     var createdAt: Date
     var updatedAt: Date
 
@@ -21,6 +24,9 @@ struct Profile: Codable, Identifiable {
         subscriptionTier: SubscriptionTier = .free,
         subscriptionExpiresAt: Date? = nil,
         profileImageUri: String? = nil,
+        isBlocked: Bool = false,
+        blockedAt: Date? = nil,
+        blockedReason: String? = nil,
         createdAt: Date = Date(),
         updatedAt: Date = Date()
     ) {
@@ -32,6 +38,9 @@ struct Profile: Codable, Identifiable {
         self.subscriptionTier = subscriptionTier
         self.subscriptionExpiresAt = subscriptionExpiresAt
         self.profileImageUri = profileImageUri
+        self.isBlocked = isBlocked
+        self.blockedAt = blockedAt
+        self.blockedReason = blockedReason
         self.createdAt = createdAt
         self.updatedAt = updatedAt
     }

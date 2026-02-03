@@ -39,10 +39,10 @@ class GeminiService {
         userFacts: [String] = [],
         lastSummary: String? = nil,
         insight: String? = nil,
-        temperature: Double = 0.8
+        temperature: Double = 0.8,
+        userId: String? = nil,
+        conversationId: String? = nil
     ) async throws -> String {
-        guard !apiKey.isEmpty else { throw GeminiError.noAPIKey }
-
         var systemInstruction = systemPrompt
         if !userFacts.isEmpty {
             systemInstruction += "\n\nWhat you know about this user:\n\(userFacts.joined(separator: "\n"))"
@@ -74,6 +74,20 @@ class GeminiService {
         }
 
         let recentMessages = Array(messages.suffix(MAX_CONVERSATION_HISTORY))
+
+        // Route through Portkey if configured (for logging/analytics)
+        if PortkeyService.shared.isConfigured {
+            return try await sendViaPortkey(
+                messages: recentMessages,
+                systemPrompt: systemInstruction,
+                temperature: temperature,
+                userId: userId,
+                conversationId: conversationId
+            )
+        }
+
+        // Direct Gemini API call (fallback)
+        guard !apiKey.isEmpty else { throw GeminiError.noAPIKey }
 
         let geminiContents: [[String: Any]] = recentMessages.enumerated().map { index, msg in
             var parts: [[String: Any]] = []
@@ -128,6 +142,38 @@ class GeminiService {
 
         let data = try await makeRequest(body: body)
         return try extractText(from: data) ?? "I'm having a moment — can you try again?"
+    }
+
+    /// Route chat through Portkey for logging and analytics
+    private func sendViaPortkey(
+        messages: [Message],
+        systemPrompt: String,
+        temperature: Double,
+        userId: String?,
+        conversationId: String?
+    ) async throws -> String {
+        // Convert messages to Portkey format (text only - images not supported via Portkey gateway)
+        let portkeyMessages = messages.map { msg in
+            PortkeyMessage(
+                role: msg.role == .user ? "user" : "assistant",
+                content: msg.text.isEmpty ? "[Image]" : msg.text
+            )
+        }
+
+        var metadata: [String: String] = [:]
+        if let userId = userId {
+            metadata["user_id"] = userId
+        }
+        if let conversationId = conversationId {
+            metadata["conversation_id"] = conversationId
+        }
+
+        return try await PortkeyService.shared.chat(
+            messages: portkeyMessages,
+            systemPrompt: systemPrompt,
+            metadata: metadata,
+            temperature: temperature
+        )
     }
 
     // MARK: - Analyze Conversation

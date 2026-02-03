@@ -55,6 +55,20 @@ class StorageService {
         return url.path
     }
 
+    // MARK: - Vision Image
+
+    /// Save vision image data and return local path (used for cloud sync)
+    func saveVisionImage(_ data: Data, itemId: String) -> String? {
+        let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let url = dir.appendingPathComponent("vision_\(itemId).jpg")
+        do {
+            try data.write(to: url)
+            return url.path
+        } catch {
+            return nil
+        }
+    }
+
     func loadProfileImage() -> Data? {
         guard let profile = loadProfile(),
               let path = profile.profileImageUri else { return nil }

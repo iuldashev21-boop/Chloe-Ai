@@ -39,6 +39,16 @@
                ReferencedContainer = "container:ChloeApp.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "4306C6B4DD23B005ED5F9806"
+               BuildableName = "ChloeAppUITests.xctest"
+               BlueprintName = "ChloeAppUITests"
+               ReferencedContainer = "container:ChloeApp.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

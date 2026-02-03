@@ -73,13 +73,15 @@ class ChatViewModel: ObservableObject {
         }
 
         // Rate limiting — block at 6th message (after goodbye on 5th)
+        // V1_PREMIUM_FOR_ALL bypasses rate limits for all users
         var usage = storageService.loadDailyUsage()
         let profile = storageService.loadProfile()
-        if profile?.subscriptionTier != .premium && usage.messageCount >= FREE_DAILY_MESSAGE_LIMIT {
+        if !V1_PREMIUM_FOR_ALL && profile?.subscriptionTier != .premium && usage.messageCount >= FREE_DAILY_MESSAGE_LIMIT {
             isLimitReached = true
             return
         }
-        let isLastFreeMessage = profile?.subscriptionTier != .premium
+        let isLastFreeMessage = !V1_PREMIUM_FOR_ALL
+            && profile?.subscriptionTier != .premium
             && usage.messageCount == FREE_DAILY_MESSAGE_LIMIT - 1
 
         // Add user message

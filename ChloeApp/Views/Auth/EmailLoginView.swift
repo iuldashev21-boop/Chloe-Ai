@@ -74,6 +74,7 @@ struct EmailLoginView: View {
                         }
                         .padding(.horizontal, Spacing.screenHorizontal)
                         .accessibilityLabel("Email address")
+                        .accessibilityIdentifier("email-field")
 
                     // MARK: - Password field
                     SecureField("Password", text: $password, prompt: Text("Password").font(.system(size: 17, weight: .light).italic()).foregroundColor(.chloeRosewood))
@@ -92,6 +93,7 @@ struct EmailLoginView: View {
                         }
                         .padding(.horizontal, Spacing.screenHorizontal)
                         .accessibilityLabel("Password")
+                        .accessibilityIdentifier("password-field")
 
                     // MARK: - Error message
                     if let errorMessage = authVM.errorMessage {

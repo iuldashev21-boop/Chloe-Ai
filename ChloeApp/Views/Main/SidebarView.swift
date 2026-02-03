@@ -1,7 +1,7 @@
 import SwiftUI
 
 enum SidebarDestination {
-    case journal, history, visionBoard, settings
+    case journal, history, visionBoard, goals, affirmations, settings
 }
 
 struct SidebarView: View {
@@ -50,10 +50,12 @@ struct SidebarView: View {
             // Navigate section
             sectionHeader("NAVIGATE")
 
-            navItem(icon: "plus", label: "New Chat") { onNewChat() }
-            navItem(icon: "text.book.closed", label: "Journal") { onNavigate(.journal) }
-            navItem(icon: "clock", label: "History") { onNavigate(.history) }
-            navItem(icon: "rectangle.on.rectangle.angled", label: "Vision Board") { onNavigate(.visionBoard) }
+            navItem(icon: "plus", label: "New Chat", identifier: "new-chat-button") { onNewChat() }
+            navItem(icon: "text.book.closed", label: "Journal", identifier: "journal-button") { onNavigate(.journal) }
+            navItem(icon: "clock", label: "History", identifier: "history-button") { onNavigate(.history) }
+            navItem(icon: "rectangle.on.rectangle.angled", label: "Vision Board", identifier: "vision-board-button") { onNavigate(.visionBoard) }
+            navItem(icon: "target", label: "Goals", identifier: "goals-button") { onNavigate(.goals) }
+            navItem(icon: "sparkles", label: "Affirmations", identifier: "affirmations-button") { onNavigate(.affirmations) }
 
             // Glow Up Streak
             if let streak, streak.currentStreak > 0 {
@@ -153,7 +155,7 @@ struct SidebarView: View {
 
     // MARK: - Nav Item
 
-    private func navItem(icon: String, label: String, action: @escaping () -> Void) -> some View {
+    private func navItem(icon: String, label: String, identifier: String? = nil, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack(spacing: Spacing.xs) {
                 Image(systemName: icon)
@@ -170,6 +172,7 @@ struct SidebarView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier(identifier ?? label.lowercased().replacingOccurrences(of: " ", with: "-"))
     }
 
     // MARK: - Profile Pill
@@ -222,6 +225,7 @@ struct SidebarView: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel("\(displayName) profile")
+        .accessibilityIdentifier("settings-button")
     }
 
     // MARK: - Conversation Row
@@ -286,6 +290,7 @@ struct SidebarView: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel(convo.title)
+        .accessibilityIdentifier("conversation-\(convo.id)")
     }
 }
 

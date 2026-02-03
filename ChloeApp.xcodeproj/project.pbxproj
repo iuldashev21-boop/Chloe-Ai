@@ -7,8 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0730A3B97A55099DE06BB3A4 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 51A2B70D95BD35EE7CE38665 /* Foundation.framework */; };
+		0B21A395DAC0A352C98340AD /* GoalsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11B72E6D6BDC5A74372822CE /* GoalsTests.swift */; };
 		151900B32794215F9A9B6E5A /* StreakService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A174B26D7E896B09C9D56F71 /* StreakService.swift */; };
+		1D2E24F6A9FCE4A3C4CE7CD6 /* SafetyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 691088B00C01ED309816D67B /* SafetyTests.swift */; };
 		3EF786585C46034254C21D71 /* DailyUsage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8B72291CB2B25437CC979C4 /* DailyUsage.swift */; };
+		43FC4B86A01BB60E9D3A61EE /* OnboardingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9334322B3F9AB6B36E5E83D2 /* OnboardingTests.swift */; };
+		7B5C6061C58C58644E1ADD3F /* TestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF08D9DC14B5BC2B0F70D79E /* TestHelpers.swift */; };
+		8E2FBEDE9E149919CA704D01 /* JournalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9E9EFD831A08021FF5E4BB /* JournalTests.swift */; };
 		A10000010000000000000001 /* ChloeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000001 /* ChloeApp.swift */; };
 		A10000020000000000000001 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000020000000000000001 /* ContentView.swift */; };
 		A10000030000000000000001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A20000030000000000000001 /* Assets.xcassets */; };
@@ -57,8 +63,12 @@
 		A10000580000000000000001 /* DisclaimerText.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000580000000000000001 /* DisclaimerText.swift */; };
 		A10000590000000000000001 /* Prompts.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000590000000000000001 /* Prompts.swift */; };
 		A10000600000000000000001 /* CrisisResponses.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000600000000000000001 /* CrisisResponses.swift */; };
+		AECA7DBBAEBBAA31B3AC2A3C /* RateLimitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5ED54293ECCDC6658CA097B /* RateLimitTests.swift */; };
+		B17CE75363D09820CF922A4E /* EdgeCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 124F9265E9406FE5C82DEA12 /* EdgeCaseTests.swift */; };
 		B1B0BC73FECF454521A45C59 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74CE56D38B6D47E52BFB444E /* NotificationService.swift */; };
+		B3C097B384F28B7455735585 /* VisionBoardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9802012D4326DE50975347EA /* VisionBoardTests.swift */; };
 		B95D54A9FAB2885D920CBFD0 /* GlowUpStreak.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E0D67819E2FDC56855D65EC /* GlowUpStreak.swift */; };
+		C0457D63F55A6FE260BAA7AD /* SidebarTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 177002C5E96240F457D7325D /* SidebarTests.swift */; };
 		C10000010000000000000001 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = C20000010000000000000001 /* Lottie */; };
 		C10000020000000000000001 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = C20000020000000000000001 /* Kingfisher */; };
 		C10000030000000000000001 /* ExyteChat in Frameworks */ = {isa = PBXBuildFile; productRef = C20000030000000000000001 /* ExyteChat */; };
@@ -66,10 +76,18 @@
 		C10000050000000000000001 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = C20000050000000000000001 /* MarkdownUI */; };
 		C10000060000000000000001 /* TelemetryDeck in Frameworks */ = {isa = PBXBuildFile; productRef = C20000060000000000000001 /* TelemetryDeck */; };
 		C10000070000000000000001 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = C20000070000000000000001 /* Supabase */; };
+		C464FDAB03F70B178380EBD1 /* AuthenticationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0BD0D2B73E2D62ECCD08558 /* AuthenticationTests.swift */; };
+		D0E52CD83052CD555F60F060 /* SettingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54768EC816361B0EF9A9C3D2 /* SettingsTests.swift */; };
 		D30000010000000000000001 /* SupabaseClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = D20000010000000000000001 /* SupabaseClient.swift */; };
+		D6ABB5378B84FB53F4E76EBA /* UITestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE802F7583970BBCFC8559DB /* UITestSupport.swift */; };
 		E30000010000000000000001 /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D30000020000000000000001 /* NetworkMonitor.swift */; };
+		FB0000020000000000000001 /* Feedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0000010000000000000001 /* Feedback.swift */; };
+		FB0000040000000000000001 /* FeedbackService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0000030000000000000001 /* FeedbackService.swift */; };
+		PK0000020000000000000001 /* PortkeyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = PK0000010000000000000001 /* PortkeyService.swift */; };
+		RS0000020000000000000001 /* ReportSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = RS0000010000000000000001 /* ReportSheet.swift */; };
 		E30000020000000000000001 /* SupabaseDataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D30000030000000000000001 /* SupabaseDataService.swift */; };
 		E30000030000000000000001 /* SyncDataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D30000040000000000000001 /* SyncDataService.swift */; };
+		EDB24DC0B63CEB87B91BA70B /* SanctuaryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F955E1ED52B5C3637CD25E60 /* SanctuaryTests.swift */; };
 		F10000010000000000000001 /* CameraPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000010000000000000001 /* CameraPickerView.swift */; };
 		F10000020000000000000001 /* ChloeButtonLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000020000000000000001 /* ChloeButtonLabel.swift */; };
 		F10000020000000000000099 /* BentoGridCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000020000000000000099 /* BentoGridCard.swift */; };
@@ -105,6 +123,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		B3E40F6D217715CF147C62DE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A90000010000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A60000010000000000000001;
+			remoteInfo = ChloeApp;
+		};
 		TC0000010000000000000001 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = A90000010000000000000001 /* Project object */;
@@ -115,8 +140,20 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		11B72E6D6BDC5A74372822CE /* GoalsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GoalsTests.swift; sourceTree = "<group>"; };
+		124F9265E9406FE5C82DEA12 /* EdgeCaseTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = EdgeCaseTests.swift; sourceTree = "<group>"; };
+		177002C5E96240F457D7325D /* SidebarTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SidebarTests.swift; sourceTree = "<group>"; };
+		24071DA765FF3264148A32F9 /* ChloeAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ChloeAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4C9E9EFD831A08021FF5E4BB /* JournalTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = JournalTests.swift; sourceTree = "<group>"; };
+		51A2B70D95BD35EE7CE38665 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		54768EC816361B0EF9A9C3D2 /* SettingsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SettingsTests.swift; sourceTree = "<group>"; };
+		691088B00C01ED309816D67B /* SafetyTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SafetyTests.swift; sourceTree = "<group>"; };
 		6E0D67819E2FDC56855D65EC /* GlowUpStreak.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GlowUpStreak.swift; sourceTree = "<group>"; };
+		745972C67FB22635AD74B1D1 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		74CE56D38B6D47E52BFB444E /* NotificationService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		9334322B3F9AB6B36E5E83D2 /* OnboardingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OnboardingTests.swift; sourceTree = "<group>"; };
+		9802012D4326DE50975347EA /* VisionBoardTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = VisionBoardTests.swift; sourceTree = "<group>"; };
+		A0BD0D2B73E2D62ECCD08558 /* AuthenticationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AuthenticationTests.swift; sourceTree = "<group>"; };
 		A174B26D7E896B09C9D56F71 /* StreakService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StreakService.swift; sourceTree = "<group>"; };
 		A20000010000000000000001 /* ChloeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChloeApp.swift; sourceTree = "<group>"; };
 		A20000020000000000000001 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -169,7 +206,13 @@
 		A20000600000000000000001 /* CrisisResponses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrisisResponses.swift; sourceTree = "<group>"; };
 		A20000650000000000000001 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 		A30000010000000000000001 /* ChloeApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChloeApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AF08D9DC14B5BC2B0F70D79E /* TestHelpers.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TestHelpers.swift; sourceTree = "<group>"; };
 		B8B72291CB2B25437CC979C4 /* DailyUsage.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DailyUsage.swift; sourceTree = "<group>"; };
+		C5ED54293ECCDC6658CA097B /* RateLimitTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RateLimitTests.swift; sourceTree = "<group>"; };
+		D20000010000000000000001 /* SupabaseClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseClient.swift; sourceTree = "<group>"; };
+		D30000020000000000000001 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
+		D30000030000000000000001 /* SupabaseDataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseDataService.swift; sourceTree = "<group>"; };
+		D30000040000000000000001 /* SyncDataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncDataService.swift; sourceTree = "<group>"; };
 		F20000010000000000000001 /* CameraPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPickerView.swift; sourceTree = "<group>"; };
 		F20000020000000000000001 /* ChloeButtonLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChloeButtonLabel.swift; sourceTree = "<group>"; };
 		F20000020000000000000099 /* BentoGridCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BentoGridCard.swift; sourceTree = "<group>"; };
@@ -194,6 +237,12 @@
 		F20000260000000000000001 /* FlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowLayout.swift; sourceTree = "<group>"; };
 		F20000280000000000000001 /* PlayfairDisplay-Italic-VF.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlayfairDisplay-Italic-VF.ttf"; sourceTree = "<group>"; };
 		F20000290000000000000001 /* NotificationPrimingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPrimingView.swift; sourceTree = "<group>"; };
+		F955E1ED52B5C3637CD25E60 /* SanctuaryTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SanctuaryTests.swift; sourceTree = "<group>"; };
+		FE802F7583970BBCFC8559DB /* UITestSupport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UITestSupport.swift; sourceTree = "<group>"; };
+		FB0000010000000000000001 /* Feedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Feedback.swift; sourceTree = "<group>"; };
+		FB0000030000000000000001 /* FeedbackService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackService.swift; sourceTree = "<group>"; };
+		PK0000010000000000000001 /* PortkeyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortkeyService.swift; sourceTree = "<group>"; };
+		RS0000010000000000000001 /* ReportSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportSheet.swift; sourceTree = "<group>"; };
 		T20000010000000000000001 /* SafetyServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafetyServiceTests.swift; sourceTree = "<group>"; };
 		T20000020000000000000001 /* PromptBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptBuilderTests.swift; sourceTree = "<group>"; };
 		T20000030000000000000001 /* AnalystServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalystServiceTests.swift; sourceTree = "<group>"; };
@@ -203,13 +252,17 @@
 		T20000070000000000000001 /* CrisisResponseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrisisResponseTests.swift; sourceTree = "<group>"; };
 		T20000080000000000000001 /* DailyUsageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyUsageTests.swift; sourceTree = "<group>"; };
 		T30000010000000000000001 /* ChloeAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ChloeAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		D20000010000000000000001 /* SupabaseClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseClient.swift; sourceTree = "<group>"; };
-		D30000020000000000000001 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
-		D30000030000000000000001 /* SupabaseDataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseDataService.swift; sourceTree = "<group>"; };
-		D30000040000000000000001 /* SyncDataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncDataService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		1EF431A006BCA61ACFC80926 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0730A3B97A55099DE06BB3A4 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		A40000010000000000000001 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -234,12 +287,43 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1EAED161D0885C2CEE115F07 /* ChloeAppUITests */ = {
+			isa = PBXGroup;
+			children = (
+				F955E1ED52B5C3637CD25E60 /* SanctuaryTests.swift */,
+				4C9E9EFD831A08021FF5E4BB /* JournalTests.swift */,
+				9334322B3F9AB6B36E5E83D2 /* OnboardingTests.swift */,
+				11B72E6D6BDC5A74372822CE /* GoalsTests.swift */,
+				691088B00C01ED309816D67B /* SafetyTests.swift */,
+				177002C5E96240F457D7325D /* SidebarTests.swift */,
+				54768EC816361B0EF9A9C3D2 /* SettingsTests.swift */,
+				C5ED54293ECCDC6658CA097B /* RateLimitTests.swift */,
+				9802012D4326DE50975347EA /* VisionBoardTests.swift */,
+				AF08D9DC14B5BC2B0F70D79E /* TestHelpers.swift */,
+				A0BD0D2B73E2D62ECCD08558 /* AuthenticationTests.swift */,
+				124F9265E9406FE5C82DEA12 /* EdgeCaseTests.swift */,
+				745972C67FB22635AD74B1D1 /* Info.plist */,
+			);
+			name = ChloeAppUITests;
+			path = ChloeAppUITests;
+			sourceTree = "<group>";
+		};
+		26D778958AA9AA69EBD4EBAC /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				D679D69B731953990D798310 /* iOS */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		A50000010000000000000001 = {
 			isa = PBXGroup;
 			children = (
 				A50000020000000000000001 /* ChloeApp */,
 				T50000010000000000000001 /* ChloeAppTests */,
 				A50000030000000000000001 /* Products */,
+				26D778958AA9AA69EBD4EBAC /* Frameworks */,
+				1EAED161D0885C2CEE115F07 /* ChloeAppUITests */,
 			);
 			sourceTree = "<group>";
 		};
@@ -267,6 +351,7 @@
 			children = (
 				A30000010000000000000001 /* ChloeApp.app */,
 				T30000010000000000000001 /* ChloeAppTests.xctest */,
+				24071DA765FF3264148A32F9 /* ChloeAppUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -285,6 +370,7 @@
 				A20000190000000000000001 /* Archetype.swift */,
 				B8B72291CB2B25437CC979C4 /* DailyUsage.swift */,
 				6E0D67819E2FDC56855D65EC /* GlowUpStreak.swift */,
+				FB0000010000000000000001 /* Feedback.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -369,6 +455,7 @@
 				F20000070000000000000001 /* PressableButtonStyle.swift */,
 				F20000090000000000000001 /* ShimmerTextModifier.swift */,
 				A20000540000000000000001 /* TypingIndicator.swift */,
+				RS0000010000000000000001 /* ReportSheet.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -401,6 +488,9 @@
 				D30000020000000000000001 /* NetworkMonitor.swift */,
 				D30000030000000000000001 /* SupabaseDataService.swift */,
 				D30000040000000000000001 /* SyncDataService.swift */,
+				FE802F7583970BBCFC8559DB /* UITestSupport.swift */,
+				FB0000030000000000000001 /* FeedbackService.swift */,
+				PK0000010000000000000001 /* PortkeyService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -453,6 +543,14 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
+		D679D69B731953990D798310 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				51A2B70D95BD35EE7CE38665 /* Foundation.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
 		T50000010000000000000001 /* ChloeAppTests */ = {
 			isa = PBXGroup;
 			children = (
@@ -471,6 +569,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		4306C6B4DD23B005ED5F9806 /* ChloeAppUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C68A06294A67EFF8A6A00808 /* Build configuration list for PBXNativeTarget "ChloeAppUITests" */;
+			buildPhases = (
+				0BDDEB5DEF42B5386976D5F3 /* Sources */,
+				1EF431A006BCA61ACFC80926 /* Frameworks */,
+				E6A8C3BC1FBDD4B5F12EE66E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				46E843BE3A8E66C02E5A3F05 /* PBXTargetDependency */,
+			);
+			name = ChloeAppUITests;
+			productName = ChloeAppUITests;
+			productReference = 24071DA765FF3264148A32F9 /* ChloeAppUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		A60000010000000000000001 /* ChloeApp */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = A80000010000000000000001 /* Build configuration list for PBXNativeTarget "ChloeApp" */;
@@ -558,6 +674,7 @@
 			targets = (
 				A60000010000000000000001 /* ChloeApp */,
 				T60000010000000000000001 /* ChloeAppTests */,
+				4306C6B4DD23B005ED5F9806 /* ChloeAppUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -575,6 +692,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E6A8C3BC1FBDD4B5F12EE66E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		T70000020000000000000001 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -585,6 +709,25 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		0BDDEB5DEF42B5386976D5F3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EDB24DC0B63CEB87B91BA70B /* SanctuaryTests.swift in Sources */,
+				8E2FBEDE9E149919CA704D01 /* JournalTests.swift in Sources */,
+				43FC4B86A01BB60E9D3A61EE /* OnboardingTests.swift in Sources */,
+				0B21A395DAC0A352C98340AD /* GoalsTests.swift in Sources */,
+				1D2E24F6A9FCE4A3C4CE7CD6 /* SafetyTests.swift in Sources */,
+				C0457D63F55A6FE260BAA7AD /* SidebarTests.swift in Sources */,
+				D0E52CD83052CD555F60F060 /* SettingsTests.swift in Sources */,
+				AECA7DBBAEBBAA31B3AC2A3C /* RateLimitTests.swift in Sources */,
+				B3C097B384F28B7455735585 /* VisionBoardTests.swift in Sources */,
+				7B5C6061C58C58644E1ADD3F /* TestHelpers.swift in Sources */,
+				C464FDAB03F70B178380EBD1 /* AuthenticationTests.swift in Sources */,
+				B17CE75363D09820CF922A4E /* EdgeCaseTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		A70000010000000000000001 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -664,6 +807,11 @@
 				E30000010000000000000001 /* NetworkMonitor.swift in Sources */,
 				E30000020000000000000001 /* SupabaseDataService.swift in Sources */,
 				E30000030000000000000001 /* SyncDataService.swift in Sources */,
+				D6ABB5378B84FB53F4E76EBA /* UITestSupport.swift in Sources */,
+				FB0000020000000000000001 /* Feedback.swift in Sources */,
+				FB0000040000000000000001 /* FeedbackService.swift in Sources */,
+				PK0000020000000000000001 /* PortkeyService.swift in Sources */,
+				RS0000020000000000000001 /* ReportSheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -685,6 +833,12 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		46E843BE3A8E66C02E5A3F05 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = ChloeApp;
+			target = A60000010000000000000001 /* ChloeApp */;
+			targetProxy = B3E40F6D217715CF147C62DE /* PBXContainerItemProxy */;
+		};
 		TD0000010000000000000001 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = A60000010000000000000001 /* ChloeApp */;
@@ -693,6 +847,53 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		74BE16780F3328976A5D1B33 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = ChloeAppUITests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.chloepocket.app.uitests;
+				PRODUCT_NAME = ChloeAppUITests;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "";
+				TEST_TARGET_NAME = ChloeApp;
+			};
+			name = Debug;
+		};
+		AB5D6234F7B291D824502DE4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = ChloeAppUITests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.chloepocket.app.uitests;
+				PRODUCT_NAME = ChloeAppUITests;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "";
+				TEST_TARGET_NAME = ChloeApp;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 		B10000010000000000000001 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = A20000650000000000000001 /* Config.xcconfig */;
@@ -929,6 +1130,15 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		C68A06294A67EFF8A6A00808 /* Build configuration list for PBXNativeTarget "ChloeAppUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AB5D6234F7B291D824502DE4 /* Release */,
+				74BE16780F3328976A5D1B33 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		T80000010000000000000001 /* Build configuration list for PBXNativeTarget "ChloeAppTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -989,7 +1199,7 @@
 				minimumVersion = 2.0.0;
 			};
 		};
-	D10000070000000000000001 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+		D10000070000000000000001 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/supabase/supabase-swift.git";
 			requirement = {
@@ -1030,7 +1240,7 @@
 			package = D10000060000000000000001 /* XCRemoteSwiftPackageReference "SwiftClient" */;
 			productName = TelemetryDeck;
 		};
-	C20000070000000000000001 /* Supabase */ = {
+		C20000070000000000000001 /* Supabase */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = D10000070000000000000001 /* XCRemoteSwiftPackageReference "supabase-swift" */;
 			productName = Supabase;

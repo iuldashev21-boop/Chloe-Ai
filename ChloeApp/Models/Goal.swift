@@ -8,6 +8,7 @@ struct Goal: Codable, Identifiable {
     var status: GoalStatus
     var createdAt: Date
     var completedAt: Date?
+    var updatedAt: Date
 
     init(
         id: String = UUID().uuidString,
@@ -16,7 +17,8 @@ struct Goal: Codable, Identifiable {
         description: String? = nil,
         status: GoalStatus = .active,
         createdAt: Date = Date(),
-        completedAt: Date? = nil
+        completedAt: Date? = nil,
+        updatedAt: Date = Date()
     ) {
         self.id = id
         self.userId = userId
@@ -25,6 +27,7 @@ struct Goal: Codable, Identifiable {
         self.status = status
         self.createdAt = createdAt
         self.completedAt = completedAt
+        self.updatedAt = updatedAt
     }
 }
 

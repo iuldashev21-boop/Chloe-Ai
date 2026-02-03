@@ -2,6 +2,9 @@ import Foundation
 
 // MARK: - Constants
 
+/// v1 Launch: Give all users premium access. Set to false when monetization is ready.
+let V1_PREMIUM_FOR_ALL = true
+
 let FREE_DAILY_MESSAGE_LIMIT = 5
 let MAX_CONVERSATION_HISTORY = 20
 

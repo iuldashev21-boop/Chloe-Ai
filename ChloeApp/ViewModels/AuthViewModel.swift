@@ -24,6 +24,13 @@ class AuthViewModel: ObservableObject {
             )
             self.email = session.user.email ?? email
             syncProfileFromSession(session.user)
+
+            // Check if user is blocked after syncing profile
+            if let profile = SyncDataService.shared.loadProfile(),
+               checkIfBlocked(profile) {
+                return
+            }
+
             isAuthenticated = true
         } catch {
             errorMessage = friendlyError(error)
@@ -74,16 +81,45 @@ class AuthViewModel: ObservableObject {
                 let session = try await supabase.auth.session
                 self.email = session.user.email ?? ""
                 syncProfileFromSession(session.user)
-                isAuthenticated = true
+
+                // Fetch fresh profile from cloud to check block status
+                await syncFromCloudAndCheckBlock()
             } catch {
                 // No valid session — fall back to local profile check
                 if let profile = SyncDataService.shared.loadProfile(),
                    !profile.email.isEmpty {
+                    // Check if blocked even for local profile
+                    if checkIfBlocked(profile) {
+                        return
+                    }
                     email = profile.email
                     isAuthenticated = true
                 }
             }
         }
+    }
+
+    private func syncFromCloudAndCheckBlock() async {
+        // Sync from cloud to get latest profile (including block status)
+        await SyncDataService.shared.syncFromCloud()
+
+        if let profile = SyncDataService.shared.loadProfile(),
+           checkIfBlocked(profile) {
+            return
+        }
+
+        isAuthenticated = true
+    }
+
+    /// Check if profile is blocked. Returns true if blocked.
+    @discardableResult
+    func checkIfBlocked(_ profile: Profile) -> Bool {
+        if profile.isBlocked {
+            isAuthenticated = false
+            errorMessage = "Your account has been suspended. Contact support@chloe.app"
+            return true
+        }
+        return false
     }
 
     // MARK: - Dev Skip (DEBUG only)

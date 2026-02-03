@@ -50,7 +50,7 @@ struct SettingsView: View {
                                 .padding(.vertical, Spacing.xxxs)
                                 .background(
                                     Capsule()
-                                        .fill(profile?.subscriptionTier == .premium
+                                        .fill(V1_PREMIUM_FOR_ALL || profile?.subscriptionTier == .premium
                                               ? Color.chloePrimary
                                               : Color.chloeTextTertiary)
                                 )
@@ -236,7 +236,8 @@ struct SettingsView: View {
     }
 
     private var tierLabel: String {
-        profile?.subscriptionTier == .premium ? "Premium" : "Free"
+        if V1_PREMIUM_FOR_ALL { return "Premium" }
+        return profile?.subscriptionTier == .premium ? "Premium" : "Free"
     }
 
     private var appVersion: String {

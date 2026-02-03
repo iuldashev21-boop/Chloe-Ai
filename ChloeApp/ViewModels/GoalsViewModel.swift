@@ -34,6 +34,7 @@ class GoalsViewModel: ObservableObject {
             goals[index].status = .active
             goals[index].completedAt = nil
         }
+        goals[index].updatedAt = Date()  // Track status change for sync
         persistGoals()
     }
 

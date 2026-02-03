@@ -170,16 +170,32 @@ class SyncDataService {
             }
         } catch {}
 
-        // Sync goals (merge by ID)
+        // Sync goals (timestamp-based merge - server wins if newer)
         do {
             let remoteGoals = try await remote.fetchGoals()
             let localGoals = local.loadGoals()
-            let localIds = Set(localGoals.map { $0.id })
+            let localMap = Dictionary(uniqueKeysWithValues: localGoals.map { ($0.id, $0) })
+
             var merged = localGoals
-            for goal in remoteGoals where !localIds.contains(goal.id) {
-                merged.append(goal)
+            var hasChanges = false
+
+            for remoteGoal in remoteGoals {
+                if let localGoal = localMap[remoteGoal.id] {
+                    // Server wins if newer
+                    if remoteGoal.updatedAt > localGoal.updatedAt {
+                        if let idx = merged.firstIndex(where: { $0.id == remoteGoal.id }) {
+                            merged[idx] = remoteGoal
+                            hasChanges = true
+                        }
+                    }
+                } else {
+                    // New goal from cloud
+                    merged.append(remoteGoal)
+                    hasChanges = true
+                }
             }
-            if merged.count > localGoals.count {
+
+            if hasChanges {
                 try local.saveGoals(merged)
             }
         } catch {}
@@ -199,16 +215,29 @@ class SyncDataService {
             }
         } catch {}
 
-        // Sync vision board items (merge by ID)
+        // Sync vision board items (merge by ID + download images)
         do {
             let remoteItems = try await remote.fetchVisionItems()
             let localItems = local.loadVisionItems()
             let localIds = Set(localItems.map { $0.id })
             var merged = localItems
-            for item in remoteItems where !localIds.contains(item.id) {
+            var hasChanges = false
+
+            for var item in remoteItems where !localIds.contains(item.id) {
+                // Download image if it's a remote storage path (not a local file path)
+                if let imageUrl = item.imageUri,
+                   imageUrl.contains("/") && !imageUrl.hasPrefix("/") && !FileManager.default.fileExists(atPath: imageUrl) {
+                    // It's a Supabase storage path, download it
+                    if let data = try? await remote.downloadImage(path: imageUrl),
+                       let localPath = local.saveVisionImage(data, itemId: item.id) {
+                        item.imageUri = localPath
+                    }
+                }
                 merged.append(item)
+                hasChanges = true
             }
-            if merged.count > localItems.count {
+
+            if hasChanges {
                 try local.saveVisionItems(merged)
             }
         } catch {}

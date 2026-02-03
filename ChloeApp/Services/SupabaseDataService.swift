@@ -13,6 +13,9 @@ struct SupabaseProfileDTO: Codable {
     var subscriptionTier: String
     var subscriptionExpiresAt: Date?
     var profileImageUrl: String?
+    var isBlocked: Bool?
+    var blockedAt: Date?
+    var blockedReason: String?
     var createdAt: Date
     var updatedAt: Date
 }
@@ -71,6 +74,7 @@ struct SupabaseGoalDTO: Codable {
     var status: String
     var createdAt: Date
     var completedAt: Date?
+    var updatedAt: Date
 }
 
 /// Maps to the `affirmations` table in Supabase
@@ -161,6 +165,9 @@ class SupabaseDataService {
             subscriptionTier: SubscriptionTier(rawValue: dto.subscriptionTier) ?? .free,
             subscriptionExpiresAt: dto.subscriptionExpiresAt,
             profileImageUri: dto.profileImageUrl,
+            isBlocked: dto.isBlocked ?? false,
+            blockedAt: dto.blockedAt,
+            blockedReason: dto.blockedReason,
             createdAt: dto.createdAt,
             updatedAt: dto.updatedAt
         )
@@ -356,7 +363,8 @@ class SupabaseDataService {
                 description: goal.description,
                 status: goal.status.rawValue,
                 createdAt: goal.createdAt,
-                completedAt: goal.completedAt
+                completedAt: goal.completedAt,
+                updatedAt: goal.updatedAt
             )
         }
 
@@ -383,7 +391,8 @@ class SupabaseDataService {
                 description: dto.description,
                 status: GoalStatus(rawValue: dto.status) ?? .active,
                 createdAt: dto.createdAt,
-                completedAt: dto.completedAt
+                completedAt: dto.completedAt,
+                updatedAt: dto.updatedAt
             )
         }
     }
@@ -557,6 +566,13 @@ class SupabaseDataService {
     func getSignedURL(path: String) async throws -> URL {
         try await supabase.storage.from(storageBucket)
             .createSignedURL(path: path, expiresIn: 3600)
+    }
+
+    /// Download image data from a storage path
+    func downloadImage(path: String) async throws -> Data {
+        let url = try await getSignedURL(path: path)
+        let (data, _) = try await URLSession.shared.data(from: url)
+        return data
     }
 
     /// Delete an image from storage

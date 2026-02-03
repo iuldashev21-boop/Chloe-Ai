@@ -24,6 +24,8 @@ struct SanctuaryView: View {
     @State private var showJournal = false
     @State private var showHistory = false
     @State private var showVisionBoard = false
+    @State private var showGoals = false
+    @State private var showAffirmations = false
     @State private var showSettings = false
 
     // Camera & Photo picker
@@ -33,6 +35,11 @@ struct SanctuaryView: View {
     @State private var showFileImporter = false
     @State private var profileImageData: Data?
     @State private var showOfflineAlert = false
+
+    // Feedback system
+    @State private var feedbackStates: [String: MessageFeedbackState] = [:]
+    @State private var reportingMessage: Message?
+    @State private var reportingPreviousUserMessage: String = ""
 
     private var screenWidth: CGFloat {
         UIApplication.shared.connectedScenes
@@ -85,6 +92,8 @@ struct SanctuaryView: View {
                     case .journal: showJournal = true
                     case .history: showHistory = true
                     case .visionBoard: showVisionBoard = true
+                    case .goals: showGoals = true
+                    case .affirmations: showAffirmations = true
                     case .settings: showSettings = true
                     }
                 },
@@ -143,6 +152,8 @@ struct SanctuaryView: View {
             }
         }
         .navigationDestination(isPresented: $showVisionBoard) { VisionBoardView() }
+        .navigationDestination(isPresented: $showGoals) { GoalsView() }
+        .navigationDestination(isPresented: $showAffirmations) { AffirmationsView() }
         .navigationDestination(isPresented: $showSettings) { SettingsView() }
         .alert("You're Offline", isPresented: $showOfflineAlert) {
             Button("OK", role: .cancel) {}
@@ -151,6 +162,19 @@ struct SanctuaryView: View {
         }
         .sheet(isPresented: $showRecentsSheet) {
             recentsSheet
+        }
+        .sheet(item: $reportingMessage) { message in
+            ReportSheet(
+                messageId: message.id,
+                conversationId: chatVM.conversationId ?? "",
+                userMessage: reportingPreviousUserMessage,
+                aiResponse: message.text,
+                onDismiss: { reportingMessage = nil },
+                onReported: {
+                    feedbackStates[message.id] = .reported
+                    reportingMessage = nil
+                }
+            )
         }
         .fullScreenCover(isPresented: $showCamera) {
             CameraPickerView { image in
@@ -255,6 +279,7 @@ struct SanctuaryView: View {
                             )
                     }
                     .accessibilityLabel("Open sidebar")
+                    .accessibilityIdentifier("sidebar-button")
 
                     Spacer()
 
@@ -354,9 +379,22 @@ struct SanctuaryView: View {
         ScrollViewReader { proxy in
             ScrollView {
                 LazyVStack(spacing: Spacing.xs) {
-                    ForEach(chatVM.messages) { message in
-                        ChatBubble(message: message)
-                            .id(message.id)
+                    ForEach(Array(chatVM.messages.enumerated()), id: \.element.id) { index, message in
+                        let previousUserMessage = findPreviousUserMessage(beforeIndex: index)
+                        ChatBubble(
+                            message: message,
+                            conversationId: chatVM.conversationId ?? "",
+                            previousUserMessage: previousUserMessage,
+                            feedbackState: feedbackStates[message.id] ?? .none,
+                            onFeedback: { rating in
+                                handleFeedback(for: message, previousUserMessage: previousUserMessage, rating: rating)
+                            },
+                            onReport: {
+                                reportingMessage = message
+                                reportingPreviousUserMessage = previousUserMessage ?? ""
+                            }
+                        )
+                        .id(message.id)
                     }
 
                     if chatVM.isTyping {
@@ -620,7 +658,7 @@ struct SanctuaryView: View {
     // MARK: - Edge Swipe Gesture
 
     private var isInNestedScreen: Bool {
-        showJournal || showHistory || showVisionBoard || showSettings
+        showJournal || showHistory || showVisionBoard || showGoals || showAffirmations || showSettings
     }
 
     private var edgeSwipeDragGesture: some Gesture {
@@ -687,6 +725,34 @@ struct SanctuaryView: View {
         latestVibe = SyncDataService.shared.loadLatestVibe()
         let loadedStreak = SyncDataService.shared.loadStreak()
         streak = loadedStreak.currentStreak > 0 ? loadedStreak : nil
+    }
+
+    // MARK: - Feedback Helpers
+
+    private func findPreviousUserMessage(beforeIndex index: Int) -> String? {
+        for i in stride(from: index - 1, through: 0, by: -1) {
+            if chatVM.messages[i].role == .user {
+                return chatVM.messages[i].text
+            }
+        }
+        return nil
+    }
+
+    private func handleFeedback(for message: Message, previousUserMessage: String?, rating: FeedbackRating) {
+        // Update UI state immediately
+        feedbackStates[message.id] = rating == .helpful ? .helpful : .notHelpful
+
+        // Submit feedback async
+        Task {
+            let feedback = Feedback(
+                messageId: message.id,
+                conversationId: chatVM.conversationId ?? "",
+                userMessage: previousUserMessage ?? "",
+                aiResponse: message.text,
+                rating: rating
+            )
+            try? await FeedbackService.shared.submitFeedback(feedback)
+        }
     }
 }
 
