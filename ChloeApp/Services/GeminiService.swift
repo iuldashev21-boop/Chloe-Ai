@@ -256,7 +256,7 @@ class GeminiService {
 
     // MARK: - Agentic Response (v2)
 
-    /// Send a message to the Strategist expecting a structured JSON response
+    /// Send a message to the Strategist expecting a structured JSON response (v2.2 - Stability Fix)
     func sendStrategistMessage(
         messages: [Message],
         systemPrompt: String,
@@ -265,7 +265,8 @@ class GeminiService {
         insight: String? = nil,
         temperature: Double = 0.7,
         userId: String? = nil,
-        conversationId: String? = nil
+        conversationId: String? = nil,
+        attempt: Int = 1  // FIX 2: Retry logic
     ) async throws -> StrategistResponse {
         guard !apiKey.isEmpty else { throw GeminiError.noAPIKey }
 
@@ -309,10 +310,13 @@ class GeminiService {
         }
 
         #if DEBUG
-        print("[GeminiService] Raw strategist response: \(text.prefix(500))...")
+        print("[GeminiService] Raw strategist response (attempt \(attempt)): \(text.prefix(500))...")
         #endif
 
-        guard let jsonData = text.data(using: .utf8) else {
+        // FIX 4: Strip markdown wrappers before parsing
+        let cleanedText = stripMarkdownWrapper(text)
+
+        guard let jsonData = cleanedText.data(using: .utf8) else {
             throw GeminiError.decodingFailed
         }
 
@@ -320,16 +324,42 @@ class GeminiService {
             return try JSONDecoder().decode(StrategistResponse.self, from: jsonData)
         } catch {
             #if DEBUG
-            print("[GeminiService] JSON decode failed: \(error)")
+            print("[GeminiService] JSON decode failed (attempt \(attempt)): \(error)")
             #endif
-            // Fallback: Create response from raw text
+
+            // FIX 5: Analytics tracking (TODO: Wire up TelemetryDeck when configured)
+            // TelemetryDeck.signal("strategist_json_failure", parameters: ["attempt": "\(attempt)"])
+
+            // FIX 2: Retry once before falling back
+            if attempt < 2 {
+                #if DEBUG
+                print("[GeminiService] Retrying strategist request...")
+                #endif
+                try? await Task.sleep(nanoseconds: 500_000_000) // 0.5s delay
+                return try await sendStrategistMessage(
+                    messages: messages,
+                    systemPrompt: systemPrompt,
+                    userFacts: userFacts,
+                    lastSummary: lastSummary,
+                    insight: insight,
+                    temperature: temperature,
+                    userId: userId,
+                    conversationId: conversationId,
+                    attempt: attempt + 1
+                )
+            }
+
+            // Fallback after 2 attempts: Create response from raw text
+            #if DEBUG
+            print("[GeminiService] All retries exhausted. Falling back to raw text.")
+            #endif
             return StrategistResponse(
                 internalThought: InternalThought(
                     userVibe: "MEDIUM",
-                    manBehaviorAnalysis: "JSON parsing failed",
+                    manBehaviorAnalysis: "JSON parsing failed after \(attempt) attempts",
                     strategySelection: "Fallback to raw text"
                 ),
-                response: ResponseContent(text: text, options: nil)
+                response: ResponseContent(text: cleanedText, options: nil)
             )
         }
     }
@@ -477,5 +507,23 @@ class GeminiService {
             return nil
         }
         return text
+    }
+
+    /// Strip markdown code block wrappers from LLM output (FIX 4: v2.2 Stability)
+    private func stripMarkdownWrapper(_ text: String) -> String {
+        var cleaned = text.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // Remove ```json ... ``` wrapper
+        if cleaned.hasPrefix("```json") {
+            cleaned = String(cleaned.dropFirst(7))
+        } else if cleaned.hasPrefix("```") {
+            cleaned = String(cleaned.dropFirst(3))
+        }
+
+        if cleaned.hasSuffix("```") {
+            cleaned = String(cleaned.dropLast(3))
+        }
+
+        return cleaned.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }

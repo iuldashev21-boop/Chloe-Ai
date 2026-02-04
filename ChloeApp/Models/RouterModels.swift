@@ -27,7 +27,7 @@ struct RouterClassification: Codable {
 
 // MARK: - Strategist Response (v2 Agentic)
 
-/// The structured JSON response from the Strategist
+/// The structured JSON response from the Strategist (v2.2 - Flexible Decoding)
 struct StrategistResponse: Codable {
     var internalThought: InternalThought
     var response: ResponseContent
@@ -35,6 +35,39 @@ struct StrategistResponse: Codable {
     enum CodingKeys: String, CodingKey {
         case internalThought = "internal_thought"
         case response
+    }
+
+    // FIX 3: Flexible decoder - handles internal_thought as Object OR String
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.response = try container.decode(ResponseContent.self, forKey: .response)
+
+        // Try decoding as Object first (expected format)
+        if let objectThought = try? container.decode(InternalThought.self, forKey: .internalThought) {
+            self.internalThought = objectThought
+        }
+        // Fallback: If model returned a String, wrap it in our struct
+        else if let stringThought = try? container.decode(String.self, forKey: .internalThought) {
+            self.internalThought = InternalThought(
+                userVibe: "UNKNOWN",
+                manBehaviorAnalysis: "N/A",
+                strategySelection: stringThought
+            )
+        }
+        // Final fallback: parsing error
+        else {
+            self.internalThought = InternalThought(
+                userVibe: "UNKNOWN",
+                manBehaviorAnalysis: "N/A",
+                strategySelection: "Parsing Error"
+            )
+        }
+    }
+
+    // Standard initializer for creating responses in code
+    init(internalThought: InternalThought, response: ResponseContent) {
+        self.internalThought = internalThought
+        self.response = response
     }
 }
 
@@ -68,6 +101,33 @@ struct StrategyOption: Codable, Identifiable {
         case label
         case action
         case outcome
+        case predictedOutcome = "predicted_outcome"
+    }
+
+    // Custom decoder to handle both "outcome" and "predicted_outcome" keys
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        label = try container.decode(String.self, forKey: .label)
+        action = try container.decode(String.self, forKey: .action)
+        // Try "outcome" first, then "predicted_outcome", then empty string
+        outcome = try container.decodeIfPresent(String.self, forKey: .outcome)
+            ?? container.decodeIfPresent(String.self, forKey: .predictedOutcome)
+            ?? ""
+    }
+
+    // Custom encoder to always output "predicted_outcome"
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(label, forKey: .label)
+        try container.encode(action, forKey: .action)
+        try container.encode(outcome, forKey: .predictedOutcome)
+    }
+
+    // Standard initializer for creating options in code
+    init(label: String, action: String, outcome: String) {
+        self.label = label
+        self.action = action
+        self.outcome = outcome
     }
 }
 

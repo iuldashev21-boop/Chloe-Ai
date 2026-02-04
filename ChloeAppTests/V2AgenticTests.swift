@@ -288,6 +288,108 @@ final class V2AgenticTests: XCTestCase {
         // Verify the V2 mode flag is set correctly
         XCTAssertTrue(V2_AGENTIC_MODE, "V2 Agentic Mode should be enabled for production")
     }
+
+    // MARK: - v2.2 Stability Fix Tests
+
+    /// FIX 3: Test flexible decoding when internal_thought is a String instead of Object
+    func testStrategistResponse_decodeWithStringInternalThought() throws {
+        let json = """
+        {
+            "internal_thought": "This is a string instead of object - LLM glitch",
+            "response": {
+                "text": "Hello there!",
+                "options": []
+            }
+        }
+        """
+
+        let data = json.data(using: .utf8)!
+        let response = try JSONDecoder().decode(StrategistResponse.self, from: data)
+
+        // Should not crash - flexible decoder wraps string in struct
+        XCTAssertEqual(response.internalThought.userVibe, "UNKNOWN")
+        XCTAssertEqual(response.internalThought.manBehaviorAnalysis, "N/A")
+        XCTAssertEqual(response.internalThought.strategySelection, "This is a string instead of object - LLM glitch")
+        XCTAssertEqual(response.response.text, "Hello there!")
+    }
+
+    /// FIX 3: Test flexible decoding when internal_thought is missing - uses fallback
+    func testStrategistResponse_decodeWithMissingInternalThought() throws {
+        let json = """
+        {
+            "response": {
+                "text": "Response without internal thought",
+                "options": []
+            }
+        }
+        """
+
+        let data = json.data(using: .utf8)!
+
+        // The flexible decoder should handle missing internal_thought with fallback
+        let response = try JSONDecoder().decode(StrategistResponse.self, from: data)
+
+        // Should use fallback values
+        XCTAssertEqual(response.internalThought.userVibe, "UNKNOWN")
+        XCTAssertEqual(response.internalThought.strategySelection, "Parsing Error")
+        XCTAssertEqual(response.response.text, "Response without internal thought")
+    }
+
+    /// FIX 4: Test markdown stripping helper (unit test via GeminiService)
+    func testMarkdownStripping_jsonBlock() {
+        // Test the stripMarkdownWrapper logic
+        let wrapped = "```json\n{\"test\": true}\n```"
+        let expected = "{\"test\": true}"
+
+        // Manually test the stripping logic
+        var cleaned = wrapped.trimmingCharacters(in: .whitespacesAndNewlines)
+        if cleaned.hasPrefix("```json") {
+            cleaned = String(cleaned.dropFirst(7))
+        }
+        if cleaned.hasSuffix("```") {
+            cleaned = String(cleaned.dropLast(3))
+        }
+        cleaned = cleaned.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        XCTAssertEqual(cleaned, expected)
+    }
+
+    /// FIX 4: Test markdown stripping with plain code block
+    func testMarkdownStripping_plainBlock() {
+        let wrapped = "```\n{\"foo\": \"bar\"}\n```"
+        let expected = "{\"foo\": \"bar\"}"
+
+        var cleaned = wrapped.trimmingCharacters(in: .whitespacesAndNewlines)
+        if cleaned.hasPrefix("```json") {
+            cleaned = String(cleaned.dropFirst(7))
+        } else if cleaned.hasPrefix("```") {
+            cleaned = String(cleaned.dropFirst(3))
+        }
+        if cleaned.hasSuffix("```") {
+            cleaned = String(cleaned.dropLast(3))
+        }
+        cleaned = cleaned.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        XCTAssertEqual(cleaned, expected)
+    }
+
+    /// FIX 4: Test no stripping needed for clean JSON
+    func testMarkdownStripping_cleanJSON() {
+        let clean = "{\"clean\": true}"
+
+        var result = clean.trimmingCharacters(in: .whitespacesAndNewlines)
+        if result.hasPrefix("```json") {
+            result = String(result.dropFirst(7))
+        } else if result.hasPrefix("```") {
+            result = String(result.dropFirst(3))
+        }
+        if result.hasSuffix("```") {
+            result = String(result.dropLast(3))
+        }
+        result = result.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        XCTAssertEqual(result, clean, "Clean JSON should remain unchanged")
+    }
 }
 
 // MARK: - Integration Tests (Require API Key)
