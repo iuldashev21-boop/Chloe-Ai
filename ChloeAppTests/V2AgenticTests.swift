@@ -1122,3 +1122,337 @@ final class ToneAuditTests: XCTestCase {
                       "Confrontation question should have strategy options")
     }
 }
+
+// MARK: - User Journey Tests
+
+/// Simulated real user journey test across multiple sessions
+/// Tests: Fresh user → Session 1 (Sunday night venting) → Session 2 (different topic) → Session 3 (Sunday night again)
+/// Verifies Chloe recognizes recurring patterns and references them naturally
+final class UserJourneyTests: XCTestCase {
+
+    var geminiService: GeminiService!
+    var storageService: SyncDataService!
+
+    // Test report state
+    private var testReport: [TestStep] = []
+
+    struct TestStep {
+        let name: String
+        let passed: Bool
+        let details: String
+        let duration: TimeInterval
+    }
+
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        geminiService = GeminiService.shared
+        storageService = SyncDataService.shared
+
+        // Skip if no API key
+        let apiKey = Bundle.main.infoDictionary?["GEMINI_API_KEY"] as? String
+        try XCTSkipIf(apiKey == nil || apiKey?.isEmpty == true, "Skipping - No API key configured")
+    }
+
+    override func tearDownWithError() throws {
+        // Print final report
+        printTestReport()
+        try super.tearDownWithError()
+    }
+
+    // MARK: - Main User Journey Test
+
+    /// Full user journey: Fresh user → 3 sessions → Pattern recognition verification
+    func testUserJourney_sundayNightPatternRecognition() async throws {
+        testReport = []
+        var overallSuccess = true
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // SETUP: Fresh User with Completed Onboarding
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        let setupStart = Date()
+        let freshProfile = setupFreshUser()
+        let setupDuration = Date().timeIntervalSince(setupStart)
+
+        testReport.append(TestStep(
+            name: "Setup: Fresh User",
+            passed: freshProfile.onboardingComplete && freshProfile.behavioralLoops == nil,
+            details: "Profile created: \(freshProfile.displayName), onboarding=\(freshProfile.onboardingComplete), loops=\(freshProfile.behavioralLoops?.count ?? 0)",
+            duration: setupDuration
+        ))
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // SESSION 1: Sunday Night Venting - "He hasn't texted back"
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        let session1Start = Date()
+        let session1ConvoId = UUID().uuidString
+        let session1Messages = [
+            Message(conversationId: session1ConvoId, role: .user, text: "It's Sunday night and I'm spiraling. He hasn't texted me back all day."),
+            Message(conversationId: session1ConvoId, role: .user, text: "Every Sunday night I end up like this. He goes quiet on weekends and I just sit here refreshing my phone."),
+            Message(conversationId: session1ConvoId, role: .user, text: "I know I shouldn't care this much but I can't help checking if he's online.")
+        ]
+
+        // Get Chloe's response for Session 1
+        let session1Response = try await sendSessionMessages(messages: session1Messages, profile: freshProfile)
+        let session1Duration = Date().timeIntervalSince(session1Start)
+
+        testReport.append(TestStep(
+            name: "Session 1: Sunday Night Venting",
+            passed: !session1Response.isEmpty,
+            details: "Response length: \(session1Response.count) chars. Preview: \(String(session1Response.prefix(100)))...",
+            duration: session1Duration
+        ))
+
+        // Run Analyst to detect behavioral patterns from Session 1
+        let analystStart = Date()
+        let session1AllMessages = session1Messages + [
+            Message(conversationId: session1ConvoId, role: .chloe, text: session1Response)
+        ]
+        let analystResult = try await runAnalyst(messages: session1AllMessages, profile: freshProfile)
+        let analystDuration = Date().timeIntervalSince(analystStart)
+
+        // Store detected loops
+        if !analystResult.behavioralLoops.isEmpty {
+            storageService.addBehavioralLoops(analystResult.behavioralLoops)
+        }
+
+        let loopsAfterSession1 = storageService.loadProfile()?.behavioralLoops ?? []
+        let session1LoopsDetected = !loopsAfterSession1.isEmpty
+
+        testReport.append(TestStep(
+            name: "Session 1: Analyst Pattern Detection",
+            passed: session1LoopsDetected,
+            details: "Detected loops: \(analystResult.behavioralLoops). Stored: \(loopsAfterSession1)",
+            duration: analystDuration
+        ))
+
+        if !session1LoopsDetected {
+            print("⚠️ WARNING: No patterns detected in Session 1. Pattern recognition test may fail.")
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // SESSION 2: Different Topic - Career/Self-Improvement
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        let session2Start = Date()
+        let session2ConvoId = UUID().uuidString
+        let session2Messages = [
+            Message(conversationId: session2ConvoId, role: .user, text: "Hey Chloe, I've been thinking about my career lately."),
+            Message(conversationId: session2ConvoId, role: .user, text: "I want to ask for a promotion but I'm nervous about it.")
+        ]
+
+        let session2Response = try await sendSessionMessages(messages: session2Messages, profile: storageService.loadProfile() ?? freshProfile)
+        let session2Duration = Date().timeIntervalSince(session2Start)
+
+        testReport.append(TestStep(
+            name: "Session 2: Different Topic (Career)",
+            passed: !session2Response.isEmpty,
+            details: "Response length: \(session2Response.count) chars. Topic shift successful.",
+            duration: session2Duration
+        ))
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // SESSION 3: Sunday Night Again - Pattern Recognition Test
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        let session3Start = Date()
+        let session3ConvoId = UUID().uuidString
+        let session3Messages = [
+            Message(conversationId: session3ConvoId, role: .user, text: "Ugh, it's Sunday night again. He's been quiet all weekend."),
+            Message(conversationId: session3ConvoId, role: .user, text: "I keep checking my phone waiting for him to text. Same thing as last time.")
+        ]
+
+        // Load profile with behavioral loops for injection
+        let profileWithLoops = storageService.loadProfile() ?? freshProfile
+        let session3Response = try await sendSessionMessagesWithPatterns(
+            messages: session3Messages,
+            profile: profileWithLoops
+        )
+        let session3Duration = Date().timeIntervalSince(session3Start)
+
+        // Verify Chloe references the pattern
+        let responseText = session3Response.lowercased()
+        let patternReferenced = responseText.contains("pattern") ||
+                                responseText.contains("notice") ||
+                                responseText.contains("again") ||
+                                responseText.contains("recurring") ||
+                                responseText.contains("before") ||
+                                responseText.contains("sunday") ||
+                                responseText.contains("last time") ||
+                                responseText.contains("same") ||
+                                responseText.contains("cycle") ||
+                                responseText.contains("loop")
+
+        testReport.append(TestStep(
+            name: "Session 3: Pattern Recognition",
+            passed: patternReferenced,
+            details: "Pattern referenced: \(patternReferenced). Response: \(String(session3Response.prefix(200)))...",
+            duration: session3Duration
+        ))
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // VERIFICATION: Final State Check
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        let finalProfile = storageService.loadProfile()
+        let finalLoops = finalProfile?.behavioralLoops ?? []
+
+        testReport.append(TestStep(
+            name: "Final State: Behavioral Loops Persisted",
+            passed: !finalLoops.isEmpty,
+            details: "Final loops count: \(finalLoops.count). Loops: \(finalLoops.joined(separator: "; "))",
+            duration: 0
+        ))
+
+        // Calculate overall success
+        overallSuccess = testReport.allSatisfy { $0.passed }
+
+        // Assert the critical path
+        XCTAssertTrue(session1LoopsDetected || !loopsAfterSession1.isEmpty,
+            "Should detect behavioral loops from Sunday night venting pattern")
+        XCTAssertTrue(patternReferenced,
+            "Session 3 response should reference the recurring Sunday night pattern")
+    }
+
+    // MARK: - Helper Methods
+
+    /// Sets up a fresh user profile with completed onboarding
+    private func setupFreshUser() -> Profile {
+        // Clear all existing data
+        storageService.clearAll()
+
+        // Create fresh profile with onboarding complete
+        var profile = Profile()
+        profile.displayName = "TestUser"
+        profile.email = "journey-test@chloe.test"
+        profile.onboardingComplete = true
+        profile.behavioralLoops = nil // Ensure no existing loops
+        profile.createdAt = Date()
+        profile.updatedAt = Date()
+
+        try? storageService.saveProfile(profile)
+        return profile
+    }
+
+    /// Sends messages to Chloe and returns her response (V2 Strategist pipeline)
+    private func sendSessionMessages(messages: [Message], profile: Profile) async throws -> String {
+        // Classify the message to get router context
+        let lastUserMessage = messages.last(where: { $0.role == .user })?.text ?? ""
+        let classification = try await geminiService.classifyMessage(message: lastUserMessage)
+
+        // Build strategist prompt with router context
+        let systemPrompt = buildStrategistPrompt(
+            profile: profile,
+            classification: classification,
+            behavioralLoops: profile.behavioralLoops
+        )
+
+        // Get strategist response
+        let response = try await geminiService.sendStrategistMessage(
+            messages: messages,
+            systemPrompt: systemPrompt
+        )
+
+        return response.response.text
+    }
+
+    /// Sends messages with behavioral loops injected into the prompt
+    private func sendSessionMessagesWithPatterns(messages: [Message], profile: Profile) async throws -> String {
+        let lastUserMessage = messages.last(where: { $0.role == .user })?.text ?? ""
+        let classification = try await geminiService.classifyMessage(message: lastUserMessage)
+
+        // Build strategist prompt WITH behavioral loops
+        let systemPrompt = buildStrategistPrompt(
+            profile: profile,
+            classification: classification,
+            behavioralLoops: profile.behavioralLoops
+        )
+
+        let response = try await geminiService.sendStrategistMessage(
+            messages: messages,
+            systemPrompt: systemPrompt
+        )
+
+        return response.response.text
+    }
+
+    /// Runs the Analyst to extract behavioral patterns
+    private func runAnalyst(messages: [Message], profile: Profile) async throws -> AnalystResult {
+        return try await geminiService.analyzeConversation(
+            messages: messages,
+            userFacts: [],
+            lastSummary: nil,
+            currentVibe: nil,
+            displayName: profile.displayName
+        )
+    }
+
+    /// Builds strategist prompt with router context and optional behavioral loops
+    private func buildStrategistPrompt(
+        profile: Profile,
+        classification: RouterClassification,
+        behavioralLoops: [String]?
+    ) -> String {
+        var prompt = Prompts.strategist
+            .replacingOccurrences(of: "{{user_name}}", with: profile.displayName.isEmpty ? "babe" : profile.displayName)
+            .replacingOccurrences(of: "{{archetype_label}}", with: "Not determined yet")
+            .replacingOccurrences(of: "{{relationship_status}}", with: "Not shared yet")
+            .replacingOccurrences(of: "{{current_vibe}}", with: "MEDIUM")
+
+        // Add router context
+        prompt += """
+
+        <router_context>
+          Category: \(classification.category.rawValue)
+          Urgency: \(classification.urgency.rawValue)
+          Reasoning: \(classification.reasoning)
+        </router_context>
+        """
+
+        // Inject behavioral loops if present
+        if let loops = behavioralLoops, !loops.isEmpty {
+            prompt += """
+
+            <known_patterns>
+              These are behavioral patterns detected across previous sessions.
+              IMPORTANT: Reference these patterns naturally when relevant to show you remember the user.
+              Call out recurring behaviors to help the user recognize their cycles:
+              \(loops.map { "- \($0)" }.joined(separator: "\n  "))
+            </known_patterns>
+            """
+        }
+
+        return prompt
+    }
+
+    /// Prints the final test report
+    private func printTestReport() {
+        print("\n")
+        print("╔══════════════════════════════════════════════════════════════════════════════╗")
+        print("║                    USER JOURNEY TEST REPORT                                  ║")
+        print("╠══════════════════════════════════════════════════════════════════════════════╣")
+
+        var totalDuration: TimeInterval = 0
+        var passCount = 0
+        var failCount = 0
+
+        for step in testReport {
+            let status = step.passed ? "✅ PASS" : "❌ FAIL"
+            let durationStr = String(format: "%.2fs", step.duration)
+            print("║ \(status) │ \(step.name.padding(toLength: 40, withPad: " ", startingAt: 0)) │ \(durationStr.padding(toLength: 8, withPad: " ", startingAt: 0)) ║")
+            print("║        │ \(step.details.prefix(60).padding(toLength: 60, withPad: " ", startingAt: 0)) ║")
+            print("╟──────────────────────────────────────────────────────────────────────────────╢")
+
+            totalDuration += step.duration
+            if step.passed { passCount += 1 } else { failCount += 1 }
+        }
+
+        print("╠══════════════════════════════════════════════════════════════════════════════╣")
+        let overallStatus = failCount == 0 ? "✅ ALL TESTS PASSED" : "❌ \(failCount) TEST(S) FAILED"
+        print("║ \(overallStatus.padding(toLength: 76, withPad: " ", startingAt: 0)) ║")
+        print("║ Total: \(passCount)/\(testReport.count) passed │ Duration: \(String(format: "%.2fs", totalDuration).padding(toLength: 54, withPad: " ", startingAt: 0)) ║")
+        print("╚══════════════════════════════════════════════════════════════════════════════╝")
+        print("\n")
+    }
+}
