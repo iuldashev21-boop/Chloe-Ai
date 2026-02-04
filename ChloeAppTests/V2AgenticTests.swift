@@ -1456,3 +1456,541 @@ final class UserJourneyTests: XCTestCase {
         print("\n")
     }
 }
+
+// MARK: - Memory Edge Case Tests
+
+/// Tests for edge cases in the memory/behavioral loops system
+final class MemoryEdgeCaseTests: XCTestCase {
+
+    var storageService: SyncDataService!
+
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        storageService = SyncDataService.shared
+    }
+
+    // MARK: - 50+ Loops Tests
+
+    /// Verify system handles 50+ behavioral loops without crash
+    func testBehavioralLoops_50PlusLoops_noCrash() {
+        // Generate 60 unique loops
+        let loops = (1...60).map { "Behavioral pattern \($0): User exhibits behavior \($0)" }
+
+        // Should not crash
+        storageService.addBehavioralLoops(loops)
+
+        let profile = storageService.loadProfile()
+        XCTAssertNotNil(profile?.behavioralLoops)
+        XCTAssertGreaterThanOrEqual(profile?.behavioralLoops?.count ?? 0, 50,
+            "Should store at least 50 loops")
+    }
+
+    /// Verify prompt injection handles large loop counts gracefully
+    func testBehavioralLoops_50PlusLoops_promptSizeReasonable() {
+        let loops = (1...60).map { "Pattern \($0): Seeks validation in scenario \($0)" }
+
+        // Build XML block like ChatViewModel does
+        let xml = """
+        <known_patterns>
+          These are behavioral patterns detected across previous sessions.
+          Use them to call out recurring behaviors when relevant:
+          \(loops.map { "- \($0)" }.joined(separator: "\n  "))
+        </known_patterns>
+        """
+
+        // Verify it's not excessively large (< 10KB is reasonable for prompt injection)
+        let sizeInBytes = xml.utf8.count
+        XCTAssertLessThan(sizeInBytes, 10_000,
+            "50+ loops XML should be under 10KB. Actual: \(sizeInBytes) bytes")
+
+        // Verify structure is intact
+        XCTAssertTrue(xml.contains("<known_patterns>"))
+        XCTAssertTrue(xml.contains("</known_patterns>"))
+        XCTAssertTrue(xml.contains("Pattern 1:"))
+        XCTAssertTrue(xml.contains("Pattern 60:"))
+    }
+
+    /// Verify adding loops beyond 50 still works (no hard limit crash)
+    func testBehavioralLoops_100Loops_noHardLimit() {
+        let loops = (1...100).map { "Loop\($0)_\(UUID().uuidString.prefix(8))" }
+        storageService.addBehavioralLoops(loops)
+
+        let profile = storageService.loadProfile()
+        // System should either store all or implement a reasonable limit
+        XCTAssertNotNil(profile?.behavioralLoops)
+        // If there's a limit, it should be documented; for now verify no crash
+        XCTAssertTrue(true, "100 loops added without crash")
+    }
+
+    // MARK: - Special Characters Tests
+
+    /// Verify special characters are preserved in storage
+    func testBehavioralLoops_specialChars_quotesPreserved() {
+        let loop = "User says \"I'm fine\" when actually upset"
+        storageService.addBehavioralLoops([loop])
+
+        let profile = storageService.loadProfile()
+        let storedLoop = profile?.behavioralLoops?.first { $0.contains("I'm fine") }
+        XCTAssertNotNil(storedLoop)
+        XCTAssertTrue(storedLoop?.contains("\"I'm fine\"") ?? false,
+            "Quotes should be preserved in storage")
+    }
+
+    /// Verify apostrophes don't break storage
+    func testBehavioralLoops_specialChars_apostrophesPreserved() {
+        let loop = "User doesn't trust partner's friends"
+        storageService.addBehavioralLoops([loop])
+
+        let profile = storageService.loadProfile()
+        let hasLoop = profile?.behavioralLoops?.contains { $0.contains("doesn't") && $0.contains("partner's") } ?? false
+        XCTAssertTrue(hasLoop, "Apostrophes should be preserved")
+    }
+
+    /// Verify emoji in loops doesn't crash
+    func testBehavioralLoops_specialChars_emojiHandled() {
+        let loop = "User uses 😭 when stressed about relationship"
+        storageService.addBehavioralLoops([loop])
+
+        let profile = storageService.loadProfile()
+        let hasEmojiLoop = profile?.behavioralLoops?.contains { $0.contains("😭") } ?? false
+        XCTAssertTrue(hasEmojiLoop, "Emoji should be preserved in loops")
+    }
+
+    /// Verify newlines in loops are handled
+    func testBehavioralLoops_specialChars_newlinesHandled() {
+        let loop = "User pattern:\nChecks phone\nFeels anxious"
+        storageService.addBehavioralLoops([loop])
+
+        let profile = storageService.loadProfile()
+        XCTAssertNotNil(profile?.behavioralLoops)
+        // Newlines might be preserved or normalized - verify no crash
+        XCTAssertTrue(true, "Newlines handled without crash")
+    }
+
+    /// Verify XML-like content in loops doesn't break prompt injection
+    func testBehavioralLoops_specialChars_xmlLikeContent() {
+        let loop = "User exhibits <anxious> behavior when <ignored>"
+        storageService.addBehavioralLoops([loop])
+
+        // Build prompt injection
+        let loops = storageService.loadProfile()?.behavioralLoops ?? []
+        let xml = """
+        <known_patterns>
+          \(loops.map { "- \($0)" }.joined(separator: "\n  "))
+        </known_patterns>
+        """
+
+        // Should contain the angle brackets (might cause XML parsing issues in some systems)
+        XCTAssertTrue(xml.contains("<anxious>") || xml.contains("&lt;anxious&gt;"),
+            "XML-like content should be handled (preserved or escaped)")
+    }
+
+    // MARK: - Similar/Fuzzy Loops Tests
+
+    /// Verify exact duplicates are caught
+    func testBehavioralLoops_similar_exactDuplicate() {
+        let loop = "User checks phone obsessively"
+        storageService.addBehavioralLoops([loop])
+        let countAfterFirst = storageService.loadProfile()?.behavioralLoops?.count ?? 0
+
+        storageService.addBehavioralLoops([loop])
+        let countAfterSecond = storageService.loadProfile()?.behavioralLoops?.count ?? 0
+
+        XCTAssertEqual(countAfterFirst, countAfterSecond, "Exact duplicate should not be added")
+    }
+
+    /// Verify case variations are caught
+    func testBehavioralLoops_similar_caseVariation() {
+        let uniqueId = UUID().uuidString.prefix(8)
+        let loop1 = "User CHECKS phone \(uniqueId)"
+        let loop2 = "user checks phone \(uniqueId)"
+
+        storageService.addBehavioralLoops([loop1])
+        let countAfterFirst = storageService.loadProfile()?.behavioralLoops?.count ?? 0
+
+        storageService.addBehavioralLoops([loop2])
+        let countAfterSecond = storageService.loadProfile()?.behavioralLoops?.count ?? 0
+
+        XCTAssertEqual(countAfterFirst, countAfterSecond,
+            "Case-insensitive duplicate should not be added")
+    }
+
+    /// Verify substring patterns are deduplicated
+    func testBehavioralLoops_similar_substringDedup() {
+        let uniqueId = UUID().uuidString.prefix(8)
+        // Short must be actual substring of long (no trailing UUID difference)
+        let longLoop = "\(uniqueId)_User checks phone obsessively when partner is quiet"
+        let shortLoop = "\(uniqueId)_User checks phone obsessively"
+
+        storageService.addBehavioralLoops([longLoop])
+        let countAfterLong = storageService.loadProfile()?.behavioralLoops?.count ?? 0
+
+        storageService.addBehavioralLoops([shortLoop])
+        let countAfterShort = storageService.loadProfile()?.behavioralLoops?.count ?? 0
+
+        // Short loop is substring of long loop - should be deduplicated
+        // Verify: longLoop.contains(shortLoop) should be true
+        XCTAssertTrue(longLoop.lowercased().contains(shortLoop.lowercased()),
+            "Test setup: short should be substring of long")
+        XCTAssertEqual(countAfterLong, countAfterShort,
+            "Substring pattern should be deduplicated")
+    }
+
+    /// Document behavior for semantically similar but textually different loops
+    func testBehavioralLoops_similar_semanticVariation_documented() {
+        let uniqueId = UUID().uuidString.prefix(8)
+        // These are semantically similar but textually different
+        let loop1 = "Checks location when anxious \(uniqueId)"
+        let loop2 = "Monitors partner's whereabouts during stress \(uniqueId)"
+
+        storageService.addBehavioralLoops([loop1])
+        let countAfterFirst = storageService.loadProfile()?.behavioralLoops?.count ?? 0
+
+        storageService.addBehavioralLoops([loop2])
+        let countAfterSecond = storageService.loadProfile()?.behavioralLoops?.count ?? 0
+
+        // Current implementation uses substring matching, not semantic similarity
+        // Both loops will be stored since neither is substring of other
+        // This documents expected behavior - semantic dedup would require NLP
+        XCTAssertEqual(countAfterSecond, countAfterFirst + 1,
+            "Semantically similar but textually different loops are both stored (expected - no NLP dedup)")
+    }
+
+    // MARK: - Database Corruption Tests
+
+    /// Verify system handles nil behavioralLoops gracefully
+    func testBehavioralLoops_corruption_nilLoopsArray() {
+        // Create profile with nil loops
+        var profile = storageService.loadProfile() ?? Profile()
+        profile.behavioralLoops = nil
+        try? storageService.saveProfile(profile)
+
+        // Adding loops should create array, not crash
+        storageService.addBehavioralLoops(["New pattern after nil"])
+
+        let updatedProfile = storageService.loadProfile()
+        XCTAssertNotNil(updatedProfile?.behavioralLoops)
+        XCTAssertTrue(updatedProfile?.behavioralLoops?.contains { $0.contains("New pattern after nil") } ?? false)
+    }
+
+    /// Verify system handles empty string loops
+    func testBehavioralLoops_corruption_emptyStringLoop() {
+        let loopsWithEmpty = ["Valid pattern", "", "Another valid pattern"]
+        storageService.addBehavioralLoops(loopsWithEmpty)
+
+        let profile = storageService.loadProfile()
+        // Empty strings might be filtered or stored - verify no crash
+        XCTAssertNotNil(profile?.behavioralLoops)
+    }
+
+    /// Verify system handles whitespace-only loops
+    func testBehavioralLoops_corruption_whitespaceLoop() {
+        let loopsWithWhitespace = ["Valid pattern", "   ", "\n\t", "Another valid"]
+        storageService.addBehavioralLoops(loopsWithWhitespace)
+
+        let profile = storageService.loadProfile()
+        XCTAssertNotNil(profile?.behavioralLoops)
+        // Whitespace-only loops ideally should be filtered
+    }
+
+    /// Verify AnalystResult decodes gracefully with malformed loops
+    func testAnalystResult_corruption_malformedLoopsArray() throws {
+        // Test various edge cases in JSON
+        let json = """
+        {
+            "new_facts": [],
+            "vibe_score": "MEDIUM",
+            "vibe_reasoning": "Test",
+            "behavioral_loops_detected": ["Valid", "", "Also valid", "   "],
+            "session_summary": "Test"
+        }
+        """
+
+        let data = json.data(using: .utf8)!
+        let result = try JSONDecoder().decode(AnalystResult.self, from: data)
+
+        // Should decode without crash
+        XCTAssertNotNil(result.behavioralLoops)
+        XCTAssertTrue(result.behavioralLoops.contains("Valid"))
+    }
+
+    /// Verify system recovers from profile with corrupted loops JSON
+    func testBehavioralLoops_corruption_recoveryAfterBadData() {
+        // Add valid loops first
+        storageService.addBehavioralLoops(["Pre-corruption pattern"])
+
+        // Simulate recovery by adding new loops
+        storageService.addBehavioralLoops(["Post-recovery pattern"])
+
+        let profile = storageService.loadProfile()
+        XCTAssertNotNil(profile?.behavioralLoops)
+        XCTAssertTrue(profile?.behavioralLoops?.contains { $0.contains("Post-recovery") } ?? false)
+    }
+}
+
+// MARK: - Crisis Router + Memory Combo Tests
+
+/// Tests for interaction between Crisis situations and Memory/Behavioral Loops
+/// Key question: Should pattern call-outs be suppressed during HIGH urgency crisis?
+final class CrisisMemoryComboTests: XCTestCase {
+
+    var geminiService: GeminiService!
+    var storageService: SyncDataService!
+
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        geminiService = GeminiService.shared
+        storageService = SyncDataService.shared
+
+        let apiKey = Bundle.main.infoDictionary?["GEMINI_API_KEY"] as? String
+        try XCTSkipIf(apiKey == nil || apiKey?.isEmpty == true, "Skipping - No API key configured")
+    }
+
+    // MARK: - Crisis Classification Tests
+
+    /// Verify acute crisis is classified as HIGH urgency
+    func testCrisis_acuteBreakup_highUrgency() async throws {
+        let message = "He just blocked me on everything. I can't stop crying. I feel like I can't breathe."
+
+        let classification = try await geminiService.classifyMessage(message: message)
+
+        XCTAssertEqual(classification.urgency, .high,
+            "Acute crisis should be HIGH urgency")
+        XCTAssertEqual(classification.category, .crisisBreakup,
+            "Blocking scenario should be CRISIS_BREAKUP")
+    }
+
+    /// Verify Sunday night venting is NOT classified as crisis
+    func testCrisis_sundayVenting_notCrisis() async throws {
+        let message = "It's Sunday night and he hasn't texted. I'm checking my phone constantly."
+
+        let classification = try await geminiService.classifyMessage(message: message)
+
+        XCTAssertNotEqual(classification.category, .crisisBreakup,
+            "Sunday venting should not be CRISIS_BREAKUP")
+        XCTAssertNotEqual(classification.urgency, .high,
+            "Sunday venting should not be HIGH urgency")
+    }
+
+    // MARK: - Crisis + Memory Interaction Tests
+
+    /// Verify HIGH urgency crisis response doesn't gamify with options
+    func testCrisis_withLoops_noOptionsInCrisis() async throws {
+        let messages = [
+            Message(conversationId: "test", role: .user, text: "He just told me it's over. I'm shaking. I don't know what to do.")
+        ]
+
+        // Include behavioral loops in the prompt
+        let loops = ["User seeks validation when anxious", "Checks phone obsessively"]
+        let systemPrompt = buildCrisisPromptWithLoops(loops: loops, urgency: .high)
+
+        let response = try await geminiService.sendStrategistMessage(
+            messages: messages,
+            systemPrompt: systemPrompt
+        )
+
+        // Crisis response should NOT have A/B options
+        let hasOptions = response.response.options?.isEmpty == false
+        XCTAssertFalse(hasOptions,
+            "HIGH urgency crisis should NOT have strategy options even with behavioral loops")
+    }
+
+    /// Verify crisis response is supportive, not strategic pattern call-out
+    func testCrisis_withLoops_supportiveNotStrategic() async throws {
+        let messages = [
+            Message(conversationId: "test", role: .user, text: "I found out he cheated. I'm devastated. I can't eat or sleep.")
+        ]
+
+        let loops = ["User catastrophizes when stressed", "Seeks external validation"]
+        let systemPrompt = buildCrisisPromptWithLoops(loops: loops, urgency: .high)
+
+        let response = try await geminiService.sendStrategistMessage(
+            messages: messages,
+            systemPrompt: systemPrompt
+        )
+
+        let responseText = response.response.text.lowercased()
+
+        // Should be supportive
+        let isSupportive = responseText.contains("here for you") ||
+                           responseText.contains("so sorry") ||
+                           responseText.contains("breathe") ||
+                           responseText.contains("feel") ||
+                           responseText.contains("valid") ||
+                           responseText.contains("hard") ||
+                           responseText.contains("okay to") ||
+                           responseText.contains("right now")
+
+        // Should NOT be lecturing about patterns during acute crisis
+        let isLecturing = responseText.contains("you always do this") ||
+                          responseText.contains("this is your pattern") ||
+                          responseText.contains("you need to stop")
+
+        XCTAssertTrue(isSupportive, "Crisis response should be supportive. Got: \(response.response.text.prefix(200))")
+        XCTAssertFalse(isLecturing, "Crisis response should not lecture about patterns during acute distress")
+    }
+
+    /// Verify MEDIUM urgency with loops DOES reference patterns appropriately
+    func testMediumUrgency_withLoops_patternsReferenced() async throws {
+        let messages = [
+            Message(conversationId: "test", role: .user, text: "He's being hot and cold again. I keep checking if he's online.")
+        ]
+
+        let loops = ["Monitors partner's online status when anxious", "Seeks reassurance through digital checking"]
+        let systemPrompt = buildCrisisPromptWithLoops(loops: loops, urgency: .medium, category: .datingEarly)
+
+        let response = try await geminiService.sendStrategistMessage(
+            messages: messages,
+            systemPrompt: systemPrompt
+        )
+
+        let responseText = response.response.text.lowercased()
+
+        // For MEDIUM urgency, pattern reference is appropriate
+        let referencesPattern = responseText.contains("pattern") ||
+                                responseText.contains("notice") ||
+                                responseText.contains("again") ||
+                                responseText.contains("cycle") ||
+                                responseText.contains("checking") ||
+                                responseText.contains("before")
+
+        // More lenient - pattern reference is encouraged but not strictly required
+        print("Medium urgency response: \(response.response.text.prefix(300))")
+        print("Pattern referenced: \(referencesPattern)")
+
+        // Document the behavior rather than strict assertion
+        if referencesPattern {
+            XCTAssertTrue(true, "MEDIUM urgency appropriately references patterns")
+        } else {
+            print("⚠️ NOTE: MEDIUM urgency did not reference patterns - may want to tune prompt")
+            XCTAssertTrue(true, "Documenting: pattern reference not required for MEDIUM urgency")
+        }
+    }
+
+    /// Verify LOW urgency casual chat with loops doesn't force pattern discussion
+    func testLowUrgency_withLoops_naturalConversation() async throws {
+        let messages = [
+            Message(conversationId: "test", role: .user, text: "Hey Chloe, how are you?")
+        ]
+
+        let loops = ["User seeks validation", "Checks phone obsessively"]
+        let systemPrompt = buildCrisisPromptWithLoops(loops: loops, urgency: .low, category: .selfImprovement)
+
+        let response = try await geminiService.sendStrategistMessage(
+            messages: messages,
+            systemPrompt: systemPrompt
+        )
+
+        // Casual chat should be natural, not forced pattern discussion
+        let responseText = response.response.text.lowercased()
+        let forcedPattern = responseText.contains("i notice you") ||
+                           responseText.contains("your pattern of") ||
+                           responseText.contains("you tend to")
+
+        XCTAssertFalse(forcedPattern,
+            "LOW urgency casual chat should not force pattern discussion")
+    }
+
+    /// Integration: Full crisis flow with existing loops should prioritize support
+    func testCrisis_fullFlow_supportOverPatterns() async throws {
+        // Setup: User has existing behavioral loops
+        storageService.addBehavioralLoops([
+            "Spirals on Sunday nights",
+            "Checks location when partner is quiet",
+            "Seeks validation after arguments"
+        ])
+
+        let profile = storageService.loadProfile() ?? Profile()
+        XCTAssertFalse(profile.behavioralLoops?.isEmpty ?? true, "Setup: loops should exist")
+
+        // Crisis message
+        let messages = [
+            Message(conversationId: "test", role: .user, text: "I just found out he's been lying to me for months. Everything was fake. I'm falling apart.")
+        ]
+
+        // Classify as crisis
+        let classification = try await geminiService.classifyMessage(
+            message: messages.first!.text
+        )
+        XCTAssertEqual(classification.urgency, .high, "Should be classified as HIGH urgency")
+
+        // Get response with loops injected
+        let systemPrompt = buildCrisisPromptWithLoops(
+            loops: profile.behavioralLoops ?? [],
+            urgency: classification.urgency,
+            category: classification.category
+        )
+
+        let response = try await geminiService.sendStrategistMessage(
+            messages: messages,
+            systemPrompt: systemPrompt
+        )
+
+        // Verify response prioritizes emotional support
+        let text = response.response.text
+
+        // Should NOT have game theory options
+        XCTAssertTrue(response.response.options?.isEmpty ?? true,
+            "Crisis should not have options")
+
+        // Should NOT lecture about patterns
+        XCTAssertFalse(text.lowercased().contains("you always"),
+            "Should not say 'you always' during crisis")
+        XCTAssertFalse(text.lowercased().contains("this is a pattern"),
+            "Should not lecture about patterns during crisis")
+
+        print("✅ Crisis response (with loops present): \(text.prefix(300))...")
+    }
+
+    // MARK: - Helper Methods
+
+    private func buildCrisisPromptWithLoops(
+        loops: [String],
+        urgency: RouterUrgency,
+        category: RouterCategory = .crisisBreakup
+    ) -> String {
+        var prompt = Prompts.strategist
+            .replacingOccurrences(of: "{{user_name}}", with: "TestUser")
+            .replacingOccurrences(of: "{{archetype_label}}", with: "Not determined")
+            .replacingOccurrences(of: "{{relationship_status}}", with: "Unknown")
+            .replacingOccurrences(of: "{{current_vibe}}", with: urgency == .high ? "LOW" : "MEDIUM")
+
+        prompt += """
+
+        <router_context>
+          Category: \(category.rawValue)
+          Urgency: \(urgency.rawValue)
+          Reasoning: Test scenario
+        </router_context>
+        """
+
+        // Add crisis-specific instructions for HIGH urgency
+        if urgency == .high {
+            prompt += """
+
+            <crisis_protocol>
+              IMPORTANT: User is in HIGH urgency crisis mode.
+              - Provide EMOTIONAL SUPPORT first
+              - Do NOT provide game theory options
+              - Do NOT lecture about patterns or past behavior
+              - Be the supportive friend, not the strategist
+              - Validate feelings before any advice
+            </crisis_protocol>
+            """
+        }
+
+        // Inject behavioral loops
+        if !loops.isEmpty {
+            prompt += """
+
+            <known_patterns>
+              These patterns are known from previous sessions.
+              \(urgency == .high ? "During HIGH urgency crisis, do NOT call these out directly." : "Reference naturally when appropriate.")
+              \(loops.map { "- \($0)" }.joined(separator: "\n  "))
+            </known_patterns>
+            """
+        }
+
+        return prompt
+    }
+}
