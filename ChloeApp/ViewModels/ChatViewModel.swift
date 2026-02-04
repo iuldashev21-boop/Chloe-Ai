@@ -169,6 +169,18 @@ class ChatViewModel: ObservableObject {
                 </router_context>
                 """
 
+                // Inject behavioral loops (permanent patterns) for long-term strategy
+                if let loops = profile?.behavioralLoops, !loops.isEmpty {
+                    strategistPrompt += """
+
+                <known_patterns>
+                  These are behavioral patterns detected across previous sessions.
+                  Use them to call out recurring behaviors when relevant:
+                  \(loops.map { "- \($0)" }.joined(separator: "\n  "))
+                </known_patterns>
+                """
+                }
+
                 let strategistResponse = try await geminiService.sendStrategistMessage(
                     messages: messages,
                     systemPrompt: strategistPrompt,
@@ -217,6 +229,18 @@ class ChatViewModel: ObservableObject {
                     if let range = systemPrompt.range(of: #"CURRENT MODE: [^\n]+"#, options: .regularExpression) {
                         systemPrompt.replaceSubrange(range, with: "CURRENT MODE: GENTLE SUPPORT")
                     }
+                }
+
+                // Inject behavioral loops for V1 pipeline
+                if let loops = profile?.behavioralLoops, !loops.isEmpty {
+                    systemPrompt += """
+
+                    <known_patterns>
+                    These are behavioral patterns detected across previous sessions.
+                    Use them to call out recurring behaviors when relevant:
+                    \(loops.map { "- \($0)" }.joined(separator: "\n"))
+                    </known_patterns>
+                    """
                 }
 
                 let response = try await geminiService.sendMessage(
@@ -367,9 +391,14 @@ class ChatViewModel: ObservableObject {
                     storageService.pushInsight(pattern)
                 }
 
-                // Push behavioral loops to insight queue for Chloe to call out
+                // Push behavioral loops to insight queue for Chloe to call out (short-term)
                 for loop in result.behavioralLoops {
                     storageService.pushInsight("Behavioral pattern: \(loop)")
+                }
+
+                // Persist behavioral loops permanently for long-term strategy
+                if !result.behavioralLoops.isEmpty {
+                    storageService.addBehavioralLoops(result.behavioralLoops)
                 }
             }
         } catch {

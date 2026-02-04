@@ -12,6 +12,7 @@ struct Profile: Codable, Identifiable {
     var isBlocked: Bool
     var blockedAt: Date?
     var blockedReason: String?
+    var behavioralLoops: [String]?  // Permanent storage of detected behavioral patterns
     var createdAt: Date
     var updatedAt: Date
 
@@ -27,6 +28,7 @@ struct Profile: Codable, Identifiable {
         isBlocked: Bool = false,
         blockedAt: Date? = nil,
         blockedReason: String? = nil,
+        behavioralLoops: [String]? = nil,
         createdAt: Date = Date(),
         updatedAt: Date = Date()
     ) {
@@ -41,6 +43,7 @@ struct Profile: Codable, Identifiable {
         self.isBlocked = isBlocked
         self.blockedAt = blockedAt
         self.blockedReason = blockedReason
+        self.behavioralLoops = behavioralLoops
         self.createdAt = createdAt
         self.updatedAt = updatedAt
     }

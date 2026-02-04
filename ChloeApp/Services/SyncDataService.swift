@@ -307,6 +307,32 @@ class SyncDataService {
         return local.loadProfile()
     }
 
+    /// Add new behavioral loops to profile with deduplication (case-insensitive)
+    func addBehavioralLoops(_ newLoops: [String]) {
+        guard !newLoops.isEmpty else { return }
+        guard var profile = local.loadProfile() else { return }
+
+        var existingLoops = profile.behavioralLoops ?? []
+        let existingLowercased = Set(existingLoops.map { $0.lowercased() })
+
+        for loop in newLoops {
+            let loopLower = loop.lowercased()
+            // Skip if exact match or substring of existing loop
+            let isDuplicate = existingLowercased.contains(loopLower) ||
+                existingLoops.contains { existing in
+                    existing.lowercased().contains(loopLower) || loopLower.contains(existing.lowercased())
+                }
+            if !isDuplicate {
+                existingLoops.append(loop)
+            }
+        }
+
+        profile.behavioralLoops = existingLoops
+        profile.updatedAt = Date()
+        try? local.saveProfile(profile)
+        pushProfileToCloud()
+    }
+
     // MARK: - Chat Images
 
     func saveChatImage(_ image: UIImage) -> String? {

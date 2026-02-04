@@ -16,6 +16,7 @@ struct SupabaseProfileDTO: Codable {
     var isBlocked: Bool?
     var blockedAt: Date?
     var blockedReason: String?
+    var behavioralLoops: [String]?  // Permanent storage of detected behavioral patterns
     var createdAt: Date
     var updatedAt: Date
 }
@@ -141,6 +142,10 @@ class SupabaseDataService {
             subscriptionTier: profile.subscriptionTier.rawValue,
             subscriptionExpiresAt: profile.subscriptionExpiresAt,
             profileImageUrl: profile.profileImageUri,
+            isBlocked: profile.isBlocked,
+            blockedAt: profile.blockedAt,
+            blockedReason: profile.blockedReason,
+            behavioralLoops: profile.behavioralLoops,
             createdAt: profile.createdAt,
             updatedAt: profile.updatedAt
         )
@@ -172,6 +177,7 @@ class SupabaseDataService {
             isBlocked: dto.isBlocked ?? false,
             blockedAt: dto.blockedAt,
             blockedReason: dto.blockedReason,
+            behavioralLoops: dto.behavioralLoops,
             createdAt: dto.createdAt,
             updatedAt: dto.updatedAt
         )
