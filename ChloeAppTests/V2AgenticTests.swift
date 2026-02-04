@@ -390,6 +390,96 @@ final class V2AgenticTests: XCTestCase {
 
         XCTAssertEqual(result, clean, "Clean JSON should remain unchanged")
     }
+
+    // MARK: - FIX 7: ResponseContent Flexible Decoding Tests
+
+    /// FIX 7: Test ResponseContent decodes when "response" is a plain string
+    func testResponseContent_decodeFromString() throws {
+        let json = """
+        "This is a plain string response from the LLM"
+        """
+
+        let data = json.data(using: .utf8)!
+        let content = try JSONDecoder().decode(ResponseContent.self, from: data)
+
+        XCTAssertEqual(content.text, "This is a plain string response from the LLM")
+        XCTAssertNil(content.options)
+    }
+
+    /// FIX 7: Test ResponseContent decodes with "advice" key instead of "text"
+    func testResponseContent_decodeWithAdviceKey() throws {
+        let json = """
+        {
+            "advice": "Here's my advice for you...",
+            "options": []
+        }
+        """
+
+        let data = json.data(using: .utf8)!
+        let content = try JSONDecoder().decode(ResponseContent.self, from: data)
+
+        XCTAssertEqual(content.text, "Here's my advice for you...")
+        XCTAssertNotNil(content.options)
+    }
+
+    /// FIX 7: Test ResponseContent decodes normally with "text" key
+    func testResponseContent_decodeWithTextKey() throws {
+        let json = """
+        {
+            "text": "Normal response text",
+            "options": [
+                {"label": "A", "action": "Do X", "outcome": "Y happens"}
+            ]
+        }
+        """
+
+        let data = json.data(using: .utf8)!
+        let content = try JSONDecoder().decode(ResponseContent.self, from: data)
+
+        XCTAssertEqual(content.text, "Normal response text")
+        XCTAssertEqual(content.options?.count, 1)
+    }
+
+    /// FIX 7: Test full StrategistResponse with string response
+    func testStrategistResponse_decodeWithStringResponse() throws {
+        let json = """
+        {
+            "internal_thought": {
+                "user_vibe": "HIGH",
+                "man_behavior_analysis": "Testing",
+                "strategy_selection": "Support"
+            },
+            "response": "This is the response as a plain string"
+        }
+        """
+
+        let data = json.data(using: .utf8)!
+        let response = try JSONDecoder().decode(StrategistResponse.self, from: data)
+
+        XCTAssertEqual(response.response.text, "This is the response as a plain string")
+        XCTAssertNil(response.response.options)
+    }
+
+    /// FIX 7: Test full StrategistResponse with advice key
+    func testStrategistResponse_decodeWithAdviceResponse() throws {
+        let json = """
+        {
+            "internal_thought": {
+                "user_vibe": "MEDIUM",
+                "man_behavior_analysis": "N/A",
+                "strategy_selection": "General"
+            },
+            "response": {
+                "advice": "My advice is to wait and see"
+            }
+        }
+        """
+
+        let data = json.data(using: .utf8)!
+        let response = try JSONDecoder().decode(StrategistResponse.self, from: data)
+
+        XCTAssertEqual(response.response.text, "My advice is to wait and see")
+    }
 }
 
 // MARK: - Integration Tests (Require API Key)
