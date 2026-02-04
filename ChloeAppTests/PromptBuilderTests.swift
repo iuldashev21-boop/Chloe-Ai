@@ -73,14 +73,17 @@ final class PromptBuilderTests: XCTestCase {
     }
 
     func testArchetypeBlendReplaced() {
+        // Note: Archetype blend is replaced in chloeSystem, not affirmationTemplate
         let archetype = makeArchetype(blend: "The Queen / The Siren")
-        let prompt = buildAffirmationPrompt(
+        let prompt = buildPersonalizedPrompt(
             displayName: "Test",
             preferences: nil,
             archetype: archetype
         )
-        XCTAssertTrue(prompt.contains("The Queen / The Siren"))
+        // chloeSystem uses archetype_label, which gets the label value
+        XCTAssertTrue(prompt.contains("The Queen"))
         XCTAssertFalse(prompt.contains("{{archetype_blend}}"))
+        XCTAssertFalse(prompt.contains("{{archetype_label}}"))
     }
 
     func testRelationshipStatusDefault() {
@@ -96,12 +99,13 @@ final class PromptBuilderTests: XCTestCase {
     // MARK: - Vibe Mode Gating
 
     func testVibeModeLow_alwaysBigSister() {
-        StorageService.shared.saveLatestVibe(.low)
+        // Pass vibeScore directly to function (not via StorageService)
         for _ in 0..<50 {
             let prompt = buildPersonalizedPrompt(
                 displayName: "Test",
                 preferences: nil,
-                archetype: nil
+                archetype: nil,
+                vibeScore: .low
             )
             XCTAssertTrue(prompt.contains("CURRENT MODE: THE BIG SISTER"))
             XCTAssertFalse(prompt.contains("CURRENT MODE: THE SIREN"))
@@ -110,7 +114,6 @@ final class PromptBuilderTests: XCTestCase {
     }
 
     func testVibeModeHigh_sirenOrGirl() {
-        StorageService.shared.saveLatestVibe(.high)
         var sirenCount = 0
         var girlCount = 0
         let runs = 200
@@ -118,7 +121,8 @@ final class PromptBuilderTests: XCTestCase {
             let prompt = buildPersonalizedPrompt(
                 displayName: "Test",
                 preferences: nil,
-                archetype: nil
+                archetype: nil,
+                vibeScore: .high
             )
             if prompt.contains("CURRENT MODE: THE SIREN") { sirenCount += 1 }
             if prompt.contains("CURRENT MODE: THE GIRL") { girlCount += 1 }
@@ -130,7 +134,6 @@ final class PromptBuilderTests: XCTestCase {
     }
 
     func testVibeModeMedium_bigSisterOrSiren() {
-        StorageService.shared.saveLatestVibe(.medium)
         var bigSisterCount = 0
         var sirenCount = 0
         let runs = 200
@@ -138,7 +141,8 @@ final class PromptBuilderTests: XCTestCase {
             let prompt = buildPersonalizedPrompt(
                 displayName: "Test",
                 preferences: nil,
-                archetype: nil
+                archetype: nil,
+                vibeScore: .medium
             )
             if prompt.contains("CURRENT MODE: THE BIG SISTER") { bigSisterCount += 1 }
             if prompt.contains("CURRENT MODE: THE SIREN") { sirenCount += 1 }
@@ -149,7 +153,7 @@ final class PromptBuilderTests: XCTestCase {
     }
 
     func testVibeModeNil_sameAsMedium() {
-        // clearAll already ensures no vibe is saved (nil)
+        // nil vibeScore should behave same as medium
         var bigSisterCount = 0
         var sirenCount = 0
         let runs = 200
@@ -157,7 +161,8 @@ final class PromptBuilderTests: XCTestCase {
             let prompt = buildPersonalizedPrompt(
                 displayName: "Test",
                 preferences: nil,
-                archetype: nil
+                archetype: nil,
+                vibeScore: nil
             )
             if prompt.contains("CURRENT MODE: THE BIG SISTER") { bigSisterCount += 1 }
             if prompt.contains("CURRENT MODE: THE SIREN") { sirenCount += 1 }
@@ -205,15 +210,16 @@ final class PromptBuilderTests: XCTestCase {
     // MARK: - Affirmation Prompt
 
     func testAffirmationPromptInjection() {
-        let archetype = makeArchetype(blend: "The Rebel / The Muse")
+        // Affirmation template uses archetype_label, not archetype_blend
+        let archetype = makeArchetype(label: "The Rebel", blend: "The Rebel / The Muse")
         let prompt = buildAffirmationPrompt(
             displayName: "Luna",
             preferences: nil,
             archetype: archetype
         )
-        XCTAssertTrue(prompt.contains("Luna"))
-        XCTAssertTrue(prompt.contains("The Rebel / The Muse"))
-        XCTAssertFalse(prompt.contains("{{"))
+        XCTAssertTrue(prompt.contains("Luna"), "User name should be injected")
+        XCTAssertTrue(prompt.contains("The Rebel"), "Archetype label should be injected")
+        XCTAssertFalse(prompt.contains("{{"), "No unresolved placeholders")
     }
 
     // MARK: - Topic Gate
