@@ -55,7 +55,8 @@ let supabase: SupabaseClient = {
         supabaseURL: SupabaseConfig.url,
         supabaseKey: SupabaseConfig.anonKey,
         options: .init(
-            db: .init(encoder: encoder, decoder: decoder)
+            db: .init(encoder: encoder, decoder: decoder),
+            auth: .init(redirectToURL: URL(string: "chloeapp://auth-callback"))
         )
     )
 }()

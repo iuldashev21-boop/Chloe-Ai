@@ -8,13 +8,36 @@ class AuthViewModel: ObservableObject {
     @Published var email = ""
     @Published var isLoading = false
     @Published var errorMessage: String?
+    @Published var successMessage: String?
     @Published var isSignUpMode = false
+
+    private var deepLinkObserver: Any?
+
+    init() {
+        // Listen for deep link auth callbacks
+        deepLinkObserver = NotificationCenter.default.addObserver(
+            forName: .authDeepLinkReceived,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.restoreSession()
+            }
+        }
+    }
+
+    deinit {
+        if let observer = deepLinkObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+    }
 
     // MARK: - Sign In (Email + Password)
 
     func signIn(email: String, password: String) async {
         isLoading = true
         errorMessage = nil
+        successMessage = nil
         defer { isLoading = false }
 
         do {
@@ -42,6 +65,7 @@ class AuthViewModel: ObservableObject {
     func signUp(email: String, password: String) async {
         isLoading = true
         errorMessage = nil
+        successMessage = nil
         defer { isLoading = false }
 
         do {
@@ -54,7 +78,7 @@ class AuthViewModel: ObservableObject {
                 syncProfileFromSession(session.user)
                 isAuthenticated = true
             } else {
-                errorMessage = "Check your email to confirm your account."
+                successMessage = "Account created! Check your email to confirm, then come back and sign in."
             }
         } catch {
             errorMessage = friendlyError(error)

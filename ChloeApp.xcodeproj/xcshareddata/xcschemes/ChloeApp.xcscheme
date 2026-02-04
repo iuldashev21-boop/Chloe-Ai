@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1540"
+   LastUpgradeVersion = "2620"
    version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -33,7 +33,7 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "T6000001000000000000TEST"
+               BlueprintIdentifier = "T60000010000000000000001"
                BuildableName = "ChloeAppTests.xctest"
                BlueprintName = "ChloeAppTests"
                ReferencedContainer = "container:ChloeApp.xcodeproj">

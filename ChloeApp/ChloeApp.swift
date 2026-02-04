@@ -1,8 +1,10 @@
 import SwiftUI
 import UserNotifications
+import Supabase
 
 extension Notification.Name {
     static let appDidEnterBackground = Notification.Name("appDidEnterBackground")
+    static let authDeepLinkReceived = Notification.Name("authDeepLinkReceived")
 }
 
 @main
@@ -28,6 +30,9 @@ struct ChloeApp: App {
                 }
                 .onChange(of: scenePhase) { _, newPhase in
                     handleScenePhaseChange(newPhase)
+                }
+                .onOpenURL { url in
+                    handleDeepLink(url)
                 }
         }
     }
@@ -69,6 +74,20 @@ struct ChloeApp: App {
         guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
               let window = scene.windows.first else { return }
         window.overrideUserInterfaceStyle = dark ? .dark : .light
+    }
+
+    private func handleDeepLink(_ url: URL) {
+        // Handle Supabase auth callback (email confirmation)
+        Task {
+            do {
+                try await supabase.auth.session(from: url)
+                // Post notification so AuthViewModel can refresh
+                NotificationCenter.default.post(name: .authDeepLinkReceived, object: nil)
+            } catch {
+                // Silently fail - user can manually sign in
+                print("[DeepLink] Auth callback failed: \(error)")
+            }
+        }
     }
 
     private func scheduleAffirmationIfNeeded() async {

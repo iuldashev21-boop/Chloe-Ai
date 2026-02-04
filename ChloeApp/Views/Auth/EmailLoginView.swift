@@ -95,6 +95,16 @@ struct EmailLoginView: View {
                         .accessibilityLabel("Password")
                         .accessibilityIdentifier("password-field")
 
+                    // MARK: - Success message
+                    if let successMessage = authVM.successMessage {
+                        Text(successMessage)
+                            .font(.chloeCaption)
+                            .foregroundColor(Color(hex: "#4A7C59"))
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, Spacing.screenHorizontal)
+                            .transition(.opacity)
+                    }
+
                     // MARK: - Error message
                     if let errorMessage = authVM.errorMessage {
                         Text(errorMessage)
@@ -162,6 +172,7 @@ struct EmailLoginView: View {
                         withAnimation(.easeInOut(duration: 0.2)) {
                             authVM.isSignUpMode.toggle()
                             authVM.errorMessage = nil
+                            authVM.successMessage = nil
                         }
                     } label: {
                         if authVM.isSignUpMode {

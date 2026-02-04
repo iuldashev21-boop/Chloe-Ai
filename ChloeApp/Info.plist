@@ -54,5 +54,16 @@
 	<string>$(PORTKEY_API_KEY)</string>
 	<key>PORTKEY_VIRTUAL_KEY</key>
 	<string>$(PORTKEY_VIRTUAL_KEY)</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.chloepocket.app</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>chloeapp</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>
