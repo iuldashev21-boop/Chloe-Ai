@@ -55,7 +55,8 @@ struct SidebarView: View {
             navItem(icon: "clock", label: "History", identifier: "history-button") { onNavigate(.history) }
             navItem(icon: "rectangle.on.rectangle.angled", label: "Vision Board", identifier: "vision-board-button") { onNavigate(.visionBoard) }
             navItem(icon: "target", label: "Goals", identifier: "goals-button") { onNavigate(.goals) }
-            navItem(icon: "sparkles", label: "Affirmations", identifier: "affirmations-button") { onNavigate(.affirmations) }
+            // Hidden for v1 - UI not ready (backend notifications still work)
+            // navItem(icon: "sparkles", label: "Affirmations", identifier: "affirmations-button") { onNavigate(.affirmations) }
 
             // Glow Up Streak
             if let streak, streak.currentStreak > 0 {
