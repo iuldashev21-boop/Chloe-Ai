@@ -1994,3 +1994,261 @@ final class CrisisMemoryComboTests: XCTestCase {
         return prompt
     }
 }
+
+// MARK: - Supabase Integration Tests
+
+/// Tests for REAL Supabase cloud persistence (not just local storage)
+/// Verifies: Write → Supabase, Read ← Supabase, App reinstall restore
+final class SupabaseIntegrationTests: XCTestCase {
+
+    var syncService: SyncDataService!
+    var supabaseService: SupabaseDataService!
+    var localStorage: StorageService!
+
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        syncService = SyncDataService.shared
+        supabaseService = SupabaseDataService.shared
+        localStorage = StorageService.shared
+
+        // Skip all tests if not authenticated
+        try XCTSkipIf(supabaseService.currentUserId == nil,
+            "Skipping Supabase tests - Not authenticated. Run app and sign in first.")
+    }
+
+    // MARK: - Write Verification Tests
+
+    /// Test: Behavioral loops are ACTUALLY saved to Supabase (not just locally)
+    func testBehavioralLoops_writtenToSupabase() async throws {
+        let uniqueLoop = "SupabaseWriteTest_\(UUID().uuidString)"
+
+        // Write via SyncDataService (which should push to Supabase)
+        syncService.addBehavioralLoops([uniqueLoop])
+
+        // Wait for async cloud push to complete
+        try await Task.sleep(nanoseconds: 3_000_000_000) // 3 seconds
+
+        // Directly fetch from Supabase (bypassing local cache)
+        let remoteProfile = try await supabaseService.fetchProfile()
+
+        XCTAssertNotNil(remoteProfile, "Should fetch profile from Supabase")
+        XCTAssertNotNil(remoteProfile?.behavioralLoops, "Supabase profile should have behavioralLoops")
+        XCTAssertTrue(remoteProfile?.behavioralLoops?.contains(uniqueLoop) ?? false,
+            "Loop should exist in Supabase. Remote loops: \(remoteProfile?.behavioralLoops ?? [])")
+    }
+
+    /// Test: Profile data (not just loops) is synced to Supabase
+    func testProfile_writtenToSupabase() async throws {
+        let uniqueName = "SupabaseTest_\(UUID().uuidString.prefix(8))"
+
+        // Update profile locally
+        var profile = syncService.loadProfile() ?? Profile()
+        profile.displayName = uniqueName
+        profile.updatedAt = Date()
+        try syncService.saveProfile(profile)
+
+        // Wait for cloud sync
+        try await Task.sleep(nanoseconds: 3_000_000_000)
+
+        // Verify in Supabase
+        let remoteProfile = try await supabaseService.fetchProfile()
+        XCTAssertEqual(remoteProfile?.displayName, uniqueName,
+            "Profile displayName should be synced to Supabase")
+    }
+
+    // MARK: - Read Verification Tests
+
+    /// Test: Can retrieve user data directly from Supabase
+    func testSupabase_directFetchProfile() async throws {
+        let remoteProfile = try await supabaseService.fetchProfile()
+
+        XCTAssertNotNil(remoteProfile, "Should be able to fetch profile from Supabase")
+        XCTAssertFalse(remoteProfile?.id.isEmpty ?? true, "Profile should have user ID")
+    }
+
+    /// Test: Can retrieve behavioral loops from Supabase
+    func testSupabase_fetchBehavioralLoops() async throws {
+        // First ensure there's at least one loop
+        let testLoop = "FetchTest_\(UUID().uuidString)"
+        syncService.addBehavioralLoops([testLoop])
+        try await Task.sleep(nanoseconds: 3_000_000_000)
+
+        // Fetch from Supabase
+        let remoteProfile = try await supabaseService.fetchProfile()
+        let remoteLoops = remoteProfile?.behavioralLoops ?? []
+
+        XCTAssertFalse(remoteLoops.isEmpty, "Should have loops in Supabase")
+        XCTAssertTrue(remoteLoops.contains(testLoop),
+            "Should find test loop in Supabase. Loops: \(remoteLoops)")
+    }
+
+    // MARK: - App Reinstall / Cloud Restore Tests
+
+    /// Test: Clear local storage, pull from cloud, verify data restored
+    func testCloudRestore_afterLocalWipe() async throws {
+        // Step 1: Write a unique loop and sync to cloud
+        let uniqueLoop = "RestoreTest_\(UUID().uuidString)"
+        syncService.addBehavioralLoops([uniqueLoop])
+        try await Task.sleep(nanoseconds: 3_000_000_000)
+
+        // Verify it's in Supabase
+        let remoteProfileBefore = try await supabaseService.fetchProfile()
+        guard remoteProfileBefore?.behavioralLoops?.contains(uniqueLoop) ?? false else {
+            XCTFail("Setup failed: Loop not in Supabase before wipe")
+            return
+        }
+
+        // Step 2: Clear ALL local storage (simulates app reinstall)
+        localStorage.clearAll()
+
+        // Verify local is empty
+        let localProfileAfterWipe = localStorage.loadProfile()
+        XCTAssertNil(localProfileAfterWipe?.behavioralLoops,
+            "Local should be empty after wipe")
+
+        // Step 3: Pull from cloud (simulates app launch after reinstall)
+        await syncService.syncFromCloud()
+
+        // Step 4: Verify data restored locally from cloud
+        let restoredProfile = localStorage.loadProfile()
+        XCTAssertNotNil(restoredProfile, "Profile should be restored from cloud")
+        XCTAssertTrue(restoredProfile?.behavioralLoops?.contains(uniqueLoop) ?? false,
+            "Loop should be restored from cloud. Restored loops: \(restoredProfile?.behavioralLoops ?? [])")
+    }
+
+    /// Test: Full reinstall scenario - wipe everything, restore from Supabase
+    func testAppReinstall_fullRestoreScenario() async throws {
+        // Step 1: Setup - ensure we have data in Supabase
+        let testMarker = "ReinstallTest_\(UUID().uuidString.prefix(8))"
+        let loopMarker = "Pattern_\(testMarker)"
+
+        var profile = syncService.loadProfile() ?? Profile()
+        profile.displayName = testMarker
+        profile.onboardingComplete = true
+        // Add loop directly to profile to ensure it's included in the same save
+        var loops = profile.behavioralLoops ?? []
+        loops.append(loopMarker)
+        profile.behavioralLoops = loops
+        profile.updatedAt = Date()
+        try syncService.saveProfile(profile)
+
+        // Wait for sync (longer to ensure cloud write completes)
+        try await Task.sleep(nanoseconds: 4_000_000_000)
+
+        // Verify Supabase has our data INCLUDING the loop
+        let remoteBefore = try await supabaseService.fetchProfile()
+        XCTAssertEqual(remoteBefore?.displayName, testMarker, "Setup: Supabase should have displayName")
+        guard remoteBefore?.behavioralLoops?.contains(loopMarker) ?? false else {
+            XCTFail("Setup failed: Loop '\(loopMarker)' not in Supabase before wipe. Remote loops: \(remoteBefore?.behavioralLoops ?? [])")
+            return
+        }
+
+        // Step 2: Simulate COMPLETE app uninstall (wipe all local data)
+        localStorage.clearAll()
+
+        // Verify local is completely empty
+        XCTAssertNil(localStorage.loadProfile(), "Local profile should be nil after uninstall")
+
+        // Step 3: Simulate fresh app install + login (syncFromCloud)
+        await syncService.syncFromCloud()
+
+        // Step 4: Verify FULL restore
+        let restored = localStorage.loadProfile()
+
+        XCTAssertNotNil(restored, "Profile should be restored")
+        XCTAssertEqual(restored?.displayName, testMarker,
+            "Display name should be restored from Supabase")
+        XCTAssertTrue(restored?.onboardingComplete ?? false,
+            "Onboarding state should be restored")
+        XCTAssertTrue(restored?.behavioralLoops?.contains(loopMarker) ?? false,
+            "Behavioral loop '\(loopMarker)' should be restored. Got: \(restored?.behavioralLoops ?? [])")
+
+        print("✅ App reinstall restore successful:")
+        print("   - Profile restored: \(restored?.displayName ?? "nil")")
+        print("   - Loops restored: \(restored?.behavioralLoops?.count ?? 0)")
+    }
+
+    // MARK: - Data Integrity Tests
+
+    /// Test: Behavioral loops survive cloud round-trip without corruption
+    func testBehavioralLoops_dataIntegrity_roundTrip() async throws {
+        // Test various special characters survive Supabase round-trip
+        let specialLoops = [
+            "Loop with \"quotes\" and 'apostrophes'",
+            "Loop with emoji 😭💔",
+            "Loop with <brackets> and &ampersand"
+        ]
+
+        // Clear existing loops and add test loops
+        var profile = syncService.loadProfile() ?? Profile()
+        profile.behavioralLoops = specialLoops
+        profile.updatedAt = Date()
+        try syncService.saveProfile(profile)
+
+        // Wait for sync
+        try await Task.sleep(nanoseconds: 3_000_000_000)
+
+        // Fetch from Supabase
+        let remoteProfile = try await supabaseService.fetchProfile()
+        let remoteLoops = remoteProfile?.behavioralLoops ?? []
+
+        // Verify all special characters survived
+        for loop in specialLoops {
+            XCTAssertTrue(remoteLoops.contains(loop),
+                "Loop '\(loop)' should survive Supabase round-trip")
+        }
+    }
+
+    /// Test: Large number of loops syncs correctly
+    func testBehavioralLoops_largeCount_syncsToSupabase() async throws {
+        // Create 30 unique loops
+        let loops = (1...30).map { "BulkTest_\(UUID().uuidString.prefix(8))_\($0)" }
+
+        var profile = syncService.loadProfile() ?? Profile()
+        let existingLoops = profile.behavioralLoops ?? []
+        profile.behavioralLoops = existingLoops + loops
+        profile.updatedAt = Date()
+        try syncService.saveProfile(profile)
+
+        // Wait for sync
+        try await Task.sleep(nanoseconds: 4_000_000_000)
+
+        // Verify in Supabase
+        let remoteProfile = try await supabaseService.fetchProfile()
+        let remoteLoops = remoteProfile?.behavioralLoops ?? []
+
+        let matchCount = loops.filter { remoteLoops.contains($0) }.count
+        XCTAssertEqual(matchCount, 30,
+            "All 30 loops should sync to Supabase. Found: \(matchCount)/30")
+    }
+
+    // MARK: - MCP Verification (Manual Check)
+
+    /// Test: Print Supabase state for manual MCP verification
+    func testSupabase_printStateForMCPVerification() async throws {
+        let userId = supabaseService.currentUserId ?? "unknown"
+        let remoteProfile = try await supabaseService.fetchProfile()
+
+        print("\n")
+        print("╔══════════════════════════════════════════════════════════════════╗")
+        print("║           SUPABASE STATE FOR MCP VERIFICATION                    ║")
+        print("╠══════════════════════════════════════════════════════════════════╣")
+        print("║ User ID: \(userId.prefix(36).padding(toLength: 54, withPad: " ", startingAt: 0)) ║")
+        print("║ Display Name: \(remoteProfile?.displayName.prefix(50).padding(toLength: 50, withPad: " ", startingAt: 0)) ║")
+        print("║ Onboarding: \((remoteProfile?.onboardingComplete ?? false) ? "Complete" : "Incomplete".padding(toLength: 52, withPad: " ", startingAt: 0)) ║")
+        print("║ Loops Count: \(String(remoteProfile?.behavioralLoops?.count ?? 0).padding(toLength: 51, withPad: " ", startingAt: 0)) ║")
+        print("╠══════════════════════════════════════════════════════════════════╣")
+        print("║ Behavioral Loops:                                                ║")
+        for loop in remoteProfile?.behavioralLoops ?? [] {
+            print("║   - \(loop.prefix(60).padding(toLength: 60, withPad: " ", startingAt: 0)) ║")
+        }
+        print("╠══════════════════════════════════════════════════════════════════╣")
+        print("║ MCP Query: SELECT behavioral_loops FROM profiles                 ║")
+        print("║            WHERE id = '\(userId.prefix(36))...                   ║")
+        print("╚══════════════════════════════════════════════════════════════════╝")
+        print("\n")
+
+        // This test always passes - it's for manual verification
+        XCTAssertTrue(true)
+    }
+}
