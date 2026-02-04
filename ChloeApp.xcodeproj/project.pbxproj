@@ -122,6 +122,7 @@
 		T10000060000000000000001 /* InsightQueueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T20000060000000000000001 /* InsightQueueTests.swift */; };
 		T10000070000000000000001 /* CrisisResponseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T20000070000000000000001 /* CrisisResponseTests.swift */; };
 		T10000080000000000000001 /* DailyUsageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T20000080000000000000001 /* DailyUsageTests.swift */; };
+		T10000090000000000000001 /* V2AgenticTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T20000090000000000000001 /* V2AgenticTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -255,6 +256,7 @@
 		T20000060000000000000001 /* InsightQueueTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightQueueTests.swift; sourceTree = "<group>"; };
 		T20000070000000000000001 /* CrisisResponseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrisisResponseTests.swift; sourceTree = "<group>"; };
 		T20000080000000000000001 /* DailyUsageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyUsageTests.swift; sourceTree = "<group>"; };
+		T20000090000000000000001 /* V2AgenticTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = V2AgenticTests.swift; sourceTree = "<group>"; };
 		T30000010000000000000001 /* ChloeAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ChloeAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -568,6 +570,7 @@
 				T20000060000000000000001 /* InsightQueueTests.swift */,
 				T20000070000000000000001 /* CrisisResponseTests.swift */,
 				T20000080000000000000001 /* DailyUsageTests.swift */,
+				T20000090000000000000001 /* V2AgenticTests.swift */,
 			);
 			path = ChloeAppTests;
 			sourceTree = "<group>";
@@ -835,6 +838,7 @@
 				T10000060000000000000001 /* InsightQueueTests.swift in Sources */,
 				T10000070000000000000001 /* CrisisResponseTests.swift in Sources */,
 				T10000080000000000000001 /* DailyUsageTests.swift in Sources */,
+				T10000090000000000000001 /* V2AgenticTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
