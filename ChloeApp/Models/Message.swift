@@ -8,13 +8,21 @@ struct Message: Codable, Identifiable {
     var imageUri: String?
     var createdAt: Date
 
+    // v2 Agentic fields (nullable for backward compatibility)
+    var routerMetadata: RouterMetadata?
+    var contentType: MessageContentType?
+    var options: [StrategyOption]?
+
     init(
         id: String = UUID().uuidString,
         conversationId: String? = nil,
         role: MessageRole,
         text: String,
         imageUri: String? = nil,
-        createdAt: Date = Date()
+        createdAt: Date = Date(),
+        routerMetadata: RouterMetadata? = nil,
+        contentType: MessageContentType? = nil,
+        options: [StrategyOption]? = nil
     ) {
         self.id = id
         self.conversationId = conversationId
@@ -22,6 +30,9 @@ struct Message: Codable, Identifiable {
         self.text = text
         self.imageUri = imageUri
         self.createdAt = createdAt
+        self.routerMetadata = routerMetadata
+        self.contentType = contentType
+        self.options = options
     }
 }
 

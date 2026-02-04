@@ -7,6 +7,7 @@ struct ChatBubble: View {
     var feedbackState: MessageFeedbackState = .none
     var onFeedback: ((FeedbackRating) -> Void)?
     var onReport: (() -> Void)?
+    var onOptionSelect: ((StrategyOption) -> Void)?
 
     private var isUser: Bool {
         message.role == .user
@@ -33,6 +34,13 @@ struct ChatBubble: View {
                         .font(.system(size: 17, weight: isUser ? .medium : .light))
                         .foregroundColor(.chloeTextPrimary)
                         .lineSpacing(8.5)
+                }
+
+                // Strategy options (v2 agentic)
+                if let options = message.options, !options.isEmpty, !isUser {
+                    StrategyOptionsView(options: options) { selected in
+                        onOptionSelect?(selected)
+                    }
                 }
 
                 // Feedback buttons (only for Chloe messages)

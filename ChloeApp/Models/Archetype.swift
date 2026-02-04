@@ -22,6 +22,7 @@ struct AnalystResult: Codable {
     var facts: [ExtractedFact]
     var vibeScore: VibeScore
     var vibeReason: String
+    var behavioralLoops: [String]
     var summary: String
     var engagementOpportunity: EngagementOpportunity?
 
@@ -29,6 +30,7 @@ struct AnalystResult: Codable {
         case facts = "new_facts"
         case vibeScore = "vibe_score"
         case vibeReason = "vibe_reasoning"
+        case behavioralLoops = "behavioral_loops_detected"
         case summary = "session_summary"
         case engagementOpportunity = "engagement_opportunity"
     }
@@ -37,12 +39,14 @@ struct AnalystResult: Codable {
         facts: [ExtractedFact] = [],
         vibeScore: VibeScore = .medium,
         vibeReason: String = "",
+        behavioralLoops: [String] = [],
         summary: String = "",
         engagementOpportunity: EngagementOpportunity? = nil
     ) {
         self.facts = facts
         self.vibeScore = vibeScore
         self.vibeReason = vibeReason
+        self.behavioralLoops = behavioralLoops
         self.summary = summary
         self.engagementOpportunity = engagementOpportunity
     }

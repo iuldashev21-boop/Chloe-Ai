@@ -7,6 +7,7 @@ enum GeminiError: Error, LocalizedError {
     case apiError(Int, String)
     case emptyResponse
     case decodingFailed
+    case routerInvalidResponse
 
     var errorDescription: String? {
         switch self {
@@ -15,6 +16,7 @@ enum GeminiError: Error, LocalizedError {
         case .apiError(let code, let msg): return "API error (\(code)): \(msg)"
         case .emptyResponse: return "I'm having a moment — can you try again?"
         case .decodingFailed: return "Failed to parse response"
+        case .routerInvalidResponse: return "Router returned invalid response"
         }
     }
 }
@@ -250,6 +252,122 @@ class GeminiService {
         }
 
         return try JSONDecoder().decode(AnalystResult.self, from: jsonData)
+    }
+
+    // MARK: - Agentic Response (v2)
+
+    /// Send a message to the Strategist expecting a structured JSON response
+    func sendStrategistMessage(
+        messages: [Message],
+        systemPrompt: String,
+        userFacts: [String] = [],
+        lastSummary: String? = nil,
+        insight: String? = nil,
+        temperature: Double = 0.7,
+        userId: String? = nil,
+        conversationId: String? = nil
+    ) async throws -> StrategistResponse {
+        guard !apiKey.isEmpty else { throw GeminiError.noAPIKey }
+
+        // Build system instruction with facts
+        var systemInstruction = systemPrompt
+        if !userFacts.isEmpty {
+            systemInstruction += "\n\n<user_facts>\n" + userFacts.joined(separator: "\n") + "\n</user_facts>"
+        }
+        if let summary = lastSummary {
+            systemInstruction += "\n\n<last_session_summary>\n\(summary)\n</last_session_summary>"
+        }
+        if let insight = insight {
+            systemInstruction += "\n\n<insight_to_mention>\n\(insight)\n</insight_to_mention>"
+        }
+
+        let recentMessages = Array(messages.suffix(MAX_CONVERSATION_HISTORY))
+
+        // Convert messages to Gemini format
+        let geminiContents = recentMessages.map { msg -> [String: Any] in
+            let parts: [[String: Any]] = [["text": msg.text]]
+            return [
+                "role": msg.role == .user ? "user" : "model",
+                "parts": parts
+            ]
+        }
+
+        let body: [String: Any] = [
+            "system_instruction": ["parts": [["text": systemInstruction]]],
+            "contents": geminiContents,
+            "generationConfig": [
+                "temperature": temperature,
+                "maxOutputTokens": 2048,
+                "responseMimeType": "application/json"  // Force JSON output
+            ]
+        ]
+
+        let data = try await makeRequest(body: body)
+
+        guard let text = try extractText(from: data) else {
+            throw GeminiError.emptyResponse
+        }
+
+        #if DEBUG
+        print("[GeminiService] Raw strategist response: \(text.prefix(500))...")
+        #endif
+
+        guard let jsonData = text.data(using: .utf8) else {
+            throw GeminiError.decodingFailed
+        }
+
+        do {
+            return try JSONDecoder().decode(StrategistResponse.self, from: jsonData)
+        } catch {
+            #if DEBUG
+            print("[GeminiService] JSON decode failed: \(error)")
+            #endif
+            // Fallback: Create response from raw text
+            return StrategistResponse(
+                internalThought: InternalThought(
+                    userVibe: "MEDIUM",
+                    manBehaviorAnalysis: "JSON parsing failed",
+                    strategySelection: "Fallback to raw text"
+                ),
+                response: ResponseContent(text: text, options: nil)
+            )
+        }
+    }
+
+    /// Classify a message using the Context Router
+    func classifyMessage(
+        message: String,
+        systemPrompt: String = Prompts.router
+    ) async throws -> RouterClassification {
+        guard !apiKey.isEmpty else { throw GeminiError.noAPIKey }
+
+        let body: [String: Any] = [
+            "system_instruction": ["parts": [["text": systemPrompt]]],
+            "contents": [
+                ["role": "user", "parts": [["text": message]]]
+            ],
+            "generationConfig": [
+                "temperature": 0.1,  // Low temp for classification
+                "maxOutputTokens": 256,
+                "responseMimeType": "application/json"
+            ]
+        ]
+
+        let data = try await makeRequest(body: body)
+
+        guard let text = try extractText(from: data) else {
+            throw GeminiError.emptyResponse
+        }
+
+        #if DEBUG
+        print("[GeminiService] Router classification: \(text)")
+        #endif
+
+        guard let jsonData = text.data(using: .utf8) else {
+            throw GeminiError.decodingFailed
+        }
+
+        return try JSONDecoder().decode(RouterClassification.self, from: jsonData)
     }
 
     // MARK: - Generate Affirmation

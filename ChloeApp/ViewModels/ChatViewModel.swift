@@ -1,12 +1,23 @@
 import Foundation
 import SwiftUI
 
+/// v2 Agentic mode - enables JSON pipeline with Router + Strategist
+let V2_AGENTIC_MODE = true
+
+/// Loading states for v2 agentic pipeline
+enum LoadingState: Equatable {
+    case idle
+    case routing      // Phase 1: Triage/Classification
+    case generating   // Phase 2: Strategist response
+}
+
 @MainActor
 class ChatViewModel: ObservableObject {
     @Published var messages: [Message] = []
     @Published var inputText = ""
     @Published var pendingImage: UIImage? = nil
     @Published var isTyping = false
+    @Published var loadingState: LoadingState = .idle  // v2 multi-phase loading
     @Published var errorMessage: String?
     @Published var conversationTitle: String = "New Conversation"
     @Published var isLimitReached = false
@@ -101,49 +112,125 @@ class ChatViewModel: ObservableObject {
         isTyping = true
 
         do {
-            // Build personalized prompt
             let archetype: UserArchetype? = {
                 guard let answers = profile?.preferences?.archetypeAnswers else { return nil }
                 return ArchetypeService.shared.classify(answers: answers)
             }()
 
             let currentVibe = storageService.loadLatestVibe()
-
-            var systemPrompt = buildPersonalizedPrompt(
-                displayName: profile?.displayName ?? "babe",
-                preferences: profile?.preferences,
-                archetype: archetype,
-                vibeScore: currentVibe
-            )
-
-            // Soft spiral override — per-message, not per-session
-            if safetyService.checkSoftSpiral(message: text) {
-                // Replace whatever mode was set with GENTLE SUPPORT
-                if let range = systemPrompt.range(of: #"CURRENT MODE: [^\n]+"#, options: .regularExpression) {
-                    systemPrompt.replaceSubrange(range, with: "CURRENT MODE: GENTLE SUPPORT")
-                }
-            }
-
             let userFacts = storageService.loadUserFacts()
                 .filter { $0.isActive }
                 .map { $0.fact }
-
-            // Load session context for GeminiService (decoupled from StorageService)
             let isNewConversation = messages.count <= 1
             let lastSummary = isNewConversation ? storageService.loadLatestSummary() : nil
             let insight = !isNewConversation ? storageService.popInsight() : nil
 
-            let response = try await geminiService.sendMessage(
-                messages: messages,
-                systemPrompt: systemPrompt,
-                userFacts: userFacts,
-                lastSummary: lastSummary,
-                insight: insight
-            )
+            // =====================================================================
+            // V2 AGENTIC PIPELINE
+            // =====================================================================
+            if V2_AGENTIC_MODE {
+                // Phase 1: Triage (Router Classification)
+                loadingState = .routing
 
-            let chloeMsg = Message(conversationId: conversationId, role: .chloe, text: response)
-            messages.append(chloeMsg)
-            saveMessages()
+                let classification = try await geminiService.classifyMessage(message: text)
+
+                #if DEBUG
+                print("[ChatViewModel] Router: \(classification.category.rawValue) / \(classification.urgency.rawValue)")
+                #endif
+
+                // Safety override: If router detects SAFETY_RISK, use crisis response
+                if classification.category == .safetyRisk {
+                    loadingState = .idle
+                    isTyping = false
+                    let crisisResponse = safetyService.getCrisisResponse(for: .selfHarm)
+                    let chloeMsg = Message(conversationId: conversationId, role: .chloe, text: crisisResponse)
+                    messages.append(chloeMsg)
+                    saveMessages()
+                    return
+                }
+
+                // Phase 2: Strategy (Strategist Response)
+                loadingState = .generating
+
+                // Build strategist prompt with context injection
+                var strategistPrompt = Prompts.strategist
+                    .replacingOccurrences(of: "{{user_name}}", with: profile?.displayName ?? "babe")
+                    .replacingOccurrences(of: "{{archetype_label}}", with: archetype?.label ?? "Not determined")
+                    .replacingOccurrences(of: "{{relationship_status}}", with: "Not shared yet")
+                    .replacingOccurrences(of: "{{current_vibe}}", with: currentVibe?.rawValue ?? "MEDIUM")
+
+                // Inject router context
+                strategistPrompt += """
+
+                <router_context>
+                  Category: \(classification.category.rawValue)
+                  Urgency: \(classification.urgency.rawValue)
+                  Reasoning: \(classification.reasoning)
+                </router_context>
+                """
+
+                let strategistResponse = try await geminiService.sendStrategistMessage(
+                    messages: messages,
+                    systemPrompt: strategistPrompt,
+                    userFacts: userFacts,
+                    lastSummary: lastSummary,
+                    insight: insight
+                )
+
+                // Phase 3: Render
+                let routerMetadata = RouterMetadata(
+                    internalThought: """
+                        Vibe: \(strategistResponse.internalThought.userVibe)
+                        Analysis: \(strategistResponse.internalThought.manBehaviorAnalysis)
+                        Strategy: \(strategistResponse.internalThought.strategySelection)
+                        """,
+                    routerMode: classification.category.rawValue,
+                    selectedOption: nil
+                )
+
+                let chloeMsg = Message(
+                    conversationId: conversationId,
+                    role: .chloe,
+                    text: strategistResponse.response.text,
+                    routerMetadata: routerMetadata,
+                    contentType: strategistResponse.response.options != nil ? .optionPair : .text,
+                    options: strategistResponse.response.options
+                )
+                messages.append(chloeMsg)
+                saveMessages()
+
+                loadingState = .idle
+
+            } else {
+                // =====================================================================
+                // V1 LEGACY PIPELINE (fallback)
+                // =====================================================================
+                var systemPrompt = buildPersonalizedPrompt(
+                    displayName: profile?.displayName ?? "babe",
+                    preferences: profile?.preferences,
+                    archetype: archetype,
+                    vibeScore: currentVibe
+                )
+
+                // Soft spiral override — per-message, not per-session
+                if safetyService.checkSoftSpiral(message: text) {
+                    if let range = systemPrompt.range(of: #"CURRENT MODE: [^\n]+"#, options: .regularExpression) {
+                        systemPrompt.replaceSubrange(range, with: "CURRENT MODE: GENTLE SUPPORT")
+                    }
+                }
+
+                let response = try await geminiService.sendMessage(
+                    messages: messages,
+                    systemPrompt: systemPrompt,
+                    userFacts: userFacts,
+                    lastSummary: lastSummary,
+                    insight: insight
+                )
+
+                let chloeMsg = Message(conversationId: conversationId, role: .chloe, text: response)
+                messages.append(chloeMsg)
+                saveMessages()
+            }
 
             // Append warm goodbye after last free message
             if isLastFreeMessage {
@@ -167,9 +254,11 @@ class ChatViewModel: ObservableObject {
         } catch {
             errorMessage = "Message failed to send. Tap to retry."
             lastFailedText = text
+            loadingState = .idle
         }
 
         isTyping = false
+        loadingState = .idle
     }
 
     var lastFailedText: String?
@@ -276,6 +365,11 @@ class ChatViewModel: ObservableObject {
                 // Push pattern to insight queue for Chloe to surface later
                 if let pattern = result.engagementOpportunity?.patternDetected {
                     storageService.pushInsight(pattern)
+                }
+
+                // Push behavioral loops to insight queue for Chloe to call out
+                for loop in result.behavioralLoops {
+                    storageService.pushInsight("Behavioral pattern: \(loop)")
                 }
             }
         } catch {

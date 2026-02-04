@@ -53,6 +53,10 @@ struct SupabaseMessageDTO: Codable {
     var content: String
     var imageUrl: String?
     var createdAt: Date
+
+    // v2 Agentic fields
+    var routerMetadata: RouterMetadata?
+    var contentType: String?
 }
 
 /// Maps to the `journal_entries` table in Supabase
@@ -278,7 +282,9 @@ class SupabaseDataService {
                 role: msg.role.rawValue,
                 content: msg.text,
                 imageUrl: msg.imageUri,
-                createdAt: msg.createdAt
+                createdAt: msg.createdAt,
+                routerMetadata: msg.routerMetadata,
+                contentType: msg.contentType?.rawValue
             )
         }
 
@@ -302,7 +308,10 @@ class SupabaseDataService {
                 role: MessageRole(rawValue: dto.role) ?? .chloe,
                 text: dto.content,
                 imageUri: dto.imageUrl,
-                createdAt: dto.createdAt
+                createdAt: dto.createdAt,
+                routerMetadata: dto.routerMetadata,
+                contentType: dto.contentType.flatMap { MessageContentType(rawValue: $0) },
+                options: nil  // Options stored in routerMetadata or re-parsed from text
             )
         }
     }

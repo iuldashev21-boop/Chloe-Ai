@@ -392,6 +392,11 @@ struct SanctuaryView: View {
                             onReport: {
                                 reportingMessage = message
                                 reportingPreviousUserMessage = previousUserMessage ?? ""
+                            },
+                            onOptionSelect: { option in
+                                // Send option selection as follow-up message
+                                chatVM.inputText = "I'll go with: \(option.label)"
+                                Task { await chatVM.sendMessage() }
                             }
                         )
                         .id(message.id)
