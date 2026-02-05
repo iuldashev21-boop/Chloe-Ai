@@ -18,6 +18,11 @@ struct ContentView: View {
                 NavigationStack {
                     EmailLoginView()
                 }
+            } else if authVM.showNewPasswordScreen {
+                // Password recovery - show new password entry before anything else
+                NavigationStack {
+                    NewPasswordView()
+                }
             } else if !onboardingComplete {
                 NavigationStack {
                     OnboardingContainerView()

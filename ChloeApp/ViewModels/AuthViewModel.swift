@@ -12,8 +12,10 @@ class AuthViewModel: ObservableObject {
     @Published var isSignUpMode = false
     @Published var showEmailConfirmation = false
     @Published var pendingConfirmationEmail = ""
+    @Published var showNewPasswordScreen = false
 
     private var deepLinkObserver: Any?
+    private var authStateTask: Task<Void, Never>?
 
     init() {
         // Listen for deep link auth callbacks
@@ -26,12 +28,48 @@ class AuthViewModel: ObservableObject {
                 self?.restoreSession()
             }
         }
+
+        // Listen for Supabase auth state changes
+        setupAuthStateListener()
+    }
+
+    private func setupAuthStateListener() {
+        authStateTask = Task {
+            for await (event, session) in supabase.auth.authStateChanges {
+                await MainActor.run {
+                    switch event {
+                    case .passwordRecovery:
+                        // Supabase detected password recovery
+                        self.showNewPasswordScreen = true
+                        UserDefaults.standard.removeObject(forKey: "pendingPasswordRecovery")
+                        if let user = session?.user {
+                            self.email = user.email ?? ""
+                        }
+                        self.isAuthenticated = true
+                    case .signedIn:
+                        // For password recovery, just update email - let restoreSession() handle the rest
+                        // Don't remove pendingPasswordRecovery flag here; restoreSession() needs to see it
+                        if let user = session?.user {
+                            self.email = user.email ?? ""
+                        }
+                    case .signedOut:
+                        self.isAuthenticated = false
+                        self.email = ""
+                        self.showNewPasswordScreen = false
+                        UserDefaults.standard.removeObject(forKey: "pendingPasswordRecovery")
+                    default:
+                        break
+                    }
+                }
+            }
+        }
     }
 
     deinit {
         if let observer = deepLinkObserver {
             NotificationCenter.default.removeObserver(observer)
         }
+        authStateTask?.cancel()
     }
 
     // MARK: - Sign In (Email + Password)
@@ -51,6 +89,7 @@ class AuthViewModel: ObservableObject {
                 password: password
             )
             self.email = session.user.email ?? email
+            print("[SignIn] Session established for: \(session.user.email ?? "unknown")")
 
             // Fetch existing profile from cloud first (preserves onboardingComplete for returning users)
             if let remoteProfile = try? await SupabaseDataService.shared.fetchProfile() {
@@ -67,6 +106,11 @@ class AuthViewModel: ObservableObject {
             }
 
             isAuthenticated = true
+
+            // Notify ContentView to re-check profile on next runloop (after SwiftUI re-render completes)
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(name: .profileDidSyncFromCloud, object: nil)
+            }
 
             // Full sync in background for other data (messages, journal, etc.)
             Task.detached {
@@ -131,7 +175,35 @@ class AuthViewModel: ObservableObject {
     // MARK: - Password Reset
 
     func sendPasswordReset(email: String) async throws {
-        try await supabase.auth.resetPasswordForEmail(email)
+        // Set flag BEFORE sending reset email - we'll check this when auth callback arrives
+        // This is needed because Supabase PKCE flow doesn't include type=recovery in URL
+        UserDefaults.standard.set(true, forKey: "awaitingPasswordReset")
+        UserDefaults.standard.synchronize()
+        print("[Auth] Set awaitingPasswordReset flag")
+
+        try await supabase.auth.resetPasswordForEmail(
+            email,
+            redirectTo: URL(string: "chloeapp://auth-callback")
+        )
+    }
+
+    func updatePassword(_ newPassword: String) async throws {
+        try await supabase.auth.update(user: UserAttributes(password: newPassword))
+
+        // Fetch cloud profile to preserve onboardingComplete status
+        if let remoteProfile = try? await SupabaseDataService.shared.fetchProfile() {
+            try? StorageService.shared.saveProfile(remoteProfile)
+        }
+
+        // Password updated successfully - dismiss the new password screen
+        showNewPasswordScreen = false
+
+        // Notify that profile may have changed (so ContentView re-checks onboardingComplete)
+        NotificationCenter.default.post(name: .profileDidSyncFromCloud, object: nil)
+    }
+
+    func handlePasswordRecovery() {
+        showNewPasswordScreen = true
     }
 
     // MARK: - Sign Out
@@ -153,6 +225,17 @@ class AuthViewModel: ObservableObject {
             do {
                 let session = try await supabase.auth.session
                 self.email = session.user.email ?? ""
+
+                // Check if this is a password recovery FIRST (before any profile operations)
+                // This prevents overwriting the cloud profile with a blank local profile
+                if UserDefaults.standard.bool(forKey: "pendingPasswordRecovery") {
+                    UserDefaults.standard.removeObject(forKey: "pendingPasswordRecovery")
+                    showNewPasswordScreen = true
+                    isAuthenticated = true
+                    return // Don't sync profile - updatePassword() will fetch it after password change
+                }
+
+                // Normal session restore - sync profile from session
                 syncProfileFromSession(session.user)
 
                 // Check local profile for block status first (fast path)
