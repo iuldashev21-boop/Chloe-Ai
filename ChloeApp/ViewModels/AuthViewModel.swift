@@ -12,6 +12,42 @@ enum AuthState: Equatable {
     case awaitingEmailConfirmation(email: String)
     case settingNewPassword
     case authenticated
+
+    var displayName: String {
+        switch self {
+        case .unauthenticated: return "unauthenticated"
+        case .authenticating: return "authenticating"
+        case .awaitingEmailConfirmation(let email): return "awaitingEmailConfirmation(\(email))"
+        case .settingNewPassword: return "settingNewPassword"
+        case .authenticated: return "authenticated"
+        }
+    }
+}
+
+// MARK: - Auth Logger
+
+/// Structured logging for authentication flows.
+/// All logs use [Auth] prefix for easy filtering: `log stream --predicate 'eventMessage contains "[Auth]"'`
+private enum AuthLogger {
+    static func stateChange(from oldState: AuthState, to newState: AuthState, reason: String) {
+        print("[Auth] State: \(oldState.displayName) → \(newState.displayName) | \(reason)")
+    }
+
+    static func event(_ event: String, detail: String? = nil) {
+        if let detail = detail {
+            print("[Auth] \(event) | \(detail)")
+        } else {
+            print("[Auth] \(event)")
+        }
+    }
+
+    static func error(_ context: String, error: Error) {
+        print("[Auth] ERROR: \(context) | \(error.localizedDescription)")
+    }
+
+    static func flag(_ name: String, value: Bool) {
+        print("[Auth] Flag \(name) = \(value)")
+    }
 }
 
 @MainActor
@@ -83,24 +119,29 @@ class AuthViewModel: ObservableObject {
         authStateTask = Task {
             for await (event, session) in supabase.auth.authStateChanges {
                 await MainActor.run {
+                    AuthLogger.event("Supabase event", detail: "\(event)")
                     switch event {
                     case .passwordRecovery:
-                        // Supabase detected password recovery
+                        let oldState = self.authState
                         UserDefaults.standard.removeObject(forKey: "pendingPasswordRecovery")
                         if let user = session?.user {
                             self.email = user.email ?? ""
                         }
                         self.authState = .settingNewPassword
+                        AuthLogger.stateChange(from: oldState, to: .settingNewPassword, reason: "Supabase passwordRecovery event")
                     case .signedIn:
                         // For password recovery, just update email - let restoreSession() handle the rest
                         // Don't remove pendingPasswordRecovery flag here; restoreSession() needs to see it
                         if let user = session?.user {
                             self.email = user.email ?? ""
+                            AuthLogger.event("signedIn event", detail: "email=\(user.email ?? "nil")")
                         }
                     case .signedOut:
+                        let oldState = self.authState
                         self.authState = .unauthenticated
                         self.email = ""
                         UserDefaults.standard.removeObject(forKey: "pendingPasswordRecovery")
+                        AuthLogger.stateChange(from: oldState, to: .unauthenticated, reason: "Supabase signedOut event")
                     default:
                         break
                     }
@@ -119,6 +160,7 @@ class AuthViewModel: ObservableObject {
     // MARK: - Sign In (Email + Password)
 
     func signIn(email: String, password: String) async {
+        AuthLogger.stateChange(from: authState, to: .authenticating, reason: "signIn started")
         authState = .authenticating
         errorMessage = nil
         successMessage = nil
@@ -132,23 +174,27 @@ class AuthViewModel: ObservableObject {
                 password: password
             )
             self.email = session.user.email ?? email
-            print("[SignIn] Session established for: \(session.user.email ?? "unknown")")
+            AuthLogger.event("Session established", detail: "email=\(session.user.email ?? "unknown")")
 
             // Fetch existing profile from cloud first (preserves onboardingComplete for returning users)
             if let remoteProfile = try? await SupabaseDataService.shared.fetchProfile() {
                 try? StorageService.shared.saveProfile(remoteProfile)
+                AuthLogger.event("Profile fetched from cloud", detail: "onboardingComplete=\(remoteProfile.onboardingComplete)")
             } else {
                 // New user or fetch failed - create fresh local profile
                 syncProfileFromSession(session.user)
+                AuthLogger.event("Created local profile", detail: "new user or fetch failed")
             }
 
             // Check if user is blocked after syncing profile
             if let profile = SyncDataService.shared.loadProfile(),
                checkIfBlocked(profile) {
+                AuthLogger.stateChange(from: .authenticating, to: .unauthenticated, reason: "user blocked")
                 authState = .unauthenticated
                 return
             }
 
+            AuthLogger.stateChange(from: .authenticating, to: .authenticated, reason: "signIn succeeded")
             authState = .authenticated
 
             // Notify ContentView to re-check profile on next runloop (after SwiftUI re-render completes)
@@ -161,6 +207,7 @@ class AuthViewModel: ObservableObject {
                 await SyncDataService.shared.syncFromCloud()
             }
         } catch {
+            AuthLogger.error("signIn failed", error: error)
             authState = .unauthenticated
             errorMessage = friendlyError(error)
         }
@@ -169,6 +216,7 @@ class AuthViewModel: ObservableObject {
     // MARK: - Sign Up (Email + Password)
 
     func signUp(email: String, password: String) async {
+        AuthLogger.stateChange(from: authState, to: .authenticating, reason: "signUp started")
         authState = .authenticating
         errorMessage = nil
         successMessage = nil
@@ -184,12 +232,16 @@ class AuthViewModel: ObservableObject {
             if let session = result.session {
                 self.email = session.user.email ?? email
                 syncProfileFromSession(session.user)
+                AuthLogger.stateChange(from: .authenticating, to: .authenticated, reason: "signUp succeeded (no email confirmation)")
                 authState = .authenticated
             } else {
                 // Email confirmation required - navigate to confirmation screen
-                authState = .awaitingEmailConfirmation(email: trimmedEmail)
+                let newState = AuthState.awaitingEmailConfirmation(email: trimmedEmail)
+                AuthLogger.stateChange(from: .authenticating, to: newState, reason: "email confirmation required")
+                authState = newState
             }
         } catch {
+            AuthLogger.error("signUp failed", error: error)
             authState = .unauthenticated
             errorMessage = friendlyError(error)
         }
@@ -211,6 +263,7 @@ class AuthViewModel: ObservableObject {
     }
 
     func cancelEmailConfirmation() {
+        AuthLogger.stateChange(from: authState, to: .unauthenticated, reason: "email confirmation cancelled")
         authState = .unauthenticated
         isSignUpMode = false
     }
@@ -222,23 +275,27 @@ class AuthViewModel: ObservableObject {
         // This is needed because Supabase PKCE flow doesn't include type=recovery in URL
         UserDefaults.standard.set(true, forKey: "awaitingPasswordReset")
         UserDefaults.standard.synchronize()
-        print("[Auth] Set awaitingPasswordReset flag")
+        AuthLogger.flag("awaitingPasswordReset", value: true)
 
         try await supabase.auth.resetPasswordForEmail(
             email,
             redirectTo: URL(string: "chloeapp://auth-callback")
         )
+        AuthLogger.event("Password reset email sent", detail: "email=\(email)")
     }
 
     func updatePassword(_ newPassword: String) async throws {
+        AuthLogger.event("updatePassword started")
         try await supabase.auth.update(user: UserAttributes(password: newPassword))
 
         // Fetch cloud profile to preserve onboardingComplete status
         if let remoteProfile = try? await SupabaseDataService.shared.fetchProfile() {
             try? StorageService.shared.saveProfile(remoteProfile)
+            AuthLogger.event("Profile fetched after password update", detail: "onboardingComplete=\(remoteProfile.onboardingComplete)")
         }
 
         // Password updated successfully - transition to authenticated
+        AuthLogger.stateChange(from: authState, to: .authenticated, reason: "password updated")
         authState = .authenticated
 
         // Notify that profile may have changed (so ContentView re-checks onboardingComplete)
@@ -246,12 +303,14 @@ class AuthViewModel: ObservableObject {
     }
 
     func handlePasswordRecovery() {
+        AuthLogger.stateChange(from: authState, to: .settingNewPassword, reason: "handlePasswordRecovery called")
         authState = .settingNewPassword
     }
 
     // MARK: - Sign Out
 
     func signOut() {
+        AuthLogger.stateChange(from: authState, to: .unauthenticated, reason: "signOut called")
         Task {
             try? await supabase.auth.signOut()
         }
@@ -264,15 +323,21 @@ class AuthViewModel: ObservableObject {
     // MARK: - Restore Session
 
     func restoreSession() {
+        AuthLogger.event("restoreSession started")
         Task {
             do {
                 let session = try await supabase.auth.session
                 self.email = session.user.email ?? ""
+                AuthLogger.event("Session found", detail: "email=\(session.user.email ?? "nil")")
 
                 // Check if this is a password recovery FIRST (before any profile operations)
                 // This prevents overwriting the cloud profile with a blank local profile
-                if UserDefaults.standard.bool(forKey: "pendingPasswordRecovery") {
+                let pendingRecovery = UserDefaults.standard.bool(forKey: "pendingPasswordRecovery")
+                AuthLogger.flag("pendingPasswordRecovery", value: pendingRecovery)
+
+                if pendingRecovery {
                     UserDefaults.standard.removeObject(forKey: "pendingPasswordRecovery")
+                    AuthLogger.stateChange(from: authState, to: .settingNewPassword, reason: "pendingPasswordRecovery flag detected")
                     authState = .settingNewPassword
                     return // Don't sync profile - updatePassword() will fetch it after password change
                 }
@@ -281,13 +346,17 @@ class AuthViewModel: ObservableObject {
                 syncProfileFromSession(session.user)
 
                 // Check local profile for block status first (fast path)
-                if let profile = SyncDataService.shared.loadProfile(),
-                   checkIfBlocked(profile) {
-                    authState = .unauthenticated
-                    return
+                if let profile = SyncDataService.shared.loadProfile() {
+                    AuthLogger.event("Local profile loaded", detail: "onboardingComplete=\(profile.onboardingComplete), isBlocked=\(profile.isBlocked)")
+                    if checkIfBlocked(profile) {
+                        AuthLogger.stateChange(from: authState, to: .unauthenticated, reason: "user blocked")
+                        authState = .unauthenticated
+                        return
+                    }
                 }
 
                 // Set authenticated IMMEDIATELY (don't wait for sync)
+                AuthLogger.stateChange(from: authState, to: .authenticated, reason: "session restored")
                 authState = .authenticated
 
                 // Sync in background and re-check block status after
@@ -301,15 +370,18 @@ class AuthViewModel: ObservableObject {
                     }
                 }
             } catch {
+                AuthLogger.error("restoreSession - no valid session", error: error)
                 // No valid session — fall back to local profile check
                 if let profile = SyncDataService.shared.loadProfile(),
                    !profile.email.isEmpty {
+                    AuthLogger.event("Falling back to local profile", detail: "email=\(profile.email)")
                     // Check if blocked even for local profile
                     if checkIfBlocked(profile) {
                         authState = .unauthenticated
                         return
                     }
                     email = profile.email
+                    AuthLogger.stateChange(from: authState, to: .authenticated, reason: "local profile fallback")
                     authState = .authenticated
                 }
             }
