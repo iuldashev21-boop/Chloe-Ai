@@ -668,11 +668,20 @@ class SyncDataService {
 
     // MARK: - Clear All
 
+    /// Clears local data only (for sign out). Cloud data is preserved.
     func clearAll() {
         local.clearAll()
         hasPendingChanges = false
-        // Also delete all data from Supabase (async, best-effort)
+        // Cloud data is intentionally NOT deleted on sign out.
+        // User's data stays in Supabase so they can sign back in and restore it.
+    }
+
+    /// Deletes ALL user data - local AND cloud. Use only for explicit "Delete Account" action.
+    func deleteAccount() async {
+        local.clearAll()
+        hasPendingChanges = false
+        // Delete cloud data only on explicit account deletion
         guard network.isConnected else { return }
-        Task { try? await remote.deleteAllUserData() }
+        try? await remote.deleteAllUserData()
     }
 }

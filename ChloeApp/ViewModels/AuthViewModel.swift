@@ -300,6 +300,13 @@ class AuthViewModel: ObservableObject {
 
         // Notify that profile may have changed (so ContentView re-checks onboardingComplete)
         NotificationCenter.default.post(name: .profileDidSyncFromCloud, object: nil)
+
+        // Sync all user data from cloud (conversations, messages, goals, journal, vision board)
+        AuthLogger.event("Starting full data sync after password update")
+        Task {
+            await SyncDataService.shared.syncFromCloud()
+            AuthLogger.event("Full data sync completed after password update")
+        }
     }
 
     func handlePasswordRecovery() {
