@@ -516,6 +516,9 @@ struct SanctuaryView: View {
                 },
                 onPickFile: {
                     showFileImporter = true
+                },
+                onFocus: {
+                    if !chatActive { activateChat() }
                 }
             )
         }

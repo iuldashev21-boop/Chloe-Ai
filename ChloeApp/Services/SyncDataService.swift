@@ -16,6 +16,9 @@ class SyncDataService {
     /// Tracks whether any writes happened while offline
     private var hasPendingChanges = false
 
+    /// Prevents concurrent syncFromCloud() executions (Bug 2 fix)
+    private var isSyncing = false
+
     private init() {
         // When connectivity restores, push all local state to cloud
         network.didReconnect
@@ -62,6 +65,11 @@ class SyncDataService {
     // MARK: - Cloud Sync (call on app launch)
 
     func syncFromCloud() async {
+        // Prevent concurrent sync executions (Bug 2 fix)
+        guard !isSyncing else { return }
+        isSyncing = true
+        defer { isSyncing = false }
+
         guard network.isConnected else { return }
 
         // Sync profile (server wins if newer)

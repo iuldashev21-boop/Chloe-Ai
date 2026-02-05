@@ -34,8 +34,8 @@ struct ContentView: View {
             if let profile = SyncDataService.shared.loadProfile() {
                 onboardingComplete = profile.onboardingComplete
             }
-            // Pull latest data from Supabase on launch
-            Task { await SyncDataService.shared.syncFromCloud() }
+            // Note: syncFromCloud is now handled by restoreSession() in background
+            // to avoid duplicate/concurrent syncs that caused content duplication
         }
         .onReceive(NotificationCenter.default.publisher(for: .onboardingDidComplete)) { _ in
             onboardingComplete = true

@@ -106,8 +106,25 @@ class AuthViewModel: ObservableObject {
                 self.email = session.user.email ?? ""
                 syncProfileFromSession(session.user)
 
-                // Fetch fresh profile from cloud to check block status
-                await syncFromCloudAndCheckBlock()
+                // Check local profile for block status first (fast path)
+                if let profile = SyncDataService.shared.loadProfile(),
+                   checkIfBlocked(profile) {
+                    return
+                }
+
+                // Set authenticated IMMEDIATELY (don't wait for sync)
+                isAuthenticated = true
+
+                // Sync in background and re-check block status after
+                Task.detached { [weak self] in
+                    await SyncDataService.shared.syncFromCloud()
+                    // Re-check block status after sync completes
+                    await MainActor.run { [weak self] in
+                        if let profile = SyncDataService.shared.loadProfile() {
+                            self?.checkIfBlocked(profile)
+                        }
+                    }
+                }
             } catch {
                 // No valid session — fall back to local profile check
                 if let profile = SyncDataService.shared.loadProfile(),
@@ -121,18 +138,6 @@ class AuthViewModel: ObservableObject {
                 }
             }
         }
-    }
-
-    private func syncFromCloudAndCheckBlock() async {
-        // Sync from cloud to get latest profile (including block status)
-        await SyncDataService.shared.syncFromCloud()
-
-        if let profile = SyncDataService.shared.loadProfile(),
-           checkIfBlocked(profile) {
-            return
-        }
-
-        isAuthenticated = true
     }
 
     /// Check if profile is blocked. Returns true if blocked.

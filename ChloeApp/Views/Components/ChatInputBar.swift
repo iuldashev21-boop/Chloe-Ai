@@ -8,8 +8,10 @@ struct ChatInputBar: View {
     var onTakePhoto: () -> Void = {}
     var onUploadImage: () -> Void = {}
     var onPickFile: () -> Void = {}
+    var onFocus: () -> Void = {}
 
     @State private var showAddSheet = false
+    @FocusState private var isFocused: Bool
 
     private var canSend: Bool {
         !text.isBlank || pendingImage != nil
@@ -63,10 +65,14 @@ struct ChatInputBar: View {
                 TextField("", text: $text, axis: .vertical)
                     .font(.chloeInputPlaceholder(16))
                     .lineLimit(1...5)
+                    .focused($isFocused)
                     .placeholder(when: text.isBlank) {
                         Text("What's on your heart?")
                             .font(.chloeInputPlaceholder(16))
                             .foregroundColor(.chloeTextTertiary)
+                    }
+                    .onChange(of: isFocused) { _, focused in
+                        if focused { onFocus() }
                     }
 
                 // Mic / Send button

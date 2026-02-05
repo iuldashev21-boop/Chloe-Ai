@@ -284,9 +284,34 @@ class GeminiService {
 
         let recentMessages = Array(messages.suffix(MAX_CONVERSATION_HISTORY))
 
-        // Convert messages to Gemini format
-        let geminiContents = recentMessages.map { msg -> [String: Any] in
-            let parts: [[String: Any]] = [["text": msg.text]]
+        // Convert messages to Gemini format (including images for latest message)
+        let geminiContents: [[String: Any]] = recentMessages.enumerated().map { index, msg in
+            var parts: [[String: Any]] = []
+
+            // Only attach image data for the latest message to save tokens
+            let isLatest = index == recentMessages.count - 1
+            if let imageUri = msg.imageUri {
+                if isLatest, let imageData = loadImageData(from: imageUri) {
+                    parts.append([
+                        "inlineData": [
+                            "mimeType": "image/jpeg",
+                            "data": imageData.base64EncodedString()
+                        ]
+                    ])
+                } else if !isLatest {
+                    parts.append(["text": "[User shared an image]"])
+                }
+            }
+
+            if !msg.text.isEmpty {
+                parts.append(["text": msg.text])
+            }
+
+            // Ensure at least one part exists
+            if parts.isEmpty {
+                parts.append(["text": "[Image]"])
+            }
+
             return [
                 "role": msg.role == .user ? "user" : "model",
                 "parts": parts
