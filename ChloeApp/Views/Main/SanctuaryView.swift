@@ -27,6 +27,7 @@ struct SanctuaryView: View {
     @State private var showGoals = false
     @State private var showAffirmations = false
     @State private var showSettings = false
+    @State private var navigatedFromSidebar = false
 
     // Camera & Photo picker
     @State private var showCamera = false
@@ -81,6 +82,8 @@ struct SanctuaryView: View {
                     }
                 },
                 onNavigate: { destination in
+                    // Track that we came from sidebar so we can reopen it on back
+                    navigatedFromSidebar = true
                     // Snap sidebar closed instantly (no animation) so the
                     // navigation push doesn't reveal the main view first.
                     var tx = Transaction()
@@ -218,10 +221,26 @@ struct SanctuaryView: View {
                 selectedPhotoItem = nil
             }
         }
-        .onChange(of: showSettings) {
-            if !showSettings {
+        .onChange(of: showSettings) { _, isShowing in
+            if !isShowing {
                 profileImageData = SyncDataService.shared.loadProfileImage()
+                reopenSidebarIfNeeded()
             }
+        }
+        .onChange(of: showJournal) { _, isShowing in
+            if !isShowing { reopenSidebarIfNeeded() }
+        }
+        .onChange(of: showHistory) { _, isShowing in
+            if !isShowing { reopenSidebarIfNeeded() }
+        }
+        .onChange(of: showVisionBoard) { _, isShowing in
+            if !isShowing { reopenSidebarIfNeeded() }
+        }
+        .onChange(of: showGoals) { _, isShowing in
+            if !isShowing { reopenSidebarIfNeeded() }
+        }
+        .onChange(of: showAffirmations) { _, isShowing in
+            if !isShowing { reopenSidebarIfNeeded() }
         }
         .onChange(of: chatVM.messages.count) {
             loadConversations()
@@ -703,6 +722,15 @@ struct SanctuaryView: View {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                 action()
             }
+        }
+    }
+
+    private func reopenSidebarIfNeeded() {
+        guard navigatedFromSidebar else { return }
+        navigatedFromSidebar = false
+        // Small delay to let navigation animation complete
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            openSidebar()
         }
     }
 
