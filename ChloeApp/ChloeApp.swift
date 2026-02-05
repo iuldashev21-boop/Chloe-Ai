@@ -74,6 +74,8 @@ struct ChloeApp: App {
         guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
               let window = scene.windows.first else { return }
         window.overrideUserInterfaceStyle = dark ? .dark : .light
+        // Set window background to match app theme (fixes white footer in safe area)
+        window.backgroundColor = dark ? UIColor(hex: "#1A1517") : UIColor(hex: "#FEEAE2")
     }
 
     private func handleDeepLink(_ url: URL) {
