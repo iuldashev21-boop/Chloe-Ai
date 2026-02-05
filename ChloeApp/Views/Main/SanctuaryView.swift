@@ -728,10 +728,8 @@ struct SanctuaryView: View {
     private func reopenSidebarIfNeeded() {
         guard navigatedFromSidebar else { return }
         navigatedFromSidebar = false
-        // Small delay to let navigation animation complete
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            openSidebar()
-        }
+        // Open immediately - no delay to avoid flicker
+        sidebarOpen = true
     }
 
     private func loadUserData() {

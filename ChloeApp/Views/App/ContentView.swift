@@ -23,13 +23,15 @@ struct ContentView: View {
                     OnboardingContainerView()
                 }
             } else {
-                NavigationStack {
-                    SanctuaryView()
+                ZStack {
+                    Color.chloeBackground
+                        .ignoresSafeArea()
+                    NavigationStack {
+                        SanctuaryView()
+                    }
                 }
-                .background(Color.chloeBackground.ignoresSafeArea())
             }
         }
-        .background(Color.chloeBackground.ignoresSafeArea())
         .environmentObject(authVM)
         .onAppear {
             authVM.restoreSession()
