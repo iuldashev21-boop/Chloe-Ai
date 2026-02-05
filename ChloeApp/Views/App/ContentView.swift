@@ -14,22 +14,30 @@ struct ContentView: View {
                 NavigationStack {
                     SanctuaryView()
                 }
-            } else if !authVM.isAuthenticated {
-                NavigationStack {
-                    EmailLoginView()
-                }
-            } else if authVM.showNewPasswordScreen {
-                // Password recovery - show new password entry before anything else
-                NavigationStack {
-                    NewPasswordView()
-                }
-            } else if !onboardingComplete {
-                NavigationStack {
-                    OnboardingContainerView()
-                }
             } else {
-                NavigationStack {
-                    SanctuaryView()
+                switch authVM.authState {
+                case .unauthenticated, .authenticating:
+                    NavigationStack {
+                        EmailLoginView()
+                    }
+                case .awaitingEmailConfirmation:
+                    NavigationStack {
+                        EmailLoginView()
+                    }
+                case .settingNewPassword:
+                    NavigationStack {
+                        NewPasswordView()
+                    }
+                case .authenticated:
+                    if !onboardingComplete {
+                        NavigationStack {
+                            OnboardingContainerView()
+                        }
+                    } else {
+                        NavigationStack {
+                            SanctuaryView()
+                        }
+                    }
                 }
             }
         }
@@ -82,13 +90,13 @@ struct ContentView: View {
             )
             .interactiveDismissDisabled()
         }
-        .onChange(of: authVM.isAuthenticated) { _, newValue in
-            if newValue {
+        .onChange(of: authVM.authState) { _, newState in
+            if newState == .authenticated {
                 // Signed IN - re-check onboarding status from profile
                 if let profile = SyncDataService.shared.loadProfile() {
                     onboardingComplete = profile.onboardingComplete
                 }
-            } else {
+            } else if newState == .unauthenticated {
                 // Signed OUT - reset state
                 onboardingComplete = false
             }

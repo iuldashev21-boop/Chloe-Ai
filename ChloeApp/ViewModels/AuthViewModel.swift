@@ -2,17 +2,63 @@ import Foundation
 import SwiftUI
 import Supabase
 
+// MARK: - Auth State
+
+/// Single source of truth for authentication state.
+/// Replaces fragmented boolean flags with a clear state machine.
+enum AuthState: Equatable {
+    case unauthenticated
+    case authenticating
+    case awaitingEmailConfirmation(email: String)
+    case settingNewPassword
+    case authenticated
+}
+
 @MainActor
 class AuthViewModel: ObservableObject {
-    @Published var isAuthenticated = false
+    @Published var authState: AuthState = .unauthenticated
     @Published var email = ""
-    @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var successMessage: String?
     @Published var isSignUpMode = false
-    @Published var showEmailConfirmation = false
-    @Published var pendingConfirmationEmail = ""
-    @Published var showNewPasswordScreen = false
+
+    // MARK: - Computed Properties (Backward Compatibility)
+
+    /// Convenience accessor for views that just need to check if authenticated
+    var isAuthenticated: Bool {
+        authState == .authenticated
+    }
+
+    /// Convenience accessor for loading state
+    var isLoading: Bool {
+        authState == .authenticating
+    }
+
+    /// Bindable property for email confirmation navigation
+    /// Used with .navigationDestination(isPresented:)
+    var showEmailConfirmation: Bool {
+        get {
+            if case .awaitingEmailConfirmation = authState { return true }
+            return false
+        }
+        set {
+            if !newValue && showEmailConfirmation {
+                // Dismissing email confirmation - go back to unauthenticated
+                authState = .unauthenticated
+            }
+        }
+    }
+
+    /// Convenience accessor for pending confirmation email
+    var pendingConfirmationEmail: String {
+        if case .awaitingEmailConfirmation(let email) = authState { return email }
+        return ""
+    }
+
+    /// Convenience accessor for new password screen
+    var showNewPasswordScreen: Bool {
+        authState == .settingNewPassword
+    }
 
     private var deepLinkObserver: Any?
     private var authStateTask: Task<Void, Never>?
@@ -40,12 +86,11 @@ class AuthViewModel: ObservableObject {
                     switch event {
                     case .passwordRecovery:
                         // Supabase detected password recovery
-                        self.showNewPasswordScreen = true
                         UserDefaults.standard.removeObject(forKey: "pendingPasswordRecovery")
                         if let user = session?.user {
                             self.email = user.email ?? ""
                         }
-                        self.isAuthenticated = true
+                        self.authState = .settingNewPassword
                     case .signedIn:
                         // For password recovery, just update email - let restoreSession() handle the rest
                         // Don't remove pendingPasswordRecovery flag here; restoreSession() needs to see it
@@ -53,9 +98,8 @@ class AuthViewModel: ObservableObject {
                             self.email = user.email ?? ""
                         }
                     case .signedOut:
-                        self.isAuthenticated = false
+                        self.authState = .unauthenticated
                         self.email = ""
-                        self.showNewPasswordScreen = false
                         UserDefaults.standard.removeObject(forKey: "pendingPasswordRecovery")
                     default:
                         break
@@ -75,10 +119,9 @@ class AuthViewModel: ObservableObject {
     // MARK: - Sign In (Email + Password)
 
     func signIn(email: String, password: String) async {
-        isLoading = true
+        authState = .authenticating
         errorMessage = nil
         successMessage = nil
-        defer { isLoading = false }
 
         // Trim whitespace from email
         let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
@@ -102,10 +145,11 @@ class AuthViewModel: ObservableObject {
             // Check if user is blocked after syncing profile
             if let profile = SyncDataService.shared.loadProfile(),
                checkIfBlocked(profile) {
+                authState = .unauthenticated
                 return
             }
 
-            isAuthenticated = true
+            authState = .authenticated
 
             // Notify ContentView to re-check profile on next runloop (after SwiftUI re-render completes)
             DispatchQueue.main.async {
@@ -117,6 +161,7 @@ class AuthViewModel: ObservableObject {
                 await SyncDataService.shared.syncFromCloud()
             }
         } catch {
+            authState = .unauthenticated
             errorMessage = friendlyError(error)
         }
     }
@@ -124,10 +169,9 @@ class AuthViewModel: ObservableObject {
     // MARK: - Sign Up (Email + Password)
 
     func signUp(email: String, password: String) async {
-        isLoading = true
+        authState = .authenticating
         errorMessage = nil
         successMessage = nil
-        defer { isLoading = false }
 
         // Trim whitespace from email
         let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
@@ -140,13 +184,13 @@ class AuthViewModel: ObservableObject {
             if let session = result.session {
                 self.email = session.user.email ?? email
                 syncProfileFromSession(session.user)
-                isAuthenticated = true
+                authState = .authenticated
             } else {
                 // Email confirmation required - navigate to confirmation screen
-                pendingConfirmationEmail = email
-                showEmailConfirmation = true
+                authState = .awaitingEmailConfirmation(email: trimmedEmail)
             }
         } catch {
+            authState = .unauthenticated
             errorMessage = friendlyError(error)
         }
     }
@@ -154,11 +198,11 @@ class AuthViewModel: ObservableObject {
     // MARK: - Resend Confirmation Email
 
     func resendConfirmationEmail() async {
-        guard !pendingConfirmationEmail.isEmpty else { return }
+        guard case .awaitingEmailConfirmation(let email) = authState else { return }
 
         do {
             try await supabase.auth.resend(
-                email: pendingConfirmationEmail,
+                email: email,
                 type: .signup
             )
         } catch {
@@ -167,8 +211,7 @@ class AuthViewModel: ObservableObject {
     }
 
     func cancelEmailConfirmation() {
-        showEmailConfirmation = false
-        pendingConfirmationEmail = ""
+        authState = .unauthenticated
         isSignUpMode = false
     }
 
@@ -195,15 +238,15 @@ class AuthViewModel: ObservableObject {
             try? StorageService.shared.saveProfile(remoteProfile)
         }
 
-        // Password updated successfully - dismiss the new password screen
-        showNewPasswordScreen = false
+        // Password updated successfully - transition to authenticated
+        authState = .authenticated
 
         // Notify that profile may have changed (so ContentView re-checks onboardingComplete)
         NotificationCenter.default.post(name: .profileDidSyncFromCloud, object: nil)
     }
 
     func handlePasswordRecovery() {
-        showNewPasswordScreen = true
+        authState = .settingNewPassword
     }
 
     // MARK: - Sign Out
@@ -213,7 +256,7 @@ class AuthViewModel: ObservableObject {
             try? await supabase.auth.signOut()
         }
         SyncDataService.shared.clearAll()
-        isAuthenticated = false
+        authState = .unauthenticated
         email = ""
         errorMessage = nil
     }
@@ -230,8 +273,7 @@ class AuthViewModel: ObservableObject {
                 // This prevents overwriting the cloud profile with a blank local profile
                 if UserDefaults.standard.bool(forKey: "pendingPasswordRecovery") {
                     UserDefaults.standard.removeObject(forKey: "pendingPasswordRecovery")
-                    showNewPasswordScreen = true
-                    isAuthenticated = true
+                    authState = .settingNewPassword
                     return // Don't sync profile - updatePassword() will fetch it after password change
                 }
 
@@ -241,11 +283,12 @@ class AuthViewModel: ObservableObject {
                 // Check local profile for block status first (fast path)
                 if let profile = SyncDataService.shared.loadProfile(),
                    checkIfBlocked(profile) {
+                    authState = .unauthenticated
                     return
                 }
 
                 // Set authenticated IMMEDIATELY (don't wait for sync)
-                isAuthenticated = true
+                authState = .authenticated
 
                 // Sync in background and re-check block status after
                 Task.detached { [weak self] in
@@ -263,10 +306,11 @@ class AuthViewModel: ObservableObject {
                    !profile.email.isEmpty {
                     // Check if blocked even for local profile
                     if checkIfBlocked(profile) {
+                        authState = .unauthenticated
                         return
                     }
                     email = profile.email
-                    isAuthenticated = true
+                    authState = .authenticated
                 }
             }
         }
@@ -276,7 +320,7 @@ class AuthViewModel: ObservableObject {
     @discardableResult
     func checkIfBlocked(_ profile: Profile) -> Bool {
         if profile.isBlocked {
-            isAuthenticated = false
+            authState = .unauthenticated
             errorMessage = "Your account has been suspended. Contact support@chloe.app"
             return true
         }
@@ -293,9 +337,8 @@ class AuthViewModel: ObservableObject {
             return
         }
 
-        isLoading = true
+        authState = .authenticating
         errorMessage = nil
-        defer { isLoading = false }
 
         do {
             let session = try await supabase.auth.signIn(
@@ -304,7 +347,7 @@ class AuthViewModel: ObservableObject {
             )
             self.email = session.user.email ?? "dev@chloe.test"
             syncProfileFromSession(session.user)
-            isAuthenticated = true
+            authState = .authenticated
         } catch {
             // If Supabase sign-in fails (no network, user not created yet), fall back to local
             localDevSkip()
@@ -320,7 +363,7 @@ class AuthViewModel: ObservableObject {
         profile.updatedAt = Date()
         try? SyncDataService.shared.saveProfile(profile)
         self.email = profile.email
-        isAuthenticated = true
+        authState = .authenticated
     }
     #endif
 
