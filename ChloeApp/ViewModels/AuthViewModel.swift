@@ -42,13 +42,23 @@ class AuthViewModel: ObservableObject {
         successMessage = nil
         defer { isLoading = false }
 
+        // Trim whitespace from email
+        let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+
         do {
             let session = try await supabase.auth.signIn(
-                email: email,
+                email: trimmedEmail,
                 password: password
             )
             self.email = session.user.email ?? email
-            syncProfileFromSession(session.user)
+
+            // Fetch existing profile from cloud first (preserves onboardingComplete for returning users)
+            if let remoteProfile = try? await SupabaseDataService.shared.fetchProfile() {
+                try? StorageService.shared.saveProfile(remoteProfile)
+            } else {
+                // New user or fetch failed - create fresh local profile
+                syncProfileFromSession(session.user)
+            }
 
             // Check if user is blocked after syncing profile
             if let profile = SyncDataService.shared.loadProfile(),
@@ -57,6 +67,11 @@ class AuthViewModel: ObservableObject {
             }
 
             isAuthenticated = true
+
+            // Full sync in background for other data (messages, journal, etc.)
+            Task.detached {
+                await SyncDataService.shared.syncFromCloud()
+            }
         } catch {
             errorMessage = friendlyError(error)
         }
@@ -70,9 +85,12 @@ class AuthViewModel: ObservableObject {
         successMessage = nil
         defer { isLoading = false }
 
+        // Trim whitespace from email
+        let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+
         do {
             let result = try await supabase.auth.signUp(
-                email: email,
+                email: trimmedEmail,
                 password: password
             )
             if let session = result.session {
@@ -226,27 +244,46 @@ class AuthViewModel: ObservableObject {
     // MARK: - Helpers
 
     private func syncProfileFromSession(_ user: User) {
-        var profile = SyncDataService.shared.loadProfile() ?? Profile(id: user.id.uuidString)
+        let existingProfile = SyncDataService.shared.loadProfile()
+        var profile = existingProfile ?? Profile(id: user.id.uuidString)
         profile.email = user.email ?? profile.email
-        profile.updatedAt = Date()
+        // Only set updatedAt if profile already existed locally (user-modified)
+        // For new profiles, use distant past so cloud profile wins during sync
+        if existingProfile == nil {
+            profile.updatedAt = .distantPast
+        }
         try? SyncDataService.shared.saveProfile(profile)
     }
 
     private func friendlyError(_ error: Error) -> String {
-        let message = error.localizedDescription.lowercased()
-        if message.contains("invalid login credentials") || message.contains("invalid_credentials") {
+        let message = String(describing: error).lowercased()
+        let localizedMessage = error.localizedDescription.lowercased()
+
+        // Rate limiting
+        if message.contains("rate") || message.contains("429") || message.contains("limit") ||
+           localizedMessage.contains("rate") || localizedMessage.contains("limit") {
+            return "Too many attempts. Please wait a few minutes and try again."
+        }
+
+        // Email validation errors
+        if message.contains("validate email") || message.contains("invalid format") ||
+           message.contains("invalid email") || localizedMessage.contains("invalid format") {
+            return "Please enter a valid email address."
+        }
+
+        if localizedMessage.contains("invalid login credentials") || localizedMessage.contains("invalid_credentials") {
             return "Invalid email or password."
         }
-        if message.contains("email not confirmed") {
+        if localizedMessage.contains("email not confirmed") {
             return "Please confirm your email before signing in."
         }
-        if message.contains("already registered") || message.contains("already been registered") {
+        if localizedMessage.contains("already registered") || localizedMessage.contains("already been registered") {
             return "This email is already registered. Try signing in instead."
         }
-        if message.contains("password") && message.contains("short") {
+        if localizedMessage.contains("password") && localizedMessage.contains("short") {
             return "Password must be at least 6 characters."
         }
-        if message.contains("network") || message.contains("offline") || message.contains("internet") {
+        if localizedMessage.contains("network") || localizedMessage.contains("offline") || localizedMessage.contains("internet") {
             return "No internet connection. Please try again."
         }
         return "Something went wrong. Please try again."

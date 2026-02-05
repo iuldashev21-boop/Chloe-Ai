@@ -5,6 +5,7 @@ import Supabase
 extension Notification.Name {
     static let appDidEnterBackground = Notification.Name("appDidEnterBackground")
     static let authDeepLinkReceived = Notification.Name("authDeepLinkReceived")
+    static let profileDidSyncFromCloud = Notification.Name("profileDidSyncFromCloud")
 }
 
 @main

@@ -277,6 +277,11 @@ class SyncDataService {
                 try local.saveUserFacts(merged)
             }
         } catch {}
+
+        // Notify that profile sync completed (for onboarding state refresh)
+        await MainActor.run {
+            NotificationCenter.default.post(name: .profileDidSyncFromCloud, object: nil)
+        }
     }
 
     // MARK: - Async Supabase Push (fire-and-forget)

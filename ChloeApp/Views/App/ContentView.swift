@@ -51,6 +51,12 @@ struct ContentView: View {
                 showNotificationPriming = true
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .profileDidSyncFromCloud)) { _ in
+            // Re-check onboarding status after cloud sync completes
+            if let profile = SyncDataService.shared.loadProfile() {
+                onboardingComplete = profile.onboardingComplete
+            }
+        }
         .sheet(isPresented: $showNotificationPriming) {
             NotificationPrimingView(
                 displayName: SyncDataService.shared.loadProfile()?.displayName ?? "babe",
@@ -72,7 +78,13 @@ struct ContentView: View {
             .interactiveDismissDisabled()
         }
         .onChange(of: authVM.isAuthenticated) { _, newValue in
-            if !newValue {
+            if newValue {
+                // Signed IN - re-check onboarding status from profile
+                if let profile = SyncDataService.shared.loadProfile() {
+                    onboardingComplete = profile.onboardingComplete
+                }
+            } else {
+                // Signed OUT - reset state
                 onboardingComplete = false
             }
         }
