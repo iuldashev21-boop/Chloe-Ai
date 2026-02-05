@@ -50,9 +50,13 @@ struct SanctuaryView: View {
 
     var body: some View {
         ZStack(alignment: .leading) {
-            // Layer 0: Background
-            Color.chloeBackground
-                .ignoresSafeArea()
+            // Layer 0: Background - use same gradient as mainContentWrapper for seamless safe areas
+            LinearGradient(
+                colors: [.chloeGradientStart, .chloeGradientEnd],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
             EtherealDustParticles()
                 .ignoresSafeArea()
 

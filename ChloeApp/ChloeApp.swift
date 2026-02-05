@@ -22,7 +22,16 @@ struct ChloeApp: App {
         WindowGroup {
             ContentView()
                 .preferredColorScheme(isDarkMode ? .dark : .light)
-                .task {
+                .background(
+                    LinearGradient(
+                        colors: [.chloeGradientStart, .chloeGradientEnd],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    .ignoresSafeArea()
+                )
+                .onAppear {
+                    // Set window background synchronously on appear (not async)
                     applyInterfaceStyle(isDarkMode)
                 }
                 .onChange(of: isDarkMode) { _, newValue in
@@ -74,8 +83,12 @@ struct ChloeApp: App {
         guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
               let window = scene.windows.first else { return }
         window.overrideUserInterfaceStyle = dark ? .dark : .light
-        // Set window background to match app theme (fixes white footer in safe area)
-        window.backgroundColor = dark ? UIColor(hex: "#1A1517") : UIColor(hex: "#FEEAE2")
+        // Set window background to match chloeGradientStart (the top of the gradient)
+        // The gradient extends into safe areas, so this is just a fallback
+        // Light: #FFF8F5, Dark: #1A1517 (must match Colors.swift chloeGradientStart)
+        window.backgroundColor = dark ? UIColor(hex: "#1A1517") : UIColor(hex: "#FFF8F5")
+        // Also set the root view's background
+        window.rootViewController?.view.backgroundColor = window.backgroundColor
     }
 
     private func handleDeepLink(_ url: URL) {
