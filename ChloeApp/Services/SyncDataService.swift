@@ -28,8 +28,13 @@ class SyncDataService {
     private let network = NetworkMonitor.shared
     private var cancellables = Set<AnyCancellable>()
 
-    /// Tracks whether any writes happened while offline
-    private var hasPendingChanges = false
+    /// Tracks whether any writes happened while offline (thread-safe via lock)
+    private let _pendingLock = NSLock()
+    private var _hasPendingChanges = false
+    private var hasPendingChanges: Bool {
+        get { _pendingLock.lock(); defer { _pendingLock.unlock() }; return _hasPendingChanges }
+        set { _pendingLock.lock(); defer { _pendingLock.unlock() }; _hasPendingChanges = newValue }
+    }
 
     /// Thread-safe sync lock using actor (Bug 2 fix)
     private let syncLock = SyncLock()
@@ -483,6 +488,17 @@ class SyncDataService {
         return local.loadJournalEntries()
     }
 
+    /// Delete a journal entry locally and from cloud. Returns false if offline.
+    @discardableResult
+    func deleteJournalEntry(id: String) -> Bool {
+        guard network.isConnected else { return false }
+        var entries = local.loadJournalEntries()
+        entries.removeAll { $0.id == id }
+        try? local.saveJournalEntries(entries)
+        Task { try? await remote.deleteJournalEntry(id: id) }
+        return true
+    }
+
     private func pushJournalEntriesToCloud(_ entries: [JournalEntry]) {
         guard network.isConnected else { hasPendingChanges = true; return }
         Task { try? await remote.upsertJournalEntries(entries) }
@@ -499,6 +515,17 @@ class SyncDataService {
         return local.loadGoals()
     }
 
+    /// Delete a goal locally and from cloud. Returns false if offline.
+    @discardableResult
+    func deleteGoal(id: String) -> Bool {
+        guard network.isConnected else { return false }
+        var goals = local.loadGoals()
+        goals.removeAll { $0.id == id }
+        try? local.saveGoals(goals)
+        Task { try? await remote.deleteGoal(id: id) }
+        return true
+    }
+
     private func pushGoalsToCloud(_ goals: [Goal]) {
         guard network.isConnected else { hasPendingChanges = true; return }
         Task { try? await remote.upsertGoals(goals) }
@@ -513,6 +540,17 @@ class SyncDataService {
 
     func loadAffirmations() -> [Affirmation] {
         return local.loadAffirmations()
+    }
+
+    /// Delete an affirmation locally and from cloud. Returns false if offline.
+    @discardableResult
+    func deleteAffirmation(id: String) -> Bool {
+        guard network.isConnected else { return false }
+        var affirmations = local.loadAffirmations()
+        affirmations.removeAll { $0.id == id }
+        try? local.saveAffirmations(affirmations)
+        Task { try? await remote.deleteAffirmation(id: id) }
+        return true
     }
 
     private func pushAffirmationsToCloud(_ affirmations: [Affirmation]) {
@@ -536,6 +574,23 @@ class SyncDataService {
 
     func loadVisionItems() -> [VisionItem] {
         return local.loadVisionItems()
+    }
+
+    /// Delete a vision item locally and from cloud (including storage image). Returns false if offline.
+    @discardableResult
+    func deleteVisionItem(id: String) -> Bool {
+        guard network.isConnected else { return false }
+        var items = local.loadVisionItems()
+        items.removeAll { $0.id == id }
+        try? local.saveVisionItems(items)
+        Task {
+            try? await remote.deleteVisionItem(id: id)
+            if let userId = remote.currentUserId {
+                let path = "\(userId)/vision/\(id).jpg"
+                try? await remote.deleteStorageImage(path: path)
+            }
+        }
+        return true
     }
 
     private func pushVisionItemsToCloud(_ items: [VisionItem]) {

@@ -389,10 +389,11 @@ class GeminiService {
         }
     }
 
-    /// Classify a message using the Context Router
+    /// Classify a message using the Context Router (with retry logic matching strategist)
     func classifyMessage(
         message: String,
-        systemPrompt: String = Prompts.router
+        systemPrompt: String = Prompts.router,
+        attempt: Int = 1
     ) async throws -> RouterClassification {
         guard !apiKey.isEmpty else { throw GeminiError.noAPIKey }
 
@@ -415,14 +416,33 @@ class GeminiService {
         }
 
         #if DEBUG
-        print("[GeminiService] Router classification: \(text)")
+        print("[GeminiService] Router classification (attempt \(attempt)): \(text)")
         #endif
 
-        guard let jsonData = text.data(using: .utf8) else {
+        let cleanedText = stripMarkdownWrapper(text)
+
+        guard let jsonData = cleanedText.data(using: .utf8) else {
             throw GeminiError.decodingFailed
         }
 
-        return try JSONDecoder().decode(RouterClassification.self, from: jsonData)
+        do {
+            return try JSONDecoder().decode(RouterClassification.self, from: jsonData)
+        } catch {
+            #if DEBUG
+            print("[GeminiService] Router decode failed (attempt \(attempt)): \(error)")
+            #endif
+
+            if attempt < 2 {
+                try? await Task.sleep(nanoseconds: 500_000_000)
+                return try await classifyMessage(
+                    message: message,
+                    systemPrompt: systemPrompt,
+                    attempt: attempt + 1
+                )
+            }
+
+            throw GeminiError.routerInvalidResponse
+        }
     }
 
     // MARK: - Generate Affirmation
@@ -484,13 +504,14 @@ class GeminiService {
     // MARK: - Private Helpers
 
     private func makeRequest(body: [String: Any]) async throws -> Data {
-        guard let url = URL(string: "\(baseURL)?key=\(apiKey)") else {
+        guard !apiKey.isEmpty, let url = URL(string: baseURL) else {
             throw GeminiError.noAPIKey
         }
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(apiKey, forHTTPHeaderField: "x-goog-api-key")
         request.timeoutInterval = timeoutInterval
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
 

@@ -546,6 +546,36 @@ class SupabaseDataService {
         }
     }
 
+    // MARK: - Delete Individual Items
+
+    func deleteGoal(id: String) async throws {
+        try await supabase.from("goals")
+            .delete()
+            .eq("id", value: id)
+            .execute()
+    }
+
+    func deleteJournalEntry(id: String) async throws {
+        try await supabase.from("journal_entries")
+            .delete()
+            .eq("id", value: id)
+            .execute()
+    }
+
+    func deleteVisionItem(id: String) async throws {
+        try await supabase.from("vision_board_items")
+            .delete()
+            .eq("id", value: id)
+            .execute()
+    }
+
+    func deleteAffirmation(id: String) async throws {
+        try await supabase.from("affirmations")
+            .delete()
+            .eq("id", value: id)
+            .execute()
+    }
+
     // MARK: - Storage (Images)
 
     private let storageBucket = "chloe-images"

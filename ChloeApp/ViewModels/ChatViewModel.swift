@@ -152,6 +152,9 @@ class ChatViewModel: ObservableObject {
                 // Phase 2: Strategy (Strategist Response)
                 loadingState = .generating
 
+                // Soft spiral override — per-message, not per-session (matches V1 pipeline)
+                let isSoftSpiral = safetyService.checkSoftSpiral(message: text)
+
                 // Build strategist prompt with context injection
                 var strategistPrompt = Prompts.strategist
                     .replacingOccurrences(of: "{{user_name}}", with: profile?.displayName ?? "babe")
@@ -168,6 +171,20 @@ class ChatViewModel: ObservableObject {
                   Reasoning: \(classification.reasoning)
                 </router_context>
                 """
+
+                // Soft spiral: override strategy to gentle support mode
+                if isSoftSpiral {
+                    strategistPrompt += """
+
+                <soft_spiral_override>
+                  OVERRIDE: The user is in a soft spiral (emotional numbness, shutdown, dissociation).
+                  DROP all frameworks, tough love, and Chloe-isms.
+                  Be "The Anchor." Validate without fixing. Short, grounding sentences.
+                  End with ONE gentle micro-task ("Can you get a glass of water?" / "Can you take one deep breath for me?").
+                  Set strategy_selection to "Gentle Support" in internal_thought.
+                </soft_spiral_override>
+                """
+                }
 
                 // Inject behavioral loops (permanent patterns) for long-term strategy
                 if let loops = profile?.behavioralLoops, !loops.isEmpty {
@@ -271,7 +288,7 @@ class ChatViewModel: ObservableObject {
             storageService.saveMessagesSinceAnalysis(msgsSinceAnalysis)
             if msgsSinceAnalysis >= 3 {
                 storageService.saveMessagesSinceAnalysis(0)
-                Task.detached { [weak self] in
+                Task { [weak self] in
                     await self?.triggerBackgroundAnalysis()
                 }
             }

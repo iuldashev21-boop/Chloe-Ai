@@ -5,41 +5,24 @@ struct ContentView: View {
     @State private var onboardingComplete = false
     @State private var showNotificationPriming = false
 
+    #if DEBUG
     // TEMP: Set to true to bypass auth/onboarding for UI testing
     private let debugSkipToMain = false
+    #endif
 
     var body: some View {
         Group {
+            #if DEBUG
             if debugSkipToMain {
                 NavigationStack {
                     SanctuaryView()
                 }
             } else {
-                switch authVM.authState {
-                case .unauthenticated, .authenticating:
-                    NavigationStack {
-                        EmailLoginView()
-                    }
-                case .awaitingEmailConfirmation:
-                    NavigationStack {
-                        EmailLoginView()
-                    }
-                case .settingNewPassword:
-                    NavigationStack {
-                        NewPasswordView()
-                    }
-                case .authenticated:
-                    if !onboardingComplete {
-                        NavigationStack {
-                            OnboardingContainerView()
-                        }
-                    } else {
-                        NavigationStack {
-                            SanctuaryView()
-                        }
-                    }
-                }
+                authFlowView
             }
+            #else
+            authFlowView
+            #endif
         }
         .background(
             LinearGradient(
@@ -101,6 +84,34 @@ struct ContentView: View {
             } else if newState == .unauthenticated {
                 // Signed OUT - reset state
                 onboardingComplete = false
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var authFlowView: some View {
+        switch authVM.authState {
+        case .unauthenticated, .authenticating:
+            NavigationStack {
+                EmailLoginView()
+            }
+        case .awaitingEmailConfirmation:
+            NavigationStack {
+                EmailLoginView()
+            }
+        case .settingNewPassword:
+            NavigationStack {
+                NewPasswordView()
+            }
+        case .authenticated:
+            if !onboardingComplete {
+                NavigationStack {
+                    OnboardingContainerView()
+                }
+            } else {
+                NavigationStack {
+                    SanctuaryView()
+                }
             }
         }
     }

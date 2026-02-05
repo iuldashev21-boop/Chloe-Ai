@@ -26,27 +26,35 @@ enum AuthState: Equatable {
 
 // MARK: - Auth Logger
 
-/// Structured logging for authentication flows.
+/// Structured logging for authentication flows (DEBUG only — logs may contain PII).
 /// All logs use [Auth] prefix for easy filtering: `log stream --predicate 'eventMessage contains "[Auth]"'`
 private enum AuthLogger {
     static func stateChange(from oldState: AuthState, to newState: AuthState, reason: String) {
+        #if DEBUG
         print("[Auth] State: \(oldState.displayName) → \(newState.displayName) | \(reason)")
+        #endif
     }
 
     static func event(_ event: String, detail: String? = nil) {
+        #if DEBUG
         if let detail = detail {
             print("[Auth] \(event) | \(detail)")
         } else {
             print("[Auth] \(event)")
         }
+        #endif
     }
 
     static func error(_ context: String, error: Error) {
+        #if DEBUG
         print("[Auth] ERROR: \(context) | \(error.localizedDescription)")
+        #endif
     }
 
     static func flag(_ name: String, value: Bool) {
+        #if DEBUG
         print("[Auth] Flag \(name) = \(value)")
+        #endif
     }
 }
 
