@@ -2,6 +2,21 @@ import Foundation
 import UIKit
 import Combine
 
+/// Thread-safe actor for sync state management (Bug 2 fix)
+private actor SyncLock {
+    private var isSyncing = false
+
+    func tryStartSync() -> Bool {
+        if isSyncing { return false }
+        isSyncing = true
+        return true
+    }
+
+    func endSync() {
+        isSyncing = false
+    }
+}
+
 /// Offline-first data service. Wraps local StorageService + remote SupabaseDataService.
 /// All reads come from local (instant). All writes go to local first, then async push to Supabase.
 /// On app launch, pulls from Supabase and merges (server wins for profile).
@@ -16,8 +31,8 @@ class SyncDataService {
     /// Tracks whether any writes happened while offline
     private var hasPendingChanges = false
 
-    /// Prevents concurrent syncFromCloud() executions (Bug 2 fix)
-    private var isSyncing = false
+    /// Thread-safe sync lock using actor (Bug 2 fix)
+    private let syncLock = SyncLock()
 
     private init() {
         // When connectivity restores, push all local state to cloud
@@ -65,10 +80,9 @@ class SyncDataService {
     // MARK: - Cloud Sync (call on app launch)
 
     func syncFromCloud() async {
-        // Prevent concurrent sync executions (Bug 2 fix)
-        guard !isSyncing else { return }
-        isSyncing = true
-        defer { isSyncing = false }
+        // Thread-safe check to prevent concurrent sync executions (Bug 2 fix)
+        guard await syncLock.tryStartSync() else { return }
+        defer { Task { await syncLock.endSync() } }
 
         guard network.isConnected else { return }
 
