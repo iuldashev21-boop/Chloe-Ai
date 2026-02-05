@@ -12,6 +12,7 @@ struct EmailLoginView: View {
     @State private var showText = false
     @State private var showFields = false
     @State private var keyboardVisible = false
+    @State private var showPasswordReset = false
 
     enum Field: Hashable { case email, password }
 
@@ -157,28 +158,45 @@ struct EmailLoginView: View {
                     .padding(.horizontal, Spacing.screenHorizontal)
                     .onAppear { startShimmerLoop() }
 
-                    // MARK: - Sign Up / Sign In toggle
-                    Button {
-                        withAnimation(.easeInOut(duration: 0.2)) {
-                            authVM.isSignUpMode.toggle()
-                            authVM.errorMessage = nil
-                            authVM.successMessage = nil
+                    // MARK: - Sign Up / Sign In toggle + Forgot Password
+                    HStack(spacing: Spacing.md) {
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                authVM.isSignUpMode.toggle()
+                                authVM.errorMessage = nil
+                                authVM.successMessage = nil
+                            }
+                        } label: {
+                            if authVM.isSignUpMode {
+                                (Text("Already have an account? ")
+                                    .font(.chloeCaption)
+                                    .foregroundColor(.chloeTextSecondary)
+                                + Text("Sign In")
+                                    .font(.chloeCaption)
+                                    .foregroundColor(.chloePrimary))
+                            } else {
+                                (Text("Don't have an account? ")
+                                    .font(.chloeCaption)
+                                    .foregroundColor(.chloeTextSecondary)
+                                + Text("Sign Up")
+                                    .font(.chloeCaption)
+                                    .foregroundColor(.chloePrimary))
+                            }
                         }
-                    } label: {
-                        if authVM.isSignUpMode {
-                            (Text("Already have an account? ")
+
+                        // Show forgot password only in sign-in mode
+                        if !authVM.isSignUpMode {
+                            Text("·")
                                 .font(.chloeCaption)
-                                .foregroundColor(.chloeTextSecondary)
-                            + Text("Sign In")
-                                .font(.chloeCaption)
-                                .foregroundColor(.chloePrimary))
-                        } else {
-                            (Text("Don't have an account? ")
-                                .font(.chloeCaption)
-                                .foregroundColor(.chloeTextSecondary)
-                            + Text("Sign Up")
-                                .font(.chloeCaption)
-                                .foregroundColor(.chloePrimary))
+                                .foregroundColor(.chloeTextTertiary)
+
+                            Button {
+                                showPasswordReset = true
+                            } label: {
+                                Text("Forgot password?")
+                                    .font(.chloeCaption)
+                                    .foregroundColor(.chloePrimary)
+                            }
                         }
                     }
 
@@ -248,6 +266,9 @@ struct EmailLoginView: View {
                     authVM.cancelEmailConfirmation()
                 }
             )
+        }
+        .navigationDestination(isPresented: $showPasswordReset) {
+            PasswordResetView()
         }
         .onTapGesture { focusedField = nil }
         .onAppear {

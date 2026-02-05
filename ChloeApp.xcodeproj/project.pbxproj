@@ -11,6 +11,7 @@
 		0B21A395DAC0A352C98340AD /* GoalsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11B72E6D6BDC5A74372822CE /* GoalsTests.swift */; };
 		151900B32794215F9A9B6E5A /* StreakService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A174B26D7E896B09C9D56F71 /* StreakService.swift */; };
 		1D2E24F6A9FCE4A3C4CE7CD6 /* SafetyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 691088B00C01ED309816D67B /* SafetyTests.swift */; };
+		35B2F1331062D827771ADA81 /* PasswordResetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF899EC08EB9BF6F2427726E /* PasswordResetView.swift */; };
 		3EF786585C46034254C21D71 /* DailyUsage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8B72291CB2B25437CC979C4 /* DailyUsage.swift */; };
 		3F1056A9D3B58B1F800A7E17 /* RouterModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4DF9A3F95ADE9B8CAC88DA2 /* RouterModels.swift */; };
 		43FC4B86A01BB60E9D3A61EE /* OnboardingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9334322B3F9AB6B36E5E83D2 /* OnboardingTests.swift */; };
@@ -248,6 +249,7 @@
 		FB0000010000000000000001 /* Feedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Feedback.swift; sourceTree = "<group>"; };
 		FB0000030000000000000001 /* FeedbackService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackService.swift; sourceTree = "<group>"; };
 		FE802F7583970BBCFC8559DB /* UITestSupport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UITestSupport.swift; sourceTree = "<group>"; };
+		FF899EC08EB9BF6F2427726E /* PasswordResetView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PasswordResetView.swift; sourceTree = "<group>"; };
 		PK0000010000000000000001 /* PortkeyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortkeyService.swift; sourceTree = "<group>"; };
 		RS0000010000000000000001 /* ReportSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportSheet.swift; sourceTree = "<group>"; };
 		T20000010000000000000001 /* SafetyServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafetyServiceTests.swift; sourceTree = "<group>"; };
@@ -408,6 +410,7 @@
 			children = (
 				A20000330000000000000001 /* EmailLoginView.swift */,
 				7D623CEA22CB36B5ED4A247C /* EmailConfirmationView.swift */,
+				FF899EC08EB9BF6F2427726E /* PasswordResetView.swift */,
 			);
 			path = Auth;
 			sourceTree = "<group>";
@@ -826,6 +829,7 @@
 				3F1056A9D3B58B1F800A7E17 /* RouterModels.swift in Sources */,
 				D9BA7887167B4B49328DEA74 /* StrategyOptionsView.swift in Sources */,
 				9BBEC161B700F341AD344FC6 /* EmailConfirmationView.swift in Sources */,
+				35B2F1331062D827771ADA81 /* PasswordResetView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -110,6 +110,12 @@ class AuthViewModel: ObservableObject {
         isSignUpMode = false
     }
 
+    // MARK: - Password Reset
+
+    func sendPasswordReset(email: String) async throws {
+        try await supabase.auth.resetPasswordForEmail(email)
+    }
+
     // MARK: - Sign Out
 
     func signOut() {
