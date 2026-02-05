@@ -16,7 +16,7 @@ struct Affirmation: Codable, Identifiable {
         isSaved: Bool = false,
         createdAt: Date = Date()
     ) {
-        self.id = id
+        self.id = id.lowercased()
         self.userId = userId
         self.text = text
         self.date = date

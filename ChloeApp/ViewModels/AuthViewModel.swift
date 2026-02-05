@@ -130,12 +130,20 @@ class AuthViewModel: ObservableObject {
                         self.authState = .settingNewPassword
                         AuthLogger.stateChange(from: oldState, to: .settingNewPassword, reason: "Supabase passwordRecovery event")
                     case .signedIn:
-                        // For password recovery, just update email - let restoreSession() handle the rest
-                        // Don't remove pendingPasswordRecovery flag here; restoreSession() needs to see it
                         if let user = session?.user {
                             self.email = user.email ?? ""
-                            AuthLogger.event("signedIn event", detail: "email=\(user.email ?? "nil")")
+                            AuthLogger.event("signedIn event", detail: "email=\(user.email ?? "nil"), currentState=\(self.authState.displayName)")
                         }
+                        // If we were awaiting email confirmation, the user just confirmed — transition to authenticated
+                        if case .awaitingEmailConfirmation = self.authState {
+                            let oldState = self.authState
+                            if let user = session?.user {
+                                self.syncProfileFromSession(user)
+                            }
+                            self.authState = .authenticated
+                            AuthLogger.stateChange(from: oldState, to: .authenticated, reason: "email confirmed via signedIn event")
+                        }
+                        // For other states (.authenticating, .unauthenticated), let signIn()/restoreSession() handle it
                     case .signedOut:
                         let oldState = self.authState
                         self.authState = .unauthenticated
@@ -197,12 +205,8 @@ class AuthViewModel: ObservableObject {
             AuthLogger.stateChange(from: .authenticating, to: .authenticated, reason: "signIn succeeded")
             authState = .authenticated
 
-            // Notify ContentView to re-check profile on next runloop (after SwiftUI re-render completes)
-            DispatchQueue.main.async {
-                NotificationCenter.default.post(name: .profileDidSyncFromCloud, object: nil)
-            }
-
             // Full sync in background for other data (messages, journal, etc.)
+            // syncFromCloud() posts .profileDidSyncFromCloud when it completes.
             Task.detached {
                 await SyncDataService.shared.syncFromCloud()
             }
@@ -227,7 +231,8 @@ class AuthViewModel: ObservableObject {
         do {
             let result = try await supabase.auth.signUp(
                 email: trimmedEmail,
-                password: password
+                password: password,
+                redirectTo: URL(string: "chloeapp://auth-callback")
             )
             if let session = result.session {
                 self.email = session.user.email ?? email
@@ -298,10 +303,8 @@ class AuthViewModel: ObservableObject {
         AuthLogger.stateChange(from: authState, to: .authenticated, reason: "password updated")
         authState = .authenticated
 
-        // Notify that profile may have changed (so ContentView re-checks onboardingComplete)
-        NotificationCenter.default.post(name: .profileDidSyncFromCloud, object: nil)
-
         // Sync all user data from cloud (conversations, messages, goals, journal, vision board)
+        // syncFromCloud() posts .profileDidSyncFromCloud when it completes.
         AuthLogger.event("Starting full data sync after password update")
         Task {
             await SyncDataService.shared.syncFromCloud()
@@ -322,9 +325,13 @@ class AuthViewModel: ObservableObject {
             try? await supabase.auth.signOut()
         }
         SyncDataService.shared.clearAll()
+        // Clear all auth-related UserDefaults flags
+        UserDefaults.standard.removeObject(forKey: "pendingPasswordRecovery")
+        UserDefaults.standard.removeObject(forKey: "awaitingPasswordReset")
         authState = .unauthenticated
         email = ""
         errorMessage = nil
+        successMessage = nil
     }
 
     // MARK: - Restore Session
@@ -349,12 +356,20 @@ class AuthViewModel: ObservableObject {
                     return // Don't sync profile - updatePassword() will fetch it after password change
                 }
 
-                // Normal session restore - sync profile from session
-                syncProfileFromSession(session.user)
+                // Fetch existing profile from cloud first (preserves onboardingComplete for returning users)
+                // This matches the signIn() approach — fetch remote BEFORE setting .authenticated
+                if let remoteProfile = try? await SupabaseDataService.shared.fetchProfile() {
+                    try? StorageService.shared.saveProfile(remoteProfile)
+                    AuthLogger.event("Profile fetched from cloud", detail: "onboardingComplete=\(remoteProfile.onboardingComplete)")
+                } else {
+                    // Fetch failed or new user — fall back to local profile or create placeholder
+                    syncProfileFromSession(session.user)
+                    AuthLogger.event("Cloud fetch failed, using local profile")
+                }
 
-                // Check local profile for block status first (fast path)
+                // Check block status
                 if let profile = SyncDataService.shared.loadProfile() {
-                    AuthLogger.event("Local profile loaded", detail: "onboardingComplete=\(profile.onboardingComplete), isBlocked=\(profile.isBlocked)")
+                    AuthLogger.event("Profile loaded", detail: "onboardingComplete=\(profile.onboardingComplete), isBlocked=\(profile.isBlocked)")
                     if checkIfBlocked(profile) {
                         AuthLogger.stateChange(from: authState, to: .unauthenticated, reason: "user blocked")
                         authState = .unauthenticated
@@ -362,14 +377,15 @@ class AuthViewModel: ObservableObject {
                     }
                 }
 
-                // Set authenticated IMMEDIATELY (don't wait for sync)
                 AuthLogger.stateChange(from: authState, to: .authenticated, reason: "session restored")
                 authState = .authenticated
 
-                // Sync in background and re-check block status after
+                // Note: .profileDidSyncFromCloud is posted by syncFromCloud() when it completes.
+                // Posting it here too caused double-notification issues.
+
+                // Full sync in background for other data (messages, journal, etc.)
                 Task.detached { [weak self] in
                     await SyncDataService.shared.syncFromCloud()
-                    // Re-check block status after sync completes
                     await MainActor.run { [weak self] in
                         if let profile = SyncDataService.shared.loadProfile() {
                             self?.checkIfBlocked(profile)

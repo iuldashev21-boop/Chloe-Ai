@@ -20,7 +20,7 @@ struct Goal: Codable, Identifiable {
         completedAt: Date? = nil,
         updatedAt: Date = Date()
     ) {
-        self.id = id
+        self.id = id.lowercased()
         self.userId = userId
         self.title = title
         self.description = description

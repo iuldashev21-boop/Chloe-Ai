@@ -45,7 +45,7 @@ struct VisionItem: Codable, Identifiable {
         createdAt: Date = Date(),
         updatedAt: Date = Date()
     ) {
-        self.id = id
+        self.id = id.lowercased()
         self.userId = userId
         self.imageUri = imageUri
         self.title = title

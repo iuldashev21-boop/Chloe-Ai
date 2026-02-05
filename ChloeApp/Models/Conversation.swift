@@ -16,7 +16,7 @@ struct Conversation: Codable, Identifiable {
         createdAt: Date = Date(),
         updatedAt: Date = Date()
     ) {
-        self.id = id
+        self.id = id.lowercased()
         self.userId = userId
         self.title = title
         self.starred = starred

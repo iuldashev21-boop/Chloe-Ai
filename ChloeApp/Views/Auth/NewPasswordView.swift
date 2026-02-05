@@ -19,6 +19,7 @@ struct NewPasswordView: View {
         ZStack {
             GradientBackground()
             EtherealDustParticles()
+                .ignoresSafeArea()
 
             VStack(spacing: Spacing.lg) {
                 Spacer()

@@ -24,8 +24,8 @@ struct Message: Codable, Identifiable {
         contentType: MessageContentType? = nil,
         options: [StrategyOption]? = nil
     ) {
-        self.id = id
-        self.conversationId = conversationId
+        self.id = id.lowercased()
+        self.conversationId = conversationId?.lowercased()
         self.role = role
         self.text = text
         self.imageUri = imageUri

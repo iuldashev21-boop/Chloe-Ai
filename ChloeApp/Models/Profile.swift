@@ -32,7 +32,7 @@ struct Profile: Codable, Identifiable {
         createdAt: Date = Date(),
         updatedAt: Date = Date()
     ) {
-        self.id = id
+        self.id = id.lowercased()
         self.email = email
         self.displayName = displayName
         self.onboardingComplete = onboardingComplete
@@ -72,7 +72,7 @@ struct UserFact: Codable, Identifiable {
         isActive: Bool = true,
         createdAt: Date = Date()
     ) {
-        self.id = id
+        self.id = id.lowercased()
         self.userId = userId
         self.fact = fact
         self.category = category

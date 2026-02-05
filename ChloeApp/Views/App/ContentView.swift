@@ -49,6 +49,8 @@ struct ContentView: View {
             )
             .ignoresSafeArea()
         )
+        .animation(.easeInOut(duration: 0.3), value: authVM.authState)
+        .animation(.easeInOut(duration: 0.3), value: onboardingComplete)
         .environmentObject(authVM)
         .onAppear {
             authVM.restoreSession()

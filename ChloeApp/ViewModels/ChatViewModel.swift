@@ -299,7 +299,7 @@ class ChatViewModel: ObservableObject {
     }
 
     func startNewChat() {
-        conversationId = UUID().uuidString
+        conversationId = UUID().uuidString.lowercased()
         messages = []
         inputText = ""
         errorMessage = nil
