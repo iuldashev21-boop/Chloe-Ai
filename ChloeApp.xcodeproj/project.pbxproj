@@ -16,6 +16,7 @@
 		43FC4B86A01BB60E9D3A61EE /* OnboardingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9334322B3F9AB6B36E5E83D2 /* OnboardingTests.swift */; };
 		7B5C6061C58C58644E1ADD3F /* TestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF08D9DC14B5BC2B0F70D79E /* TestHelpers.swift */; };
 		8E2FBEDE9E149919CA704D01 /* JournalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9E9EFD831A08021FF5E4BB /* JournalTests.swift */; };
+		9BBEC161B700F341AD344FC6 /* EmailConfirmationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D623CEA22CB36B5ED4A247C /* EmailConfirmationView.swift */; };
 		A10000010000000000000001 /* ChloeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000001 /* ChloeApp.swift */; };
 		A10000020000000000000001 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000020000000000000001 /* ContentView.swift */; };
 		A10000030000000000000001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A20000030000000000000001 /* Assets.xcassets */; };
@@ -154,6 +155,7 @@
 		6E0D67819E2FDC56855D65EC /* GlowUpStreak.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GlowUpStreak.swift; sourceTree = "<group>"; };
 		745972C67FB22635AD74B1D1 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		74CE56D38B6D47E52BFB444E /* NotificationService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		7D623CEA22CB36B5ED4A247C /* EmailConfirmationView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = EmailConfirmationView.swift; sourceTree = "<group>"; };
 		902324AB633D17FC0C08036A /* StrategyOptionsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StrategyOptionsView.swift; sourceTree = "<group>"; };
 		9334322B3F9AB6B36E5E83D2 /* OnboardingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OnboardingTests.swift; sourceTree = "<group>"; };
 		9802012D4326DE50975347EA /* VisionBoardTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = VisionBoardTests.swift; sourceTree = "<group>"; };
@@ -405,6 +407,7 @@
 			isa = PBXGroup;
 			children = (
 				A20000330000000000000001 /* EmailLoginView.swift */,
+				7D623CEA22CB36B5ED4A247C /* EmailConfirmationView.swift */,
 			);
 			path = Auth;
 			sourceTree = "<group>";
@@ -822,6 +825,7 @@
 				RS0000020000000000000001 /* ReportSheet.swift in Sources */,
 				3F1056A9D3B58B1F800A7E17 /* RouterModels.swift in Sources */,
 				D9BA7887167B4B49328DEA74 /* StrategyOptionsView.swift in Sources */,
+				9BBEC161B700F341AD344FC6 /* EmailConfirmationView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -95,16 +95,6 @@ struct EmailLoginView: View {
                         .accessibilityLabel("Password")
                         .accessibilityIdentifier("password-field")
 
-                    // MARK: - Success message
-                    if let successMessage = authVM.successMessage {
-                        Text(successMessage)
-                            .font(.chloeCaption)
-                            .foregroundColor(Color(hex: "#4A7C59"))
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, Spacing.screenHorizontal)
-                            .transition(.opacity)
-                    }
-
                     // MARK: - Error message
                     if let errorMessage = authVM.errorMessage {
                         Text(errorMessage)
@@ -248,6 +238,17 @@ struct EmailLoginView: View {
             .sensoryFeedback(.selection, trigger: focusedField)
         }
         .navigationBarTitleDisplayMode(.inline)
+        .navigationDestination(isPresented: $authVM.showEmailConfirmation) {
+            EmailConfirmationView(
+                email: authVM.pendingConfirmationEmail,
+                onResend: {
+                    await authVM.resendConfirmationEmail()
+                },
+                onChangeEmail: {
+                    authVM.cancelEmailConfirmation()
+                }
+            )
+        }
         .onTapGesture { focusedField = nil }
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now()) {

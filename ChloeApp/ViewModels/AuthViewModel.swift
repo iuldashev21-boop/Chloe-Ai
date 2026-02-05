@@ -10,6 +10,8 @@ class AuthViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var successMessage: String?
     @Published var isSignUpMode = false
+    @Published var showEmailConfirmation = false
+    @Published var pendingConfirmationEmail = ""
 
     private var deepLinkObserver: Any?
 
@@ -78,11 +80,34 @@ class AuthViewModel: ObservableObject {
                 syncProfileFromSession(session.user)
                 isAuthenticated = true
             } else {
-                successMessage = "Account created! Check your email to confirm, then come back and sign in."
+                // Email confirmation required - navigate to confirmation screen
+                pendingConfirmationEmail = email
+                showEmailConfirmation = true
             }
         } catch {
             errorMessage = friendlyError(error)
         }
+    }
+
+    // MARK: - Resend Confirmation Email
+
+    func resendConfirmationEmail() async {
+        guard !pendingConfirmationEmail.isEmpty else { return }
+
+        do {
+            try await supabase.auth.resend(
+                email: pendingConfirmationEmail,
+                type: .signup
+            )
+        } catch {
+            // Silently fail - the UI shows success anyway to prevent email enumeration
+        }
+    }
+
+    func cancelEmailConfirmation() {
+        showEmailConfirmation = false
+        pendingConfirmationEmail = ""
+        isSignUpMode = false
     }
 
     // MARK: - Sign Out
