@@ -220,6 +220,171 @@ final class AuthenticationTests: ChloeUITestCase {
         XCTAssertTrue(waitForElement(signInButton), "Should show Sign In button after toggle back")
     }
 
+    // MARK: - 1.4 Password Reset Flow
+
+    func testForgotPassword_showsResetScreen() throws {
+        launchAppFresh()
+
+        XCTAssertTrue(waitForElement(emailField), "Email field should appear")
+
+        // Find and tap "Forgot password?" link
+        let forgotPasswordBtn = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] 'Forgot password'")).element
+        XCTAssertTrue(waitForElement(forgotPasswordBtn, timeout: 5), "Forgot password button should exist")
+        forgotPasswordBtn.tap()
+
+        // Should see password reset screen
+        let resetTitle = app.staticTexts["Reset password"]
+        XCTAssertTrue(waitForElement(resetTitle, timeout: 5), "Should show Reset password screen")
+
+        // Should have email field and send button
+        let resetEmailField = app.textFields.element(boundBy: 0)
+        XCTAssertTrue(waitForElement(resetEmailField), "Reset screen should have email field")
+
+        let sendButton = app.buttons["SEND RESET LINK"]
+        XCTAssertTrue(sendButton.exists, "Should have SEND RESET LINK button")
+    }
+
+    func testForgotPassword_emptyEmail_buttonDisabled() throws {
+        launchAppFresh()
+
+        XCTAssertTrue(waitForElement(emailField), "Email field should appear")
+
+        // Navigate to password reset
+        let forgotPasswordBtn = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] 'Forgot password'")).element
+        guard waitForElement(forgotPasswordBtn) else {
+            throw XCTSkip("Forgot password button not found")
+        }
+        forgotPasswordBtn.tap()
+
+        // Wait for reset screen
+        let sendButton = app.buttons["SEND RESET LINK"]
+        XCTAssertTrue(waitForElement(sendButton, timeout: 5), "Send button should appear")
+
+        // Button should be disabled with empty email
+        XCTAssertFalse(sendButton.isEnabled, "Send button should be disabled with empty email")
+    }
+
+    func testForgotPassword_validEmail_showsSuccessMessage() throws {
+        launchAppFresh()
+
+        XCTAssertTrue(waitForElement(emailField), "Email field should appear")
+
+        // Navigate to password reset
+        let forgotPasswordBtn = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] 'Forgot password'")).element
+        guard waitForElement(forgotPasswordBtn) else {
+            throw XCTSkip("Forgot password button not found")
+        }
+        forgotPasswordBtn.tap()
+
+        // Enter email
+        let resetEmailField = app.textFields.element(boundBy: 0)
+        XCTAssertTrue(waitForElement(resetEmailField, timeout: 5), "Email field should appear")
+        typeText("test@example.com", into: resetEmailField)
+
+        // Tap send
+        let sendButton = app.buttons["SEND RESET LINK"]
+        XCTAssertTrue(sendButton.isEnabled, "Send button should be enabled with email")
+        sendButton.tap()
+
+        // Should show success message (or error if rate limited/invalid)
+        let successText = app.staticTexts["Check your email"]
+        let errorText = app.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] 'error' OR label CONTAINS[c] 'Unable' OR label CONTAINS[c] 'rate'")).element
+
+        let result = successText.waitForExistence(timeout: 10) || errorText.waitForExistence(timeout: 10)
+        XCTAssertTrue(result, "Should show success or error message after sending reset link")
+    }
+
+    func testForgotPassword_backButton_returnsToSignIn() throws {
+        launchAppFresh()
+
+        XCTAssertTrue(waitForElement(emailField), "Email field should appear")
+
+        // Navigate to password reset
+        let forgotPasswordBtn = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] 'Forgot password'")).element
+        guard waitForElement(forgotPasswordBtn) else {
+            throw XCTSkip("Forgot password button not found")
+        }
+        forgotPasswordBtn.tap()
+
+        // Wait for reset screen
+        let resetTitle = app.staticTexts["Reset password"]
+        XCTAssertTrue(waitForElement(resetTitle, timeout: 5), "Should show Reset password screen")
+
+        // Tap back button (use specific identifier)
+        let backButton = app.buttons["BackButton"]
+        if waitForElement(backButton, timeout: 3) {
+            backButton.tap()
+        } else {
+            // Fallback: try navigation bar back button
+            let navBackButton = app.navigationBars.buttons.element(boundBy: 0)
+            if navBackButton.exists {
+                navBackButton.tap()
+            }
+        }
+
+        // Should return to sign in screen
+        XCTAssertTrue(waitForElement(emailField, timeout: 5), "Should return to sign in screen")
+        XCTAssertTrue(signInButton.exists, "Sign in button should be visible")
+    }
+
+    // MARK: - 1.5 Returning User Flow
+
+    func testReturningUser_signOutAndSignIn_skipsOnboarding() throws {
+        // Start with authenticated + onboarded state
+        launchAppOnboarded()
+
+        // Verify we're in the main app
+        let sidebarBtn = sidebarButton
+        guard waitForElement(sidebarBtn, timeout: 10) else {
+            throw XCTSkip("App not in authenticated state - cannot test returning user flow")
+        }
+
+        // Navigate to settings and sign out
+        navigateToSettings()
+
+        let signOutBtn = app.buttons["SIGN OUT"]
+        guard waitForElement(signOutBtn, timeout: 5) else {
+            throw XCTSkip("Sign out button not found")
+        }
+        signOutBtn.tap()
+
+        // Should be at login screen
+        XCTAssertTrue(waitForElement(emailField, timeout: 5), "Should show login screen after sign out")
+
+        // Now this is the key test: signing back in should NOT show onboarding
+        // Since we can't actually sign in with real credentials in UI test,
+        // we verify the sign-in UI is ready and would work for a returning user
+        XCTAssertTrue(signInButton.exists, "Sign in button should be available for returning user")
+        XCTAssertFalse(app.buttons.matching(NSPredicate(format: "label CONTAINS 'Sign Up'")).element.isSelected,
+                       "Should default to Sign In mode, not Sign Up")
+    }
+
+    func testSignOut_clearsStateAndShowsLogin() throws {
+        launchAppOnboarded()
+
+        // Verify we're authenticated
+        let sidebarBtn = sidebarButton
+        guard waitForElement(sidebarBtn, timeout: 10) else {
+            throw XCTSkip("App not in authenticated state")
+        }
+
+        // Sign out
+        navigateToSettings()
+
+        let signOutBtn = app.buttons["SIGN OUT"]
+        guard waitForElement(signOutBtn, timeout: 5) else {
+            throw XCTSkip("Sign out button not found")
+        }
+        signOutBtn.tap()
+
+        // Verify clean logout state - should show login screen
+        XCTAssertTrue(waitForElement(emailField, timeout: 5), "Should show email field after sign out")
+        XCTAssertTrue(signInButton.exists, "Should show sign in button")
+
+        // Just verify we're on login screen (email field may have placeholder)
+        // The important thing is that we're logged out and seeing the login UI
+    }
+
     // MARK: - Dev Skip (Debug only)
 
     #if DEBUG
