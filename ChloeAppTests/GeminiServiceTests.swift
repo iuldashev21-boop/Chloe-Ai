@@ -322,28 +322,7 @@ final class GeminiServiceTests: XCTestCase {
         XCTAssertNil(result.engagementOpportunity)
     }
 
-    // MARK: - sendMessage / classifyMessage: API Key Guard
-
-    func testSendMessage_noAPIKey_throwsError() async {
-        // The test bundle does not have GEMINI_API_KEY in Info.plist,
-        // so any API call should fail gracefully.
-        do {
-            _ = try await sut.sendMessage(
-                messages: [Message(role: .user, text: "Hello")],
-                systemPrompt: "Test"
-            )
-            // If we get here without error, Portkey might be configured.
-            // Either way, the test verifies no crash.
-        } catch let error as GeminiError {
-            // Expected: noAPIKey or timeout
-            XCTAssertTrue(
-                error == .noAPIKey || error == .timeout,
-                "Expected noAPIKey or timeout, got \(error)"
-            )
-        } catch {
-            // Network error is also acceptable in test environment
-        }
-    }
+    // MARK: - classifyMessage / sendStrategistMessage: API Key Guard
 
     func testClassifyMessage_noAPIKey_throwsError() async {
         do {

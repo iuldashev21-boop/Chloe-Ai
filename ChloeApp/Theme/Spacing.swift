@@ -19,8 +19,6 @@ enum Spacing {
     static let xxl: CGFloat = 40
     /// 48pt
     static let xxxl: CGFloat = 48
-    /// 64pt
-    static let huge: CGFloat = 64
 
     /// Standard screen horizontal padding
     static let screenHorizontal: CGFloat = 20

@@ -34,14 +34,6 @@ extension Color {
         })
     }
 
-    static var chloePrimaryDark: Color {
-        Color(uiColor: UIColor { traits in
-            traits.userInterfaceStyle == .dark
-                ? UIColor(hex: "#A66E72")
-                : UIColor(hex: "#8A4A55")
-        })
-    }
-
     static var chloeAccent: Color {
         Color(uiColor: UIColor { traits in
             traits.userInterfaceStyle == .dark

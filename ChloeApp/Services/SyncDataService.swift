@@ -215,7 +215,11 @@ class SyncDataService {
                 merged.sort { $0.createdAt > $1.createdAt }
                 try local.saveJournalEntries(merged)
             }
-        } catch {}
+        } catch {
+            #if DEBUG
+            print("[SyncDataService] Sync failed: \(error.localizedDescription)")
+            #endif
+        }
 
         // Sync goals (timestamp-based merge - server wins if newer)
         do {
@@ -245,7 +249,11 @@ class SyncDataService {
             if hasChanges {
                 try local.saveGoals(merged)
             }
-        } catch {}
+        } catch {
+            #if DEBUG
+            print("[SyncDataService] Sync failed: \(error.localizedDescription)")
+            #endif
+        }
 
         // Sync affirmations (merge by ID)
         do {
@@ -260,7 +268,11 @@ class SyncDataService {
                 merged.sort { $0.createdAt > $1.createdAt }
                 try local.saveAffirmations(merged)
             }
-        } catch {}
+        } catch {
+            #if DEBUG
+            print("[SyncDataService] Sync failed: \(error.localizedDescription)")
+            #endif
+        }
 
         // Sync vision board items (merge by ID + download images)
         do {
@@ -287,7 +299,11 @@ class SyncDataService {
             if hasChanges {
                 try local.saveVisionItems(merged)
             }
-        } catch {}
+        } catch {
+            #if DEBUG
+            print("[SyncDataService] Sync failed: \(error.localizedDescription)")
+            #endif
+        }
 
         // Sync user facts (merge by ID)
         do {
@@ -301,7 +317,11 @@ class SyncDataService {
             if merged.count > localFacts.count {
                 try local.saveUserFacts(merged)
             }
-        } catch {}
+        } catch {
+            #if DEBUG
+            print("[SyncDataService] Sync failed: \(error.localizedDescription)")
+            #endif
+        }
 
         // Notify that profile sync completed (for onboarding state refresh)
         await MainActor.run {
@@ -500,7 +520,10 @@ class SyncDataService {
 
     private func pushMessagesToCloud(_ messages: [Message], forConversation conversationId: String) {
         guard network.isConnected else { hasPendingChanges = true; return }
-        Task { try? await remote.upsertMessages(messages, forConversation: conversationId) }
+        Task { [weak self] in
+            do { try await self?.remote.upsertMessages(messages, forConversation: conversationId) }
+            catch { self?.hasPendingChanges = true }
+        }
     }
 
     // MARK: - Journal (+ cloud sync)
@@ -528,7 +551,10 @@ class SyncDataService {
 
     private func pushJournalEntriesToCloud(_ entries: [JournalEntry]) {
         guard network.isConnected else { hasPendingChanges = true; return }
-        Task { try? await remote.upsertJournalEntries(entries) }
+        Task { [weak self] in
+            do { try await self?.remote.upsertJournalEntries(entries) }
+            catch { self?.hasPendingChanges = true }
+        }
     }
 
     // MARK: - Goals (+ cloud sync)
@@ -556,7 +582,10 @@ class SyncDataService {
 
     private func pushGoalsToCloud(_ goals: [Goal]) {
         guard network.isConnected else { hasPendingChanges = true; return }
-        Task { try? await remote.upsertGoals(goals) }
+        Task { [weak self] in
+            do { try await self?.remote.upsertGoals(goals) }
+            catch { self?.hasPendingChanges = true }
+        }
     }
 
     // MARK: - Affirmations (+ cloud sync)
@@ -584,7 +613,10 @@ class SyncDataService {
 
     private func pushAffirmationsToCloud(_ affirmations: [Affirmation]) {
         guard network.isConnected else { hasPendingChanges = true; return }
-        Task { try? await remote.upsertAffirmations(affirmations) }
+        Task { [weak self] in
+            do { try await self?.remote.upsertAffirmations(affirmations) }
+            catch { self?.hasPendingChanges = true }
+        }
     }
 
     // MARK: - Vision Board (+ cloud sync)
@@ -625,7 +657,10 @@ class SyncDataService {
 
     private func pushVisionItemsToCloud(_ items: [VisionItem]) {
         guard network.isConnected else { hasPendingChanges = true; return }
-        Task { try? await remote.upsertVisionItems(items) }
+        Task { [weak self] in
+            do { try await self?.remote.upsertVisionItems(items) }
+            catch { self?.hasPendingChanges = true }
+        }
     }
 
     private func pushVisionImageToCloud(_ data: Data, itemId: String) {
@@ -646,7 +681,10 @@ class SyncDataService {
 
     private func pushUserFactsToCloud(_ facts: [UserFact]) {
         guard network.isConnected else { hasPendingChanges = true; return }
-        Task { try? await remote.upsertUserFacts(facts) }
+        Task { [weak self] in
+            do { try await self?.remote.upsertUserFacts(facts) }
+            catch { self?.hasPendingChanges = true }
+        }
     }
 
     // MARK: - Latest Vibe (+ cloud sync)
@@ -763,12 +801,13 @@ class SyncDataService {
     }
 
     /// Deletes ALL user data - local AND cloud. Use only for explicit "Delete Account" action.
-    func deleteAccount() async {
+    /// Throws if cloud deletion fails so the caller can inform the user.
+    func deleteAccount() async throws {
         cancelAllInflightTasks()
         local.clearAll()
         hasPendingChanges = false
         // Delete cloud data only on explicit account deletion
         guard network.isConnected else { return }
-        try? await remote.deleteAllUserData()
+        try await remote.deleteAllUserData()
     }
 }

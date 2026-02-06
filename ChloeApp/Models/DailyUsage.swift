@@ -10,8 +10,6 @@ struct DailyUsage: Codable {
     }
 
     static func todayKey() -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.string(from: Date())
+        Date.todayKey
     }
 }

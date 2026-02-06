@@ -72,7 +72,7 @@ struct SanctuaryView: View {
                 onNewChat: {
                     chatVM.startNewChat()
                     ghostMessages = []
-                    withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
+                    withAnimation(.chloeSpring) {
                         chatActive = false
                         sidebarOpen = false
                     }
@@ -80,7 +80,7 @@ struct SanctuaryView: View {
                 onSelectConversation: { convo in
                     chatVM.conversationId = convo.id
                     chatVM.messages = SyncDataService.shared.loadMessages(forConversation: convo.id)
-                    withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
+                    withAnimation(.chloeSpring) {
                         chatActive = true
                         sidebarOpen = false
                     }
@@ -120,7 +120,7 @@ struct SanctuaryView: View {
                     if chatVM.conversationId == id {
                         chatVM.startNewChat()
                         ghostMessages = []
-                        withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
+                        withAnimation(.chloeSpring) {
                             chatActive = false
                         }
                     }
@@ -287,7 +287,7 @@ struct SanctuaryView: View {
                     .transition(.opacity)
             }
         }
-        .animation(.spring(response: 0.5, dampingFraction: 0.85), value: chatActive)
+        .animation(.chloeSpring, value: chatActive)
         .overlay(alignment: .top) {
             if !sidebarOpen {
                 HStack {
@@ -310,7 +310,7 @@ struct SanctuaryView: View {
                         Button {
                             chatVM.startNewChat()
                             ghostMessages = []
-                            withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
+                            withAnimation(.chloeSpring) {
                                 chatActive = false
                             }
                         } label: {
@@ -391,7 +391,7 @@ struct SanctuaryView: View {
                 chatInputBar
                     .opacity(appeared ? 1 : 0)
                     .offset(y: appeared ? 0 : 40)
-                    .animation(.spring(response: 0.5, dampingFraction: 0.85).delay(0.6), value: appeared)
+                    .animation(.chloeSpring.delay(0.6), value: appeared)
             }
         }
     }
@@ -616,7 +616,7 @@ struct SanctuaryView: View {
                             showRecentsSheet = false
                             chatVM.conversationId = convo.id
                             chatVM.messages = SyncDataService.shared.loadMessages(forConversation: convo.id)
-                            withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
+                            withAnimation(.chloeSpring) {
                                 chatActive = true
                             }
                         } label: {
@@ -708,7 +708,7 @@ struct SanctuaryView: View {
     // MARK: - Helpers
 
     private func activateChat() {
-        withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
+        withAnimation(.chloeSpring) {
             chatActive = true
         }
     }

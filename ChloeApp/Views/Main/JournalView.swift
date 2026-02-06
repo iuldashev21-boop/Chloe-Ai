@@ -31,17 +31,7 @@ struct JournalView: View {
     // MARK: - Empty State
 
     private var emptyState: some View {
-        VStack(spacing: Spacing.sm) {
-            Image(systemName: "book.closed")
-                .font(.system(size: 40, weight: .thin))
-                .foregroundColor(.chloeTextTertiary)
-                .accessibilityHidden(true)
-
-            Text("Begin writing")
-                .font(.chloeBodyDefault)
-                .foregroundColor(.chloeTextTertiary)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        ChloeEmptyState(iconName: "book.closed", message: "Begin writing")
     }
 
     // MARK: - Entry List
@@ -100,50 +90,15 @@ struct JournalView: View {
         .accessibilityElement(children: .combine)
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(Spacing.cardPadding)
-        .background(
-            RoundedRectangle(cornerRadius: 28)
-                .fill(.ultraThinMaterial)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 28)
-                .strokeBorder(Color.white.opacity(0.2), lineWidth: 1)
-        )
-        .shadow(
-            color: Color.chloeRosewood.opacity(0.12),
-            radius: 16,
-            x: 0,
-            y: 6
-        )
+        .chloeCardStyle()
     }
 
     // MARK: - Compose Button
 
     private var composeButton: some View {
-        Button {
+        ChloeFloatingActionButton(accessibilityLabel: "New journal entry") {
             showEditor = true
-        } label: {
-            Image(systemName: "plus")
-                .font(.system(size: 22, weight: .light))
-                .foregroundColor(.chloePrimary)
-                .frame(width: 52, height: 52)
-                .background(
-                    Circle()
-                        .fill(.ultraThinMaterial)
-                )
-                .overlay(
-                    Circle()
-                        .strokeBorder(Color.white.opacity(0.2), lineWidth: 1)
-                )
-                .shadow(
-                    color: Color.chloeRosewood.opacity(0.12),
-                    radius: 8,
-                    x: 0,
-                    y: 3
-                )
         }
-        .accessibilityLabel("New journal entry")
-        .padding(.trailing, Spacing.screenHorizontal)
-        .padding(.bottom, Spacing.lg)
     }
 }
 

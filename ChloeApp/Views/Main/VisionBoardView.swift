@@ -36,17 +36,7 @@ struct VisionBoardView: View {
     // MARK: - Empty State
 
     private var emptyState: some View {
-        VStack(spacing: Spacing.sm) {
-            Image(systemName: "star")
-                .font(.system(size: 40, weight: .thin))
-                .foregroundColor(.chloeTextTertiary)
-                .accessibilityHidden(true)
-
-            Text("Add your first vision")
-                .font(.chloeBodyDefault)
-                .foregroundColor(.chloeTextTertiary)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        ChloeEmptyState(iconName: "star", message: "Add your first vision")
     }
 
     // MARK: - Item Grid
@@ -106,50 +96,15 @@ struct VisionBoardView: View {
         .accessibilityLabel("\(item.title), \(item.category.displayName)")
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(Spacing.xs)
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(.ultraThinMaterial)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .strokeBorder(Color.white.opacity(0.2), lineWidth: 1)
-        )
-        .shadow(
-            color: Color.chloeRosewood.opacity(0.12),
-            radius: 16,
-            x: 0,
-            y: 6
-        )
+        .chloeCardStyle(cornerRadius: 20)
     }
 
     // MARK: - Add Button
 
     private var addButton: some View {
-        Button {
+        ChloeFloatingActionButton(accessibilityLabel: "Add vision") {
             showAddVision = true
-        } label: {
-            Image(systemName: "plus")
-                .font(.system(size: 22, weight: .light))
-                .foregroundColor(.chloePrimary)
-                .frame(width: 52, height: 52)
-                .background(
-                    Circle()
-                        .fill(.ultraThinMaterial)
-                )
-                .overlay(
-                    Circle()
-                        .strokeBorder(Color.white.opacity(0.2), lineWidth: 1)
-                )
-                .shadow(
-                    color: Color.chloeRosewood.opacity(0.12),
-                    radius: 8,
-                    x: 0,
-                    y: 3
-                )
         }
-        .accessibilityLabel("Add vision")
-        .padding(.trailing, Spacing.screenHorizontal)
-        .padding(.bottom, Spacing.lg)
     }
 }
 

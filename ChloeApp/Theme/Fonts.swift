@@ -3,7 +3,6 @@ import SwiftUI
 enum ChloeFont {
     static let heroBoldItalic = "CormorantGaramond-BoldItalic"
     static let headerDisplay = "Cinzel-Regular"
-    static let editorialBoldItalic = "PlayfairDisplay-Italic"
 }
 
 extension Font {

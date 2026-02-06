@@ -282,13 +282,6 @@ final class V2AgenticTests: XCTestCase {
         XCTAssertEqual(type.rawValue, "option_pair")
     }
 
-    // MARK: - Integration: V2 Mode Flag
-
-    func testV2AgenticMode_isEnabled() {
-        // Verify the V2 mode flag is set correctly
-        XCTAssertTrue(V2_AGENTIC_MODE, "V2 Agentic Mode should be enabled for production")
-    }
-
     // MARK: - v2.2 Stability Fix Tests
 
     /// FIX 3: Test flexible decoding when internal_thought is a String instead of Object

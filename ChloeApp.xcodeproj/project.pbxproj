@@ -8,12 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		0730A3B97A55099DE06BB3A4 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 51A2B70D95BD35EE7CE38665 /* Foundation.framework */; };
-		UI00000100000000000000A1 /* AffirmationsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = UI00000200000000000000A1 /* AffirmationsTests.swift */; };
-		UI00000100000000000000B1 /* ConversationHistoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = UI00000200000000000000B1 /* ConversationHistoryTests.swift */; };
-		UI00000100000000000000C1 /* DynamicTypeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = UI00000200000000000000C1 /* DynamicTypeTests.swift */; };
-		UI00000100000000000000D1 /* ImageUploadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = UI00000200000000000000D1 /* ImageUploadTests.swift */; };
-		UI00000100000000000000E1 /* StreakUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = UI00000200000000000000E1 /* StreakUITests.swift */; };
 		0B21A395DAC0A352C98340AD /* GoalsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11B72E6D6BDC5A74372822CE /* GoalsTests.swift */; };
+		13AAA29D3391452E7DCA5A2C /* ChloeViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 458E57E6C9CC6C99B2E71A2D /* ChloeViewModifiers.swift */; };
 		151900B32794215F9A9B6E5A /* StreakService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A174B26D7E896B09C9D56F71 /* StreakService.swift */; };
 		1D2E24F6A9FCE4A3C4CE7CD6 /* SafetyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 691088B00C01ED309816D67B /* SafetyTests.swift */; };
 		35B2F1331062D827771ADA81 /* PasswordResetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF899EC08EB9BF6F2427726E /* PasswordResetView.swift */; };
@@ -22,6 +18,8 @@
 		43FC4B86A01BB60E9D3A61EE /* OnboardingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9334322B3F9AB6B36E5E83D2 /* OnboardingTests.swift */; };
 		7B5C6061C58C58644E1ADD3F /* TestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF08D9DC14B5BC2B0F70D79E /* TestHelpers.swift */; };
 		8E2FBEDE9E149919CA704D01 /* JournalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9E9EFD831A08021FF5E4BB /* JournalTests.swift */; };
+		8E3D83A5B652B8DED38B2FC3 /* ChloeFloatingActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA5DAFF02E46B79A5EABE633 /* ChloeFloatingActionButton.swift */; };
+		90C3CBE435FAA7DCD942145D /* ChloeEmptyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = D43EE6EBAC2A490942E57A64 /* ChloeEmptyState.swift */; };
 		9BBEC161B700F341AD344FC6 /* EmailConfirmationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D623CEA22CB36B5ED4A247C /* EmailConfirmationView.swift */; };
 		9BBEC162B700F342AD344FC7 /* NewPasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D623CEB22CB36B6ED4A247D /* NewPasswordView.swift */; };
 		A10000010000000000000001 /* ChloeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000001 /* ChloeApp.swift */; };
@@ -115,7 +113,6 @@
 		F10000220000000000000001 /* Cinzel-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F20000220000000000000001 /* Cinzel-Regular.ttf */; };
 		F10000230000000000000001 /* CormorantGaramond-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F20000230000000000000001 /* CormorantGaramond-BoldItalic.ttf */; };
 		F10000240000000000000001 /* EtherealDustParticles.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000240000000000000001 /* EtherealDustParticles.swift */; };
-		F10000250000000000000001 /* BloomTextModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000250000000000000001 /* BloomTextModifier.swift */; };
 		F10000260000000000000001 /* FlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000260000000000000001 /* FlowLayout.swift */; };
 		F10000280000000000000001 /* PlayfairDisplay-Italic-VF.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F20000280000000000000001 /* PlayfairDisplay-Italic-VF.ttf */; };
 		F10000290000000000000001 /* NotificationPrimingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000290000000000000001 /* NotificationPrimingView.swift */; };
@@ -127,12 +124,17 @@
 		T10000020000000000000001 /* PromptBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T20000020000000000000001 /* PromptBuilderTests.swift */; };
 		T10000030000000000000001 /* AnalystServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T20000030000000000000001 /* AnalystServiceTests.swift */; };
 		T10000040000000000000001 /* StorageServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T20000040000000000000001 /* StorageServiceTests.swift */; };
-		T10000100000000000000001 /* AuthViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T20000100000000000000001 /* AuthViewModelTests.swift */; };
 		T10000050000000000000001 /* StreakServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T20000050000000000000001 /* StreakServiceTests.swift */; };
 		T10000060000000000000001 /* InsightQueueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T20000060000000000000001 /* InsightQueueTests.swift */; };
 		T10000070000000000000001 /* CrisisResponseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T20000070000000000000001 /* CrisisResponseTests.swift */; };
 		T10000080000000000000001 /* DailyUsageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T20000080000000000000001 /* DailyUsageTests.swift */; };
 		T10000090000000000000001 /* V2AgenticTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T20000090000000000000001 /* V2AgenticTests.swift */; };
+		T10000100000000000000001 /* AuthViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T20000100000000000000001 /* AuthViewModelTests.swift */; };
+		UI00000100000000000000A1 /* AffirmationsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = UI00000200000000000000A1 /* AffirmationsTests.swift */; };
+		UI00000100000000000000B1 /* ConversationHistoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = UI00000200000000000000B1 /* ConversationHistoryTests.swift */; };
+		UI00000100000000000000C1 /* DynamicTypeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = UI00000200000000000000C1 /* DynamicTypeTests.swift */; };
+		UI00000100000000000000D1 /* ImageUploadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = UI00000200000000000000D1 /* ImageUploadTests.swift */; };
+		UI00000100000000000000E1 /* StreakUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = UI00000200000000000000E1 /* StreakUITests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -157,6 +159,7 @@
 		124F9265E9406FE5C82DEA12 /* EdgeCaseTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = EdgeCaseTests.swift; sourceTree = "<group>"; };
 		177002C5E96240F457D7325D /* SidebarTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SidebarTests.swift; sourceTree = "<group>"; };
 		24071DA765FF3264148A32F9 /* ChloeAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ChloeAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		458E57E6C9CC6C99B2E71A2D /* ChloeViewModifiers.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ChloeApp/Theme/ChloeViewModifiers.swift; sourceTree = SOURCE_ROOT; };
 		4C9E9EFD831A08021FF5E4BB /* JournalTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = JournalTests.swift; sourceTree = "<group>"; };
 		51A2B70D95BD35EE7CE38665 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		54768EC816361B0EF9A9C3D2 /* SettingsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SettingsTests.swift; sourceTree = "<group>"; };
@@ -225,12 +228,14 @@
 		A30000010000000000000001 /* ChloeApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChloeApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AF08D9DC14B5BC2B0F70D79E /* TestHelpers.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TestHelpers.swift; sourceTree = "<group>"; };
 		B8B72291CB2B25437CC979C4 /* DailyUsage.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DailyUsage.swift; sourceTree = "<group>"; };
+		BA5DAFF02E46B79A5EABE633 /* ChloeFloatingActionButton.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ChloeApp/Views/Components/ChloeFloatingActionButton.swift; sourceTree = SOURCE_ROOT; };
 		C4DF9A3F95ADE9B8CAC88DA2 /* RouterModels.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RouterModels.swift; sourceTree = "<group>"; };
 		C5ED54293ECCDC6658CA097B /* RateLimitTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RateLimitTests.swift; sourceTree = "<group>"; };
 		D20000010000000000000001 /* SupabaseClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseClient.swift; sourceTree = "<group>"; };
 		D30000020000000000000001 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
 		D30000030000000000000001 /* SupabaseDataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseDataService.swift; sourceTree = "<group>"; };
 		D30000040000000000000001 /* SyncDataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncDataService.swift; sourceTree = "<group>"; };
+		D43EE6EBAC2A490942E57A64 /* ChloeEmptyState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ChloeApp/Views/Components/ChloeEmptyState.swift; sourceTree = SOURCE_ROOT; };
 		F20000010000000000000001 /* CameraPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPickerView.swift; sourceTree = "<group>"; };
 		F20000020000000000000001 /* ChloeButtonLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChloeButtonLabel.swift; sourceTree = "<group>"; };
 		F20000020000000000000099 /* BentoGridCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BentoGridCard.swift; sourceTree = "<group>"; };
@@ -251,7 +256,6 @@
 		F20000220000000000000001 /* Cinzel-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Cinzel-Regular.ttf"; sourceTree = "<group>"; };
 		F20000230000000000000001 /* CormorantGaramond-BoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "CormorantGaramond-BoldItalic.ttf"; sourceTree = "<group>"; };
 		F20000240000000000000001 /* EtherealDustParticles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EtherealDustParticles.swift; sourceTree = "<group>"; };
-		F20000250000000000000001 /* BloomTextModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BloomTextModifier.swift; sourceTree = "<group>"; };
 		F20000260000000000000001 /* FlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowLayout.swift; sourceTree = "<group>"; };
 		F20000280000000000000001 /* PlayfairDisplay-Italic-VF.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlayfairDisplay-Italic-VF.ttf"; sourceTree = "<group>"; };
 		F20000290000000000000001 /* NotificationPrimingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPrimingView.swift; sourceTree = "<group>"; };
@@ -266,12 +270,12 @@
 		T20000020000000000000001 /* PromptBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptBuilderTests.swift; sourceTree = "<group>"; };
 		T20000030000000000000001 /* AnalystServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalystServiceTests.swift; sourceTree = "<group>"; };
 		T20000040000000000000001 /* StorageServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageServiceTests.swift; sourceTree = "<group>"; };
-		T20000100000000000000001 /* AuthViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModelTests.swift; sourceTree = "<group>"; };
 		T20000050000000000000001 /* StreakServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakServiceTests.swift; sourceTree = "<group>"; };
 		T20000060000000000000001 /* InsightQueueTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightQueueTests.swift; sourceTree = "<group>"; };
 		T20000070000000000000001 /* CrisisResponseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrisisResponseTests.swift; sourceTree = "<group>"; };
 		T20000080000000000000001 /* DailyUsageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyUsageTests.swift; sourceTree = "<group>"; };
 		T20000090000000000000001 /* V2AgenticTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = V2AgenticTests.swift; sourceTree = "<group>"; };
+		T20000100000000000000001 /* AuthViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModelTests.swift; sourceTree = "<group>"; };
 		T30000010000000000000001 /* ChloeAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ChloeAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		UI00000200000000000000A1 /* AffirmationsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AffirmationsTests.swift; sourceTree = "<group>"; };
 		UI00000200000000000000B1 /* ConversationHistoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationHistoryTests.swift; sourceTree = "<group>"; };
@@ -470,7 +474,6 @@
 		A50000100000000000000001 /* Components */ = {
 			isa = PBXGroup;
 			children = (
-				F20000250000000000000001 /* BloomTextModifier.swift */,
 				F20000010000000000000001 /* CameraPickerView.swift */,
 				A20000520000000000000001 /* ChatBubble.swift */,
 				A20000530000000000000001 /* ChatInputBar.swift */,
@@ -491,6 +494,8 @@
 				A20000540000000000000001 /* TypingIndicator.swift */,
 				RS0000010000000000000001 /* ReportSheet.swift */,
 				902324AB633D17FC0C08036A /* StrategyOptionsView.swift */,
+				BA5DAFF02E46B79A5EABE633 /* ChloeFloatingActionButton.swift */,
+				D43EE6EBAC2A490942E57A64 /* ChloeEmptyState.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -536,6 +541,7 @@
 				A20000050000000000000001 /* Colors.swift */,
 				A20000060000000000000001 /* Fonts.swift */,
 				A20000070000000000000001 /* Spacing.swift */,
+				458E57E6C9CC6C99B2E71A2D /* ChloeViewModifiers.swift */,
 			);
 			path = Theme;
 			sourceTree = "<group>";
@@ -841,7 +847,6 @@
 				F10000160000000000000001 /* SidebarView.swift in Sources */,
 				F10000170000000000000001 /* WelcomeIntroView.swift in Sources */,
 				F10000180000000000000001 /* OnboardingCard.swift in Sources */,
-				F10000250000000000000001 /* BloomTextModifier.swift in Sources */,
 				F10000260000000000000001 /* FlowLayout.swift in Sources */,
 				F10000290000000000000001 /* NotificationPrimingView.swift in Sources */,
 				B95D54A9FAB2885D920CBFD0 /* GlowUpStreak.swift in Sources */,
@@ -861,6 +866,9 @@
 				9BBEC161B700F341AD344FC6 /* EmailConfirmationView.swift in Sources */,
 				9BBEC162B700F342AD344FC7 /* NewPasswordView.swift in Sources */,
 				35B2F1331062D827771ADA81 /* PasswordResetView.swift in Sources */,
+				13AAA29D3391452E7DCA5A2C /* ChloeViewModifiers.swift in Sources */,
+				8E3D83A5B652B8DED38B2FC3 /* ChloeFloatingActionButton.swift in Sources */,
+				90C3CBE435FAA7DCD942145D /* ChloeEmptyState.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

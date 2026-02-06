@@ -8,9 +8,4 @@ extension String {
     var isBlank: Bool {
         trimmed.isEmpty
     }
-
-    func truncated(to length: Int, trailing: String = "...") -> String {
-        if count <= length { return self }
-        return String(prefix(length)) + trailing
-    }
 }

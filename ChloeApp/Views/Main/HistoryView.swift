@@ -10,15 +10,7 @@ struct HistoryView: View {
             GradientBackground()
 
             if conversations.isEmpty {
-                VStack(spacing: Spacing.sm) {
-                    Image(systemName: "clock.arrow.circlepath")
-                        .font(.system(size: 40, weight: .thin))
-                        .foregroundColor(.chloeTextTertiary)
-                        .accessibilityHidden(true)
-                    Text("No conversations yet")
-                        .font(.chloeBodyDefault)
-                        .foregroundColor(.chloeTextTertiary)
-                }
+                ChloeEmptyState(iconName: "clock.arrow.circlepath", message: "No conversations yet")
             } else {
                 ScrollView {
                     LazyVStack(spacing: Spacing.xs) {
@@ -66,20 +58,7 @@ struct HistoryView: View {
         .accessibilityElement(children: .combine)
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(Spacing.sm)
-        .background(
-            RoundedRectangle(cornerRadius: Spacing.cornerRadiusLarge)
-                .fill(.ultraThinMaterial)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: Spacing.cornerRadiusLarge)
-                .strokeBorder(Color.white.opacity(0.2), lineWidth: 1)
-        )
-        .shadow(
-            color: Color.chloeRosewood.opacity(0.12),
-            radius: 16,
-            x: 0,
-            y: 6
-        )
+        .chloeCardStyle(cornerRadius: Spacing.cornerRadiusLarge)
     }
 }
 

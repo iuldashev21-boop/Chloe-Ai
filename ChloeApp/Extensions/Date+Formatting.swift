@@ -1,18 +1,14 @@
 import Foundation
 
 extension Date {
-    var shortDate: String {
-        formatted(date: .abbreviated, time: .omitted)
-    }
+    private static let dayKeyFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd"
+        return f
+    }()
 
-    var timeOnly: String {
-        formatted(date: .omitted, time: .shortened)
-    }
-
-    var relativeDescription: String {
-        let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .short
-        return formatter.localizedString(for: self, relativeTo: Date())
+    static var todayKey: String {
+        dayKeyFormatter.string(from: Date())
     }
 
     var journalHeader: String {

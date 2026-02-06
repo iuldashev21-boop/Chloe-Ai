@@ -346,7 +346,7 @@ class StorageService {
         let weekStart = calendar.dateInterval(of: .weekOfYear, for: now)?.start ?? now
         let storedWeekStart = defaults.object(forKey: "notif_week_start") as? Date
 
-        if storedWeekStart == nil || storedWeekStart! < weekStart {
+        if storedWeekStart.map({ $0 < weekStart }) ?? true {
             defaults.set(weekStart, forKey: "notif_week_start")
             defaults.set(0, forKey: "generic_notif_count")
         }

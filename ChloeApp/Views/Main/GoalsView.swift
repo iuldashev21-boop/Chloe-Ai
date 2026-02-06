@@ -31,17 +31,7 @@ struct GoalsView: View {
     // MARK: - Empty State
 
     private var emptyState: some View {
-        VStack(spacing: Spacing.sm) {
-            Image(systemName: "target")
-                .font(.system(size: 40, weight: .thin))
-                .foregroundColor(.chloeTextTertiary)
-                .accessibilityHidden(true)
-
-            Text("Set your first goal")
-                .font(.chloeBodyDefault)
-                .foregroundColor(.chloeTextTertiary)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        ChloeEmptyState(iconName: "target", message: "Set your first goal")
     }
 
     // MARK: - Goal List
@@ -108,50 +98,15 @@ struct GoalsView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(Spacing.cardPadding)
-        .background(
-            RoundedRectangle(cornerRadius: 28)
-                .fill(.ultraThinMaterial)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 28)
-                .strokeBorder(Color.white.opacity(0.2), lineWidth: 1)
-        )
-        .shadow(
-            color: Color.chloeRosewood.opacity(0.12),
-            radius: 16,
-            x: 0,
-            y: 6
-        )
+        .chloeCardStyle()
     }
 
     // MARK: - Add Button
 
     private var addButton: some View {
-        Button {
+        ChloeFloatingActionButton(accessibilityLabel: "Add goal") {
             showAddGoal = true
-        } label: {
-            Image(systemName: "plus")
-                .font(.system(size: 22, weight: .light))
-                .foregroundColor(.chloePrimary)
-                .frame(width: 52, height: 52)
-                .background(
-                    Circle()
-                        .fill(.ultraThinMaterial)
-                )
-                .overlay(
-                    Circle()
-                        .strokeBorder(Color.white.opacity(0.2), lineWidth: 1)
-                )
-                .shadow(
-                    color: Color.chloeRosewood.opacity(0.12),
-                    radius: 8,
-                    x: 0,
-                    y: 3
-                )
         }
-        .accessibilityLabel("Add goal")
-        .padding(.trailing, Spacing.screenHorizontal)
-        .padding(.bottom, Spacing.lg)
     }
 }
 

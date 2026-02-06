@@ -542,7 +542,7 @@ final class SyncDataServiceTests: XCTestCase {
         try sut.saveGoals([makeGoal()])
         sut.saveLatestVibe(.high)
 
-        await sut.deleteAccount()
+        try await sut.deleteAccount()
 
         XCTAssertNil(sut.loadProfile())
         XCTAssertTrue(sut.loadGoals().isEmpty)

@@ -81,11 +81,16 @@ struct ArchetypeQuizView: View {
                         viewModel.quizPage += 1
                     }
                 } else {
+                    guard answers.count >= 4,
+                          let energy = answers[0],
+                          let strength = answers[1],
+                          let recharge = answers[2],
+                          let allure = answers[3] else { return }
                     viewModel.preferences.archetypeAnswers = ArchetypeAnswers(
-                        energy: answers[0],
-                        strength: answers[1],
-                        recharge: answers[2],
-                        allure: answers[3]
+                        energy: energy,
+                        strength: strength,
+                        recharge: recharge,
+                        allure: allure
                     )
                     viewModel.nextStep()
                 }

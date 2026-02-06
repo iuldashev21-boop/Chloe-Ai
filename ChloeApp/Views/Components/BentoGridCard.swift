@@ -10,20 +10,7 @@ struct BentoGridCard<Content: View>: View {
     var body: some View {
         content
             .padding(Spacing.cardPadding)
-            .background(
-                RoundedRectangle(cornerRadius: 28)
-                    .fill(.ultraThinMaterial)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 28)
-                    .strokeBorder(Color.white.opacity(0.2), lineWidth: 1)
-            )
-            .shadow(
-                color: Color.chloeRosewood.opacity(0.12),
-                radius: 16,
-                x: 0,
-                y: 6
-            )
+            .chloeCardStyle()
     }
 }
 

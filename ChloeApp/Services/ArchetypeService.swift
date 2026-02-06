@@ -92,6 +92,11 @@ class ArchetypeService {
 
         let sorted = ArchetypeId.allCases.sorted { scores[$0, default: 0] > scores[$1, default: 0] }
 
+        guard sorted.count >= 3 else {
+            let fallback = sorted.first ?? .siren
+            return UserArchetype(primary: fallback, secondary: fallback, label: fallback.rawValue.capitalized, blend: fallback.rawValue.capitalized, description: "")
+        }
+
         let primary = sorted[0]
         let secondary = sorted[1] == primary ? sorted[2] : sorted[1]
 

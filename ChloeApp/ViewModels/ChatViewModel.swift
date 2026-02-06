@@ -1,10 +1,7 @@
 import Foundation
 import SwiftUI
 
-/// v2 Agentic mode - enables JSON pipeline with Router + Strategist
-let V2_AGENTIC_MODE = true
-
-/// Loading states for v2 agentic pipeline
+/// Loading states for agentic pipeline
 enum LoadingState: Equatable {
     case idle
     case routing      // Phase 1: Triage/Classification
@@ -137,153 +134,106 @@ class ChatViewModel: ObservableObject {
             let lastSummary = isNewConversation ? storageService.loadLatestSummary() : nil
             let insight = !isNewConversation ? storageService.popInsight() : nil
 
-            // =====================================================================
-            // V2 AGENTIC PIPELINE
-            // =====================================================================
-            if V2_AGENTIC_MODE {
-                // Phase 1: Triage (Router Classification)
-                loadingState = .routing
+            // Phase 1: Triage (Router Classification)
+            loadingState = .routing
 
-                let classification = try await geminiService.classifyMessage(message: text)
+            let classification = try await geminiService.classifyMessage(message: text)
 
-                #if DEBUG
-                print("[ChatViewModel] Router: \(classification.category.rawValue) / \(classification.urgency.rawValue)")
-                #endif
+            #if DEBUG
+            print("[ChatViewModel] Router: \(classification.category.rawValue) / \(classification.urgency.rawValue)")
+            #endif
 
-                // Safety override: If router detects SAFETY_RISK, use crisis response
-                if classification.category == .safetyRisk {
-                    loadingState = .idle
-                    isTyping = false
-                    let crisisResponse = safetyService.getCrisisResponse(for: .selfHarm)
-                    let chloeMsg = Message(conversationId: conversationId, role: .chloe, text: crisisResponse)
-                    messages.append(chloeMsg)
-                    saveMessages()
-                    return
-                }
+            // Safety override: If router detects SAFETY_RISK, use crisis response
+            if classification.category == .safetyRisk {
+                loadingState = .idle
+                isTyping = false
+                let crisisResponse = safetyService.getCrisisResponse(for: .selfHarm)
+                let chloeMsg = Message(conversationId: conversationId, role: .chloe, text: crisisResponse)
+                messages.append(chloeMsg)
+                saveMessages()
+                return
+            }
 
-                // Phase 2: Strategy (Strategist Response)
-                loadingState = .generating
+            // Phase 2: Strategy (Strategist Response)
+            loadingState = .generating
 
-                // Soft spiral override — per-message, not per-session (matches V1 pipeline)
-                let isSoftSpiral = safetyService.checkSoftSpiral(message: text)
+            // Soft spiral override — per-message, not per-session
+            let isSoftSpiral = safetyService.checkSoftSpiral(message: text)
 
-                // Build strategist prompt with context injection
-                var strategistPrompt = Prompts.strategist
-                    .replacingOccurrences(of: "{{user_name}}", with: profile?.displayName ?? "babe")
-                    .replacingOccurrences(of: "{{archetype_label}}", with: archetype?.label ?? "Not determined")
-                    .replacingOccurrences(of: "{{relationship_status}}", with: "Not shared yet")
-                    .replacingOccurrences(of: "{{current_vibe}}", with: currentVibe?.rawValue ?? "MEDIUM")
+            // Build strategist prompt with context injection
+            var strategistPrompt = Prompts.strategist
+                .replacingOccurrences(of: "{{user_name}}", with: profile?.displayName ?? "babe")
+                .replacingOccurrences(of: "{{archetype_label}}", with: archetype?.label ?? "Not determined")
+                .replacingOccurrences(of: "{{relationship_status}}", with: "Not shared yet")
+                .replacingOccurrences(of: "{{current_vibe}}", with: currentVibe?.rawValue ?? "MEDIUM")
 
-                // Inject router context
+            // Inject router context
+            strategistPrompt += """
+
+            <router_context>
+              Category: \(classification.category.rawValue)
+              Urgency: \(classification.urgency.rawValue)
+              Reasoning: \(classification.reasoning)
+            </router_context>
+            """
+
+            // Soft spiral: override strategy to gentle support mode
+            if isSoftSpiral {
                 strategistPrompt += """
 
-                <router_context>
-                  Category: \(classification.category.rawValue)
-                  Urgency: \(classification.urgency.rawValue)
-                  Reasoning: \(classification.reasoning)
-                </router_context>
-                """
-
-                // Soft spiral: override strategy to gentle support mode
-                if isSoftSpiral {
-                    strategistPrompt += """
-
-                <soft_spiral_override>
-                  OVERRIDE: The user is in a soft spiral (emotional numbness, shutdown, dissociation).
-                  DROP all frameworks, tough love, and Chloe-isms.
-                  Be "The Anchor." Validate without fixing. Short, grounding sentences.
-                  End with ONE gentle micro-task ("Can you get a glass of water?" / "Can you take one deep breath for me?").
-                  Set strategy_selection to "Gentle Support" in internal_thought.
-                </soft_spiral_override>
-                """
-                }
-
-                // Inject behavioral loops (permanent patterns) for long-term strategy
-                if let loops = profile?.behavioralLoops, !loops.isEmpty {
-                    strategistPrompt += """
-
-                <known_patterns>
-                  These are behavioral patterns detected across previous sessions.
-                  Use them to call out recurring behaviors when relevant:
-                  \(loops.map { "- \($0)" }.joined(separator: "\n  "))
-                </known_patterns>
-                """
-                }
-
-                let strategistResponse = try await geminiService.sendStrategistMessage(
-                    messages: messages,
-                    systemPrompt: strategistPrompt,
-                    userFacts: userFacts,
-                    lastSummary: lastSummary,
-                    insight: insight
-                )
-
-                // Phase 3: Render
-                let routerMetadata = RouterMetadata(
-                    internalThought: """
-                        Vibe: \(strategistResponse.internalThought.userVibe)
-                        Analysis: \(strategistResponse.internalThought.manBehaviorAnalysis)
-                        Strategy: \(strategistResponse.internalThought.strategySelection)
-                        """,
-                    routerMode: classification.category.rawValue,
-                    selectedOption: nil
-                )
-
-                let chloeMsg = Message(
-                    conversationId: conversationId,
-                    role: .chloe,
-                    text: strategistResponse.response.text,
-                    routerMetadata: routerMetadata,
-                    contentType: strategistResponse.response.options != nil ? .optionPair : .text,
-                    options: strategistResponse.response.options
-                )
-                messages.append(chloeMsg)
-                saveMessages()
-
-                loadingState = .idle
-
-            } else {
-                // =====================================================================
-                // V1 LEGACY PIPELINE (fallback)
-                // =====================================================================
-                var systemPrompt = buildPersonalizedPrompt(
-                    displayName: profile?.displayName ?? "babe",
-                    preferences: profile?.preferences,
-                    archetype: archetype,
-                    vibeScore: currentVibe
-                )
-
-                // Soft spiral override — per-message, not per-session
-                if safetyService.checkSoftSpiral(message: text) {
-                    if let range = systemPrompt.range(of: #"CURRENT MODE: [^\n]+"#, options: .regularExpression) {
-                        systemPrompt.replaceSubrange(range, with: "CURRENT MODE: GENTLE SUPPORT")
-                    }
-                }
-
-                // Inject behavioral loops for V1 pipeline
-                if let loops = profile?.behavioralLoops, !loops.isEmpty {
-                    systemPrompt += """
-
-                    <known_patterns>
-                    These are behavioral patterns detected across previous sessions.
-                    Use them to call out recurring behaviors when relevant:
-                    \(loops.map { "- \($0)" }.joined(separator: "\n"))
-                    </known_patterns>
-                    """
-                }
-
-                let response = try await geminiService.sendMessage(
-                    messages: messages,
-                    systemPrompt: systemPrompt,
-                    userFacts: userFacts,
-                    lastSummary: lastSummary,
-                    insight: insight
-                )
-
-                let chloeMsg = Message(conversationId: conversationId, role: .chloe, text: response)
-                messages.append(chloeMsg)
-                saveMessages()
+            <soft_spiral_override>
+              OVERRIDE: The user is in a soft spiral (emotional numbness, shutdown, dissociation).
+              DROP all frameworks, tough love, and Chloe-isms.
+              Be "The Anchor." Validate without fixing. Short, grounding sentences.
+              End with ONE gentle micro-task ("Can you get a glass of water?" / "Can you take one deep breath for me?").
+              Set strategy_selection to "Gentle Support" in internal_thought.
+            </soft_spiral_override>
+            """
             }
+
+            // Inject behavioral loops (permanent patterns) for long-term strategy
+            if let loops = profile?.behavioralLoops, !loops.isEmpty {
+                strategistPrompt += """
+
+            <known_patterns>
+              These are behavioral patterns detected across previous sessions.
+              Use them to call out recurring behaviors when relevant:
+              \(loops.map { "- \($0)" }.joined(separator: "\n  "))
+            </known_patterns>
+            """
+            }
+
+            let strategistResponse = try await geminiService.sendStrategistMessage(
+                messages: messages,
+                systemPrompt: strategistPrompt,
+                userFacts: userFacts,
+                lastSummary: lastSummary,
+                insight: insight
+            )
+
+            // Phase 3: Render
+            let routerMetadata = RouterMetadata(
+                internalThought: """
+                    Vibe: \(strategistResponse.internalThought.userVibe)
+                    Analysis: \(strategistResponse.internalThought.manBehaviorAnalysis)
+                    Strategy: \(strategistResponse.internalThought.strategySelection)
+                    """,
+                routerMode: classification.category.rawValue,
+                selectedOption: nil
+            )
+
+            let chloeMsg = Message(
+                conversationId: conversationId,
+                role: .chloe,
+                text: strategistResponse.response.text,
+                routerMetadata: routerMetadata,
+                contentType: strategistResponse.response.options != nil ? .optionPair : .text,
+                options: strategistResponse.response.options
+            )
+            messages.append(chloeMsg)
+            saveMessages()
+
+            loadingState = .idle
 
             // Append warm goodbye after last free message
             if isLastFreeMessage {
@@ -345,13 +295,25 @@ class ChatViewModel: ObservableObject {
 
     private func saveMessages() {
         guard let id = conversationId else { return }
-        try? storageService.saveMessages(messages, forConversation: id)
+        do {
+            try storageService.saveMessages(messages, forConversation: id)
+        } catch {
+            #if DEBUG
+            print("[ChatViewModel] Failed to save messages: \(error.localizedDescription)")
+            #endif
+        }
 
         // Create or update conversation metadata
         var convo = storageService.loadConversation(id: id)
             ?? Conversation(id: id, title: "New Conversation")
         convo.updatedAt = Date()
-        try? storageService.saveConversation(convo)
+        do {
+            try storageService.saveConversation(convo)
+        } catch {
+            #if DEBUG
+            print("[ChatViewModel] Failed to save conversation: \(error.localizedDescription)")
+            #endif
+        }
 
         // Generate title from first user message (one-time)
         if convo.title == "New Conversation",
@@ -432,6 +394,9 @@ class ChatViewModel: ObservableObject {
             }
         } catch {
             // Background analysis failures are silent
+            #if DEBUG
+            print("[ChatViewModel] Background analysis failed: \(error.localizedDescription)")
+            #endif
         }
     }
 

@@ -4,6 +4,7 @@ import UIKit
 enum GeminiError: Error, LocalizedError {
     case noAPIKey
     case timeout
+    case noConnection
     case apiError(Int, String)
     case emptyResponse
     case decodingFailed
@@ -13,6 +14,7 @@ enum GeminiError: Error, LocalizedError {
         switch self {
         case .noAPIKey: return "API key not configured"
         case .timeout: return "Chloe is taking too long to respond. Please try again."
+        case .noConnection: return "No internet connection. Please check your network and try again."
         case .apiError(let code, let msg): return "API error (\(code)): \(msg)"
         case .emptyResponse: return "I'm having a moment — can you try again?"
         case .decodingFailed: return "Failed to parse response"
@@ -32,171 +34,6 @@ class GeminiService {
     }
 
     private init() {}
-
-    // MARK: - Chat
-
-    func sendMessage(
-        messages: [Message],
-        systemPrompt: String,
-        userFacts: [String] = [],
-        lastSummary: String? = nil,
-        insight: String? = nil,
-        temperature: Double = 0.8,
-        userId: String? = nil,
-        conversationId: String? = nil
-    ) async throws -> String {
-        var systemInstruction = systemPrompt
-        if !userFacts.isEmpty {
-            systemInstruction += "\n\nWhat you know about this user:\n\(userFacts.joined(separator: "\n"))"
-        }
-
-        // Session handover: inject last session context on first message of new conversation
-        let isNewConversation = messages.count <= 1
-        if isNewConversation, let lastSummary {
-            systemInstruction += """
-
-            \n<session_context>
-            The user's last session was about: "\(lastSummary)".
-            If relevant, casually mention it early in the conversation. E.g., "How did that dinner go?"
-            Do not force it if the user starts a completely new topic.
-            </session_context>
-            """
-        }
-
-        // Pattern insight injection (skip on first message of new conversation to avoid overload)
-        if !isNewConversation, let insight {
-            systemInstruction += """
-
-            \n<internal_insight>
-            The Analyst detected a pattern: "\(insight)".
-            Wait for a natural moment in this conversation to gently point this out to the user.
-            Do not force it, but use it to show you are listening deeply.
-            </internal_insight>
-            """
-        }
-
-        let recentMessages = Array(messages.suffix(MAX_CONVERSATION_HISTORY))
-
-        // Route through Portkey if configured (for logging/analytics)
-        #if DEBUG
-        print("[GeminiService] Checking Portkey configuration...")
-        #endif
-        if PortkeyService.shared.isConfigured {
-            #if DEBUG
-            print("[GeminiService] >>> ROUTING THROUGH PORTKEY <<<")
-            #endif
-            return try await sendViaPortkey(
-                messages: recentMessages,
-                systemPrompt: systemInstruction,
-                temperature: temperature,
-                userId: userId,
-                conversationId: conversationId
-            )
-        }
-
-        // Direct Gemini API call (fallback)
-        #if DEBUG
-        print("[GeminiService] Portkey not configured, using direct Gemini API")
-        #endif
-        guard !apiKey.isEmpty else { throw GeminiError.noAPIKey }
-
-        let geminiContents: [[String: Any]] = recentMessages.enumerated().map { index, msg in
-            var parts: [[String: Any]] = []
-
-            // Only attach image data for the latest message to save tokens
-            let isLatest = index == recentMessages.count - 1
-            if let imageUri = msg.imageUri {
-                if isLatest, let imageData = loadImageData(from: imageUri) {
-                    parts.append([
-                        "inlineData": [
-                            "mimeType": "image/jpeg",
-                            "data": imageData.base64EncodedString()
-                        ]
-                    ])
-                } else if !isLatest {
-                    parts.append(["text": "[User shared an image]"])
-                }
-            }
-
-            if !msg.text.isEmpty {
-                parts.append(["text": msg.text])
-            }
-
-            // Ensure at least one part exists
-            if parts.isEmpty {
-                parts.append(["text": "[Image]"])
-            }
-
-            return [
-                "role": msg.role == .user ? "user" : "model",
-                "parts": parts,
-            ]
-        }
-
-        let body: [String: Any] = [
-            "system_instruction": [
-                "parts": [["text": systemInstruction]],
-            ],
-            "contents": geminiContents,
-            "generationConfig": [
-                "temperature": temperature,
-                "topP": 0.9,
-                "maxOutputTokens": 1024,
-            ],
-            "safetySettings": [
-                ["category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_ONLY_HIGH"],
-                ["category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_ONLY_HIGH"],
-                ["category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"],
-                ["category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_ONLY_HIGH"],
-            ],
-        ]
-
-        let data = try await makeRequest(body: body)
-        return try extractText(from: data) ?? "I'm having a moment — can you try again?"
-    }
-
-    /// Route chat through Portkey for logging and analytics
-    private func sendViaPortkey(
-        messages: [Message],
-        systemPrompt: String,
-        temperature: Double,
-        userId: String?,
-        conversationId: String?
-    ) async throws -> String {
-        #if DEBUG
-        print("[GeminiService] sendViaPortkey called with \(messages.count) messages")
-        #endif
-
-        // Convert messages to Portkey format (text only - images not supported via Portkey gateway)
-        let portkeyMessages = messages.map { msg in
-            PortkeyMessage(
-                role: msg.role == .user ? "user" : "assistant",
-                content: msg.text.isEmpty ? "[Image]" : msg.text
-            )
-        }
-
-        var metadata: [String: String] = [:]
-        if let userId = userId {
-            metadata["user_id"] = userId
-        }
-        if let conversationId = conversationId {
-            metadata["conversation_id"] = conversationId
-        }
-
-        #if DEBUG
-        print("[GeminiService] Calling PortkeyService.chat()...")
-        #endif
-        let response = try await PortkeyService.shared.chat(
-            messages: portkeyMessages,
-            systemPrompt: systemPrompt,
-            metadata: metadata,
-            temperature: temperature
-        )
-        #if DEBUG
-        print("[GeminiService] Got response from Portkey!")
-        #endif
-        return response
-    }
 
     // MARK: - Analyze Conversation
 
@@ -522,8 +359,13 @@ class GeminiService {
                 throw GeminiError.apiError(httpResponse.statusCode, errorText)
             }
             return data
-        } catch is URLError {
-            throw GeminiError.timeout
+        } catch let urlError as URLError {
+            switch urlError.code {
+            case .notConnectedToInternet, .networkConnectionLost:
+                throw GeminiError.noConnection
+            default:
+                throw GeminiError.timeout
+            }
         }
     }
 

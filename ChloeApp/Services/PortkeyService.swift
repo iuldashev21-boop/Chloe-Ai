@@ -5,7 +5,6 @@ enum PortkeyError: LocalizedError {
     case noVirtualKey
     case apiError(Int, String)
     case emptyResponse
-    case decodingFailed
 
     var errorDescription: String? {
         switch self {
@@ -13,7 +12,6 @@ enum PortkeyError: LocalizedError {
         case .noVirtualKey: return "Portkey virtual key not configured"
         case .apiError(let code, let msg): return "Portkey error (\(code)): \(msg)"
         case .emptyResponse: return "Empty response from Portkey"
-        case .decodingFailed: return "Failed to decode Portkey response"
         }
     }
 }

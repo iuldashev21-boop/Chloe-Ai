@@ -17,12 +17,6 @@ struct GradientBackground: View {
     }
 }
 
-extension View {
-    func chloeBackground() -> some View {
-        self.background(GradientBackground())
-    }
-}
-
 #Preview {
     GradientBackground()
 }
