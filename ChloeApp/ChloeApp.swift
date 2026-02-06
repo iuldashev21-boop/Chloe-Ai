@@ -93,29 +93,39 @@ struct ChloeApp: App {
     }
 
     private func handleDeepLink(_ url: URL) {
+        #if DEBUG
         print("[DeepLink] Received URL: \(url.absoluteString)")
+        #endif
 
         // Check if user was awaiting password reset (flag set when they requested reset)
         // This is more reliable than parsing URL since Supabase PKCE doesn't include type=recovery
         let awaitingReset = UserDefaults.standard.bool(forKey: "awaitingPasswordReset")
+        #if DEBUG
         print("[DeepLink] Awaiting password reset: \(awaitingReset)")
+        #endif
 
         if awaitingReset {
             // Transfer the flag to pendingPasswordRecovery for AuthViewModel to pick up
             UserDefaults.standard.set(true, forKey: "pendingPasswordRecovery")
             UserDefaults.standard.removeObject(forKey: "awaitingPasswordReset")
             UserDefaults.standard.synchronize()
+            #if DEBUG
             print("[DeepLink] Password recovery flag SET (from awaitingReset)")
+            #endif
         }
 
         Task {
             do {
                 try await supabase.auth.session(from: url)
+                #if DEBUG
                 print("[DeepLink] Session established successfully")
+                #endif
                 // Post notification for any additional handling
                 NotificationCenter.default.post(name: .authDeepLinkReceived, object: nil)
             } catch {
+                #if DEBUG
                 print("[DeepLink] Auth callback failed: \(error)")
+                #endif
             }
         }
     }

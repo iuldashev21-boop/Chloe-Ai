@@ -55,10 +55,22 @@ class ChatViewModel: ObservableObject {
         }
     }
 
+    private var isSending = false
+
     func sendMessage() async {
+        guard !isSending else { return }
+        isSending = true
+        defer { isSending = false }
+
         let text = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
         let image = pendingImage
         guard !text.isEmpty || image != nil else { return }
+
+        // Input length guard — Gemini has per-request token limits; reject obviously oversized input
+        if text.count > 10_000 {
+            errorMessage = "Message is too long. Please shorten it and try again."
+            return
+        }
 
         inputText = ""
         pendingImage = nil

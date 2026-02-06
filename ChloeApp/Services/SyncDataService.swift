@@ -36,6 +36,26 @@ class SyncDataService {
         set { _pendingLock.lock(); defer { _pendingLock.unlock() }; _hasPendingChanges = newValue }
     }
 
+    /// In-flight cloud sync tasks — cancelled on clearAll() to prevent stale writes
+    private var inflightTasks: [Task<Void, Never>] = []
+    private let _taskLock = NSLock()
+
+    /// Track a fire-and-forget cloud task so it can be cancelled on sign-out
+    private func trackTask(_ task: Task<Void, Never>) {
+        _taskLock.lock()
+        inflightTasks.removeAll { $0.isCancelled }
+        inflightTasks.append(task)
+        _taskLock.unlock()
+    }
+
+    /// Cancel all in-flight cloud tasks (called on sign-out)
+    private func cancelAllInflightTasks() {
+        _taskLock.lock()
+        for task in inflightTasks { task.cancel() }
+        inflightTasks.removeAll()
+        _taskLock.unlock()
+    }
+
     /// Thread-safe sync lock using actor (Bug 2 fix)
     private let syncLock = SyncLock()
 
@@ -359,6 +379,12 @@ class SyncDataService {
             }
         }
 
+        // Cap at 20 entries — drop oldest to prevent unbounded growth
+        let maxLoops = 20
+        if existingLoops.count > maxLoops {
+            existingLoops = Array(existingLoops.suffix(maxLoops))
+        }
+
         profile.behavioralLoops = existingLoops
         profile.updatedAt = Date()
         try? local.saveProfile(profile)
@@ -495,7 +521,8 @@ class SyncDataService {
         var entries = local.loadJournalEntries()
         entries.removeAll { $0.id == id }
         try? local.saveJournalEntries(entries)
-        Task { try? await remote.deleteJournalEntry(id: id) }
+        let task = Task { _ = try? await remote.deleteJournalEntry(id: id) }
+        trackTask(task)
         return true
     }
 
@@ -522,7 +549,8 @@ class SyncDataService {
         var goals = local.loadGoals()
         goals.removeAll { $0.id == id }
         try? local.saveGoals(goals)
-        Task { try? await remote.deleteGoal(id: id) }
+        let task = Task { _ = try? await remote.deleteGoal(id: id) }
+        trackTask(task)
         return true
     }
 
@@ -549,7 +577,8 @@ class SyncDataService {
         var affirmations = local.loadAffirmations()
         affirmations.removeAll { $0.id == id }
         try? local.saveAffirmations(affirmations)
-        Task { try? await remote.deleteAffirmation(id: id) }
+        let task = Task { _ = try? await remote.deleteAffirmation(id: id) }
+        trackTask(task)
         return true
     }
 
@@ -583,13 +612,14 @@ class SyncDataService {
         var items = local.loadVisionItems()
         items.removeAll { $0.id == id }
         try? local.saveVisionItems(items)
-        Task {
+        let task = Task {
             try? await remote.deleteVisionItem(id: id)
             if let userId = remote.currentUserId {
                 let path = "\(userId)/vision/\(id).jpg"
                 try? await remote.deleteStorageImage(path: path)
             }
         }
+        trackTask(task)
         return true
     }
 
@@ -725,6 +755,7 @@ class SyncDataService {
 
     /// Clears local data only (for sign out). Cloud data is preserved.
     func clearAll() {
+        cancelAllInflightTasks()
         local.clearAll()
         hasPendingChanges = false
         // Cloud data is intentionally NOT deleted on sign out.
@@ -733,6 +764,7 @@ class SyncDataService {
 
     /// Deletes ALL user data - local AND cloud. Use only for explicit "Delete Account" action.
     func deleteAccount() async {
+        cancelAllInflightTasks()
         local.clearAll()
         hasPendingChanges = false
         // Delete cloud data only on explicit account deletion
