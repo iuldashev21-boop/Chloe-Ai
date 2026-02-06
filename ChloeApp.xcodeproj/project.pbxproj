@@ -8,6 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		0730A3B97A55099DE06BB3A4 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 51A2B70D95BD35EE7CE38665 /* Foundation.framework */; };
+		UI00000100000000000000A1 /* AffirmationsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = UI00000200000000000000A1 /* AffirmationsTests.swift */; };
+		UI00000100000000000000B1 /* ConversationHistoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = UI00000200000000000000B1 /* ConversationHistoryTests.swift */; };
+		UI00000100000000000000C1 /* DynamicTypeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = UI00000200000000000000C1 /* DynamicTypeTests.swift */; };
+		UI00000100000000000000D1 /* ImageUploadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = UI00000200000000000000D1 /* ImageUploadTests.swift */; };
+		UI00000100000000000000E1 /* StreakUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = UI00000200000000000000E1 /* StreakUITests.swift */; };
 		0B21A395DAC0A352C98340AD /* GoalsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11B72E6D6BDC5A74372822CE /* GoalsTests.swift */; };
 		151900B32794215F9A9B6E5A /* StreakService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A174B26D7E896B09C9D56F71 /* StreakService.swift */; };
 		1D2E24F6A9FCE4A3C4CE7CD6 /* SafetyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 691088B00C01ED309816D67B /* SafetyTests.swift */; };
@@ -268,6 +273,11 @@
 		T20000080000000000000001 /* DailyUsageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyUsageTests.swift; sourceTree = "<group>"; };
 		T20000090000000000000001 /* V2AgenticTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = V2AgenticTests.swift; sourceTree = "<group>"; };
 		T30000010000000000000001 /* ChloeAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ChloeAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		UI00000200000000000000A1 /* AffirmationsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AffirmationsTests.swift; sourceTree = "<group>"; };
+		UI00000200000000000000B1 /* ConversationHistoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationHistoryTests.swift; sourceTree = "<group>"; };
+		UI00000200000000000000C1 /* DynamicTypeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicTypeTests.swift; sourceTree = "<group>"; };
+		UI00000200000000000000D1 /* ImageUploadTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageUploadTests.swift; sourceTree = "<group>"; };
+		UI00000200000000000000E1 /* StreakUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakUITests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -318,6 +328,11 @@
 				AF08D9DC14B5BC2B0F70D79E /* TestHelpers.swift */,
 				A0BD0D2B73E2D62ECCD08558 /* AuthenticationTests.swift */,
 				124F9265E9406FE5C82DEA12 /* EdgeCaseTests.swift */,
+				UI00000200000000000000A1 /* AffirmationsTests.swift */,
+				UI00000200000000000000B1 /* ConversationHistoryTests.swift */,
+				UI00000200000000000000C1 /* DynamicTypeTests.swift */,
+				UI00000200000000000000D1 /* ImageUploadTests.swift */,
+				UI00000200000000000000E1 /* StreakUITests.swift */,
 				745972C67FB22635AD74B1D1 /* Info.plist */,
 			);
 			path = ChloeAppUITests;
@@ -748,6 +763,11 @@
 				7B5C6061C58C58644E1ADD3F /* TestHelpers.swift in Sources */,
 				C464FDAB03F70B178380EBD1 /* AuthenticationTests.swift in Sources */,
 				B17CE75363D09820CF922A4E /* EdgeCaseTests.swift in Sources */,
+				UI00000100000000000000A1 /* AffirmationsTests.swift in Sources */,
+				UI00000100000000000000B1 /* ConversationHistoryTests.swift in Sources */,
+				UI00000100000000000000C1 /* DynamicTypeTests.swift in Sources */,
+				UI00000100000000000000D1 /* ImageUploadTests.swift in Sources */,
+				UI00000100000000000000E1 /* StreakUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

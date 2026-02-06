@@ -162,15 +162,20 @@ final class RateLimitTests: ChloeUITestCase {
     }
 
     private func sendMessage(_ text: String) {
-        let chatInput = app.textViews.firstMatch.exists ? app.textViews.firstMatch : app.textFields.firstMatch
+        let chatInput = app.textFields["chat-input"]
+        let fallback = app.textViews.firstMatch.exists ? app.textViews.firstMatch : app.textFields.firstMatch
+        let input = chatInput.exists ? chatInput : fallback
 
-        if waitForElement(chatInput, timeout: 5) {
-            chatInput.tap()
-            chatInput.typeText(text)
+        if waitForElement(input, timeout: 5) {
+            input.tap()
+            sleep(1) // Wait for keyboard focus
+            input.typeText(text)
 
-            let sendBtn = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] 'send'")).element
-            if waitForElement(sendBtn, timeout: 2) && sendBtn.isEnabled {
-                sendBtn.tap()
+            let sendBtn = app.buttons["send-button"]
+            let fallbackSend = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] 'send'")).element
+            let btn = sendBtn.exists ? sendBtn : fallbackSend
+            if waitForElement(btn, timeout: 2) && btn.isEnabled {
+                btn.tap()
             }
         }
     }

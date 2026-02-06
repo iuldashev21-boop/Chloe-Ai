@@ -20,10 +20,11 @@ final class SanctuaryTests: ChloeUITestCase {
         }
 
         // Find chat input
-        let chatInput = app.textFields.matching(NSPredicate(format: "placeholderValue CONTAINS[c] 'type' OR placeholderValue CONTAINS[c] 'message'")).element
+        let chatById = app.textFields["chat-input"]
+        let chatByPlaceholder = app.textFields.matching(NSPredicate(format: "placeholderValue CONTAINS[c] 'type' OR placeholderValue CONTAINS[c] 'message'")).element
         let textView = app.textViews.firstMatch
 
-        let inputElement = chatInput.exists ? chatInput : textView
+        let inputElement = chatById.exists ? chatById : (chatByPlaceholder.exists ? chatByPlaceholder : textView)
         guard waitForElement(inputElement, timeout: 5) else {
             throw XCTSkip("Chat input not found")
         }
@@ -80,7 +81,7 @@ final class SanctuaryTests: ChloeUITestCase {
             throw XCTSkip("Not in Sanctuary view")
         }
 
-        let chatInput = app.textViews.firstMatch.exists ? app.textViews.firstMatch : app.textFields.firstMatch
+        let chatInput = app.textFields["chat-input"].exists ? app.textFields["chat-input"] : (app.textViews.firstMatch.exists ? app.textViews.firstMatch : app.textFields.firstMatch)
         guard waitForElement(chatInput, timeout: 5) else {
             throw XCTSkip("Chat input not found")
         }
@@ -110,7 +111,7 @@ final class SanctuaryTests: ChloeUITestCase {
             throw XCTSkip("Not in Sanctuary view")
         }
 
-        let chatInput = app.textViews.firstMatch.exists ? app.textViews.firstMatch : app.textFields.firstMatch
+        let chatInput = app.textFields["chat-input"].exists ? app.textFields["chat-input"] : (app.textViews.firstMatch.exists ? app.textViews.firstMatch : app.textFields.firstMatch)
         guard waitForElement(chatInput, timeout: 5) else {
             throw XCTSkip("Chat input not found")
         }
@@ -189,7 +190,7 @@ final class SanctuaryTests: ChloeUITestCase {
             throw XCTSkip("Not in Sanctuary view")
         }
 
-        let chatInput = app.textViews.firstMatch.exists ? app.textViews.firstMatch : app.textFields.firstMatch
+        let chatInput = app.textFields["chat-input"].exists ? app.textFields["chat-input"] : (app.textViews.firstMatch.exists ? app.textViews.firstMatch : app.textFields.firstMatch)
         guard waitForElement(chatInput, timeout: 5) else {
             throw XCTSkip("Chat input not found")
         }
@@ -246,7 +247,7 @@ final class SanctuaryTests: ChloeUITestCase {
         sleep(1)
 
         // Chat should activate (input should be available)
-        let chatInput = app.textViews.firstMatch.exists ? app.textViews.firstMatch : app.textFields.firstMatch
+        let chatInput = app.textFields["chat-input"].exists ? app.textFields["chat-input"] : (app.textViews.firstMatch.exists ? app.textViews.firstMatch : app.textFields.firstMatch)
         XCTAssertTrue(chatInput.exists, "Chat should activate when tapping ghost messages")
     }
 

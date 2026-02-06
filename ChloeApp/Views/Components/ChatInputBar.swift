@@ -74,6 +74,7 @@ struct ChatInputBar: View {
                     .onChange(of: isFocused) { _, focused in
                         if focused { onFocus() }
                     }
+                    .accessibilityIdentifier("chat-input")
 
                 // Mic / Send button
                 Button {
@@ -86,6 +87,8 @@ struct ChatInputBar: View {
                         .foregroundColor(canSend ? .chloePrimary : .chloeTextTertiary)
                         .contentTransition(.symbolEffect(.replace))
                 }
+                .accessibilityLabel(canSend ? "Send" : "Microphone")
+                .accessibilityIdentifier("send-button")
             }
         }
         .padding(.horizontal, Spacing.sm)
