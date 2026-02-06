@@ -7,13 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		LS0000020000000000000001 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = LS0000010000000000000001 /* LaunchScreen.storyboard */; };
-		SC0000020000000000000001 /* ServiceContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = SC0000010000000000000001 /* ServiceContainer.swift */; };
-		SP0000020000000000000001 /* ServiceProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = SP0000010000000000000001 /* ServiceProtocols.swift */; };
-		DC0000010000000000000001 /* DataCollectionInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0000020000000000000001 /* DataCollectionInfoView.swift */; };
 		0730A3B97A55099DE06BB3A4 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 51A2B70D95BD35EE7CE38665 /* Foundation.framework */; };
 		0B21A395DAC0A352C98340AD /* GoalsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11B72E6D6BDC5A74372822CE /* GoalsTests.swift */; };
-		13AAA29D3391452E7DCA5A2C /* ChloeViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 458E57E6C9CC6C99B2E71A2D /* ChloeViewModifiers.swift */; };
+		13AAA29D3391452E7DCA5A2C /* ChloeApp/Theme/ChloeViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 458E57E6C9CC6C99B2E71A2D /* ChloeApp/Theme/ChloeViewModifiers.swift */; };
 		151900B32794215F9A9B6E5A /* StreakService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A174B26D7E896B09C9D56F71 /* StreakService.swift */; };
 		1D2E24F6A9FCE4A3C4CE7CD6 /* SafetyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 691088B00C01ED309816D67B /* SafetyTests.swift */; };
 		35B2F1331062D827771ADA81 /* PasswordResetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF899EC08EB9BF6F2427726E /* PasswordResetView.swift */; };
@@ -22,9 +18,8 @@
 		43FC4B86A01BB60E9D3A61EE /* OnboardingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9334322B3F9AB6B36E5E83D2 /* OnboardingTests.swift */; };
 		7B5C6061C58C58644E1ADD3F /* TestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF08D9DC14B5BC2B0F70D79E /* TestHelpers.swift */; };
 		8E2FBEDE9E149919CA704D01 /* JournalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9E9EFD831A08021FF5E4BB /* JournalTests.swift */; };
-		8E3D83A5B652B8DED38B2FC3 /* ChloeFloatingActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA5DAFF02E46B79A5EABE633 /* ChloeFloatingActionButton.swift */; };
-		90C3CBE435FAA7DCD942145D /* ChloeEmptyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = D43EE6EBAC2A490942E57A64 /* ChloeEmptyState.swift */; };
-		E1A2B3C4D5E6F70800112233 /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A2B3C4D5E6F70800112234 /* EmptyStateView.swift */; };
+		8E3D83A5B652B8DED38B2FC3 /* ChloeApp/Views/Components/ChloeFloatingActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA5DAFF02E46B79A5EABE633 /* ChloeApp/Views/Components/ChloeFloatingActionButton.swift */; };
+		90C3CBE435FAA7DCD942145D /* ChloeApp/Views/Components/ChloeEmptyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = D43EE6EBAC2A490942E57A64 /* ChloeApp/Views/Components/ChloeEmptyState.swift */; };
 		9BBEC161B700F341AD344FC6 /* EmailConfirmationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D623CEA22CB36B5ED4A247C /* EmailConfirmationView.swift */; };
 		9BBEC162B700F342AD344FC7 /* NewPasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D623CEB22CB36B6ED4A247D /* NewPasswordView.swift */; };
 		A10000010000000000000001 /* ChloeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000001 /* ChloeApp.swift */; };
@@ -95,6 +90,9 @@
 		D30000010000000000000001 /* SupabaseClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = D20000010000000000000001 /* SupabaseClient.swift */; };
 		D6ABB5378B84FB53F4E76EBA /* UITestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE802F7583970BBCFC8559DB /* UITestSupport.swift */; };
 		D9BA7887167B4B49328DEA74 /* StrategyOptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 902324AB633D17FC0C08036A /* StrategyOptionsView.swift */; };
+		DC0000010000000000000001 /* DataCollectionInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0000020000000000000001 /* DataCollectionInfoView.swift */; };
+		DC0000030000000000000001 /* AboutChloeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0000040000000000000001 /* AboutChloeView.swift */; };
+		E1A2B3C4D5E6F70800112233 /* ChloeApp/Views/Components/EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A2B3C4D5E6F70800112234 /* ChloeApp/Views/Components/EmptyStateView.swift */; };
 		E30000010000000000000001 /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D30000020000000000000001 /* NetworkMonitor.swift */; };
 		E30000020000000000000001 /* SupabaseDataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D30000030000000000000001 /* SupabaseDataService.swift */; };
 		E30000030000000000000001 /* SyncDataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D30000040000000000000001 /* SyncDataService.swift */; };
@@ -102,7 +100,6 @@
 		F10000010000000000000001 /* CameraPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000010000000000000001 /* CameraPickerView.swift */; };
 		F10000020000000000000001 /* ChloeButtonLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000020000000000000001 /* ChloeButtonLabel.swift */; };
 		F10000020000000000000099 /* BentoGridCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000020000000000000099 /* BentoGridCard.swift */; };
-		SB0000010000000000000001 /* SyncStatusBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = SB0000020000000000000001 /* SyncStatusBadge.swift */; };
 		F10000040000000000000001 /* LuminousOrb.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000040000000000000001 /* LuminousOrb.swift */; };
 		F10000050000000000000001 /* OrbStardustEmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000050000000000000001 /* OrbStardustEmitter.swift */; };
 		F10000060000000000000001 /* PlusBloomMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000060000000000000001 /* PlusBloomMenu.swift */; };
@@ -126,8 +123,12 @@
 		F10000300000000000000001 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000300000000000000001 /* AuthService.swift */; };
 		FB0000020000000000000001 /* Feedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0000010000000000000001 /* Feedback.swift */; };
 		FB0000040000000000000001 /* FeedbackService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0000030000000000000001 /* FeedbackService.swift */; };
+		LS0000020000000000000001 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = LS0000010000000000000001 /* LaunchScreen.storyboard */; };
 		PK0000020000000000000001 /* PortkeyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = PK0000010000000000000001 /* PortkeyService.swift */; };
 		RS0000020000000000000001 /* ReportSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = RS0000010000000000000001 /* ReportSheet.swift */; };
+		SB0000010000000000000001 /* SyncStatusBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = SB0000020000000000000001 /* SyncStatusBadge.swift */; };
+		SC0000020000000000000001 /* ServiceContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = SC0000010000000000000001 /* ServiceContainer.swift */; };
+		SP0000020000000000000001 /* ServiceProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = SP0000010000000000000001 /* ServiceProtocols.swift */; };
 		T10000010000000000000001 /* SafetyServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T20000010000000000000001 /* SafetyServiceTests.swift */; };
 		T10000020000000000000001 /* PromptBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T20000020000000000000001 /* PromptBuilderTests.swift */; };
 		T10000030000000000000001 /* AnalystServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T20000030000000000000001 /* AnalystServiceTests.swift */; };
@@ -167,7 +168,7 @@
 		124F9265E9406FE5C82DEA12 /* EdgeCaseTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = EdgeCaseTests.swift; sourceTree = "<group>"; };
 		177002C5E96240F457D7325D /* SidebarTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SidebarTests.swift; sourceTree = "<group>"; };
 		24071DA765FF3264148A32F9 /* ChloeAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ChloeAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		458E57E6C9CC6C99B2E71A2D /* ChloeViewModifiers.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ChloeApp/Theme/ChloeViewModifiers.swift; sourceTree = SOURCE_ROOT; };
+		458E57E6C9CC6C99B2E71A2D /* ChloeApp/Theme/ChloeViewModifiers.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ChloeApp/Theme/ChloeViewModifiers.swift; sourceTree = SOURCE_ROOT; };
 		4C9E9EFD831A08021FF5E4BB /* JournalTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = JournalTests.swift; sourceTree = "<group>"; };
 		51A2B70D95BD35EE7CE38665 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		54768EC816361B0EF9A9C3D2 /* SettingsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SettingsTests.swift; sourceTree = "<group>"; };
@@ -186,7 +187,6 @@
 		A20000020000000000000001 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		A20000030000000000000001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A20000040000000000000001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		LS0000010000000000000001 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		A20000050000000000000001 /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
 		A20000060000000000000001 /* Fonts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fonts.swift; sourceTree = "<group>"; };
 		A20000070000000000000001 /* Spacing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Spacing.swift; sourceTree = "<group>"; };
@@ -238,20 +238,20 @@
 		A30000010000000000000001 /* ChloeApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChloeApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AF08D9DC14B5BC2B0F70D79E /* TestHelpers.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TestHelpers.swift; sourceTree = "<group>"; };
 		B8B72291CB2B25437CC979C4 /* DailyUsage.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DailyUsage.swift; sourceTree = "<group>"; };
-		BA5DAFF02E46B79A5EABE633 /* ChloeFloatingActionButton.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ChloeApp/Views/Components/ChloeFloatingActionButton.swift; sourceTree = SOURCE_ROOT; };
+		BA5DAFF02E46B79A5EABE633 /* ChloeApp/Views/Components/ChloeFloatingActionButton.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ChloeApp/Views/Components/ChloeFloatingActionButton.swift; sourceTree = SOURCE_ROOT; };
 		C4DF9A3F95ADE9B8CAC88DA2 /* RouterModels.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RouterModels.swift; sourceTree = "<group>"; };
 		C5ED54293ECCDC6658CA097B /* RateLimitTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RateLimitTests.swift; sourceTree = "<group>"; };
-		DC0000020000000000000001 /* DataCollectionInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataCollectionInfoView.swift; sourceTree = "<group>"; };
 		D20000010000000000000001 /* SupabaseClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseClient.swift; sourceTree = "<group>"; };
 		D30000020000000000000001 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
 		D30000030000000000000001 /* SupabaseDataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseDataService.swift; sourceTree = "<group>"; };
 		D30000040000000000000001 /* SyncDataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncDataService.swift; sourceTree = "<group>"; };
-		D43EE6EBAC2A490942E57A64 /* ChloeEmptyState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ChloeApp/Views/Components/ChloeEmptyState.swift; sourceTree = SOURCE_ROOT; };
-		E1A2B3C4D5E6F70800112234 /* EmptyStateView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ChloeApp/Views/Components/EmptyStateView.swift; sourceTree = SOURCE_ROOT; };
+		D43EE6EBAC2A490942E57A64 /* ChloeApp/Views/Components/ChloeEmptyState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ChloeApp/Views/Components/ChloeEmptyState.swift; sourceTree = SOURCE_ROOT; };
+		DC0000020000000000000001 /* DataCollectionInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataCollectionInfoView.swift; sourceTree = "<group>"; };
+		DC0000040000000000000001 /* AboutChloeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutChloeView.swift; sourceTree = "<group>"; };
+		E1A2B3C4D5E6F70800112234 /* ChloeApp/Views/Components/EmptyStateView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ChloeApp/Views/Components/EmptyStateView.swift; sourceTree = SOURCE_ROOT; };
 		F20000010000000000000001 /* CameraPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPickerView.swift; sourceTree = "<group>"; };
 		F20000020000000000000001 /* ChloeButtonLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChloeButtonLabel.swift; sourceTree = "<group>"; };
 		F20000020000000000000099 /* BentoGridCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BentoGridCard.swift; sourceTree = "<group>"; };
-		SB0000020000000000000001 /* SyncStatusBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncStatusBadge.swift; sourceTree = "<group>"; };
 		F20000040000000000000001 /* LuminousOrb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LuminousOrb.swift; sourceTree = "<group>"; };
 		F20000050000000000000001 /* OrbStardustEmitter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrbStardustEmitter.swift; sourceTree = "<group>"; };
 		F20000060000000000000001 /* PlusBloomMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlusBloomMenu.swift; sourceTree = "<group>"; };
@@ -278,10 +278,12 @@
 		FB0000030000000000000001 /* FeedbackService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackService.swift; sourceTree = "<group>"; };
 		FE802F7583970BBCFC8559DB /* UITestSupport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UITestSupport.swift; sourceTree = "<group>"; };
 		FF899EC08EB9BF6F2427726E /* PasswordResetView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PasswordResetView.swift; sourceTree = "<group>"; };
+		LS0000010000000000000001 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		PK0000010000000000000001 /* PortkeyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortkeyService.swift; sourceTree = "<group>"; };
+		RS0000010000000000000001 /* ReportSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportSheet.swift; sourceTree = "<group>"; };
+		SB0000020000000000000001 /* SyncStatusBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncStatusBadge.swift; sourceTree = "<group>"; };
 		SC0000010000000000000001 /* ServiceContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceContainer.swift; sourceTree = "<group>"; };
 		SP0000010000000000000001 /* ServiceProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceProtocols.swift; sourceTree = "<group>"; };
-		RS0000010000000000000001 /* ReportSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportSheet.swift; sourceTree = "<group>"; };
 		T20000010000000000000001 /* SafetyServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafetyServiceTests.swift; sourceTree = "<group>"; };
 		T20000020000000000000001 /* PromptBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptBuilderTests.swift; sourceTree = "<group>"; };
 		T20000030000000000000001 /* AnalystServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalystServiceTests.swift; sourceTree = "<group>"; };
@@ -473,6 +475,7 @@
 		A50000090000000000000001 /* Main */ = {
 			isa = PBXGroup;
 			children = (
+				DC0000040000000000000001 /* AboutChloeView.swift */,
 				F20000110000000000000001 /* AddVisionSheet.swift */,
 				A20000490000000000000001 /* AffirmationsView.swift */,
 				DC0000020000000000000001 /* DataCollectionInfoView.swift */,
@@ -512,9 +515,9 @@
 				A20000540000000000000001 /* TypingIndicator.swift */,
 				RS0000010000000000000001 /* ReportSheet.swift */,
 				902324AB633D17FC0C08036A /* StrategyOptionsView.swift */,
-				BA5DAFF02E46B79A5EABE633 /* ChloeFloatingActionButton.swift */,
-				D43EE6EBAC2A490942E57A64 /* ChloeEmptyState.swift */,
-				E1A2B3C4D5E6F70800112234 /* EmptyStateView.swift */,
+				BA5DAFF02E46B79A5EABE633 /* ChloeApp/Views/Components/ChloeFloatingActionButton.swift */,
+				D43EE6EBAC2A490942E57A64 /* ChloeApp/Views/Components/ChloeEmptyState.swift */,
+				E1A2B3C4D5E6F70800112234 /* ChloeApp/Views/Components/EmptyStateView.swift */,
 				SB0000020000000000000001 /* SyncStatusBadge.swift */,
 			);
 			path = Components;
@@ -559,21 +562,13 @@
 			path = Services;
 			sourceTree = "<group>";
 		};
-		SP0000030000000000000001 /* Protocols */ = {
-			isa = PBXGroup;
-			children = (
-				SP0000010000000000000001 /* ServiceProtocols.swift */,
-			);
-			path = Protocols;
-			sourceTree = "<group>";
-		};
 		A50000130000000000000001 /* Theme */ = {
 			isa = PBXGroup;
 			children = (
 				A20000050000000000000001 /* Colors.swift */,
 				A20000060000000000000001 /* Fonts.swift */,
 				A20000070000000000000001 /* Spacing.swift */,
-				458E57E6C9CC6C99B2E71A2D /* ChloeViewModifiers.swift */,
+				458E57E6C9CC6C99B2E71A2D /* ChloeApp/Theme/ChloeViewModifiers.swift */,
 			);
 			path = Theme;
 			sourceTree = "<group>";
@@ -623,6 +618,14 @@
 				51A2B70D95BD35EE7CE38665 /* Foundation.framework */,
 			);
 			name = iOS;
+			sourceTree = "<group>";
+		};
+		SP0000030000000000000001 /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				SP0000010000000000000001 /* ServiceProtocols.swift */,
+			);
+			path = Protocols;
 			sourceTree = "<group>";
 		};
 		T50000010000000000000001 /* ChloeAppTests */ = {
@@ -857,6 +860,7 @@
 				A10000490000000000000001 /* AffirmationsView.swift in Sources */,
 				A10000500000000000000001 /* SettingsView.swift in Sources */,
 				DC0000010000000000000001 /* DataCollectionInfoView.swift in Sources */,
+				DC0000030000000000000001 /* AboutChloeView.swift in Sources */,
 				A10000520000000000000001 /* ChatBubble.swift in Sources */,
 				A10000530000000000000001 /* ChatInputBar.swift in Sources */,
 				A10000540000000000000001 /* TypingIndicator.swift in Sources */,
@@ -905,10 +909,10 @@
 				9BBEC161B700F341AD344FC6 /* EmailConfirmationView.swift in Sources */,
 				9BBEC162B700F342AD344FC7 /* NewPasswordView.swift in Sources */,
 				35B2F1331062D827771ADA81 /* PasswordResetView.swift in Sources */,
-				13AAA29D3391452E7DCA5A2C /* ChloeViewModifiers.swift in Sources */,
-				8E3D83A5B652B8DED38B2FC3 /* ChloeFloatingActionButton.swift in Sources */,
-				90C3CBE435FAA7DCD942145D /* ChloeEmptyState.swift in Sources */,
-				E1A2B3C4D5E6F70800112233 /* EmptyStateView.swift in Sources */,
+				13AAA29D3391452E7DCA5A2C /* ChloeApp/Theme/ChloeViewModifiers.swift in Sources */,
+				8E3D83A5B652B8DED38B2FC3 /* ChloeApp/Views/Components/ChloeFloatingActionButton.swift in Sources */,
+				90C3CBE435FAA7DCD942145D /* ChloeApp/Views/Components/ChloeEmptyState.swift in Sources */,
+				E1A2B3C4D5E6F70800112233 /* ChloeApp/Views/Components/EmptyStateView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1128,6 +1132,7 @@
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ChloeApp/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Chloe;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -1159,6 +1164,7 @@
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ChloeApp/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Chloe;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;

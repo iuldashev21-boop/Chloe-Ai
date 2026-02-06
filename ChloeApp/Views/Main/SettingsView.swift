@@ -26,6 +26,9 @@ struct SettingsView: View {
     @State private var showExportSheet = false
     @State private var exportFileURL: URL?
     @State private var isExporting = false
+    @State private var showAboutChloe = false
+
+    @Environment(\.openURL) private var openURL
 
     var body: some View {
         ZStack {
@@ -112,21 +115,31 @@ struct SettingsView: View {
                     // Support Section
                     settingsSection("SUPPORT") {
                         VStack(spacing: 0) {
-                            settingsRow(icon: "info.circle", label: "About Chloe") {
-                                Text(appVersion)
-                                    .font(.chloeCaption)
-                                    .foregroundColor(.chloeTextSecondary)
+                            Button {
+                                showAboutChloe = true
+                            } label: {
+                                settingsRow(icon: "info.circle", label: "About Chloe") {
+                                    Text(appVersion)
+                                        .font(.chloeCaption)
+                                        .foregroundColor(.chloeTextSecondary)
+                                }
                             }
+                            .buttonStyle(.plain)
 
                             Divider()
                                 .padding(.leading, 40)
 
-                            settingsRow(icon: "envelope", label: "Send Feedback") {
-                                Image(systemName: "chevron.right")
-                                    .font(.system(size: 12, weight: .regular))
-                                    .foregroundColor(.chloeTextTertiary)
-                                    .accessibilityHidden(true)
+                            Button {
+                                sendFeedbackEmail()
+                            } label: {
+                                settingsRow(icon: "envelope", label: "Send Feedback") {
+                                    Image(systemName: "chevron.right")
+                                        .font(.system(size: 12, weight: .regular))
+                                        .foregroundColor(.chloeTextTertiary)
+                                        .accessibilityHidden(true)
+                                }
                             }
+                            .buttonStyle(.plain)
                         }
                     }
 
@@ -323,6 +336,9 @@ struct SettingsView: View {
             if let url = exportFileURL {
                 ShareSheetView(activityItems: [url])
             }
+        }
+        .sheet(isPresented: $showAboutChloe) {
+            AboutChloeView()
         }
         // Delete Account — Step 1: Initial warning
         .alert("Delete Account?", isPresented: $showDeleteAccountAlert) {
@@ -610,6 +626,24 @@ struct SettingsView: View {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
         return formatter.string(from: Date())
+    }
+
+    // MARK: - Send Feedback
+
+    private func sendFeedbackEmail() {
+        let subject = "Chloe App Feedback — \(appVersion)"
+            .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let body = """
+        \n\n\n--- Device Info ---
+        App Version: \(appVersion)
+        iOS: \(UIDevice.current.systemVersion)
+        Device: \(UIDevice.current.model)
+        """
+            .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+
+        if let url = URL(string: "mailto:support@chloeapp.co?subject=\(subject)&body=\(body)") {
+            openURL(url)
+        }
     }
 
     // MARK: - Section Builder
