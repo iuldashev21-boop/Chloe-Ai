@@ -113,3 +113,7 @@ class SafetyService {
         return compiled.contains { $0.firstMatch(in: text, range: range) != nil }
     }
 }
+
+// MARK: - Protocol Conformance
+
+extension SafetyService: SafetyServiceProtocol {}

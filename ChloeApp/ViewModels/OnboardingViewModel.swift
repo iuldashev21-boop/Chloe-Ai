@@ -1,10 +1,6 @@
 import Foundation
 import SwiftUI
 
-extension Notification.Name {
-    static let onboardingDidComplete = Notification.Name("onboardingDidComplete")
-}
-
 @MainActor
 class OnboardingViewModel: ObservableObject {
     @Published var currentStep = 0
@@ -12,6 +8,12 @@ class OnboardingViewModel: ObservableObject {
     @Published var preferences = OnboardingPreferences()
     @Published var isComplete = false
     @Published var nameText = ""
+
+    private let syncDataService: SyncDataServiceProtocol
+
+    init(syncDataService: SyncDataServiceProtocol = SyncDataService.shared) {
+        self.syncDataService = syncDataService
+    }
 
     let totalSteps = 4
 
@@ -37,14 +39,14 @@ class OnboardingViewModel: ObservableObject {
         preferences.onboardingCompleted = true
 
         // Save profile with preferences
-        var profile = SyncDataService.shared.loadProfile() ?? Profile()
+        var profile = syncDataService.loadProfile() ?? Profile()
         profile.displayName = preferences.name ?? ""
         profile.preferences = preferences
         profile.onboardingComplete = true
         profile.updatedAt = Date()
 
-        try? SyncDataService.shared.saveProfile(profile)
+        try? syncDataService.saveProfile(profile)
         isComplete = true
-        NotificationCenter.default.post(name: .onboardingDidComplete, object: nil)
+        AppEvents.onboardingDidComplete.send()
     }
 }

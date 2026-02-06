@@ -238,7 +238,7 @@ struct EmailLoginView: View {
                         profile.onboardingComplete = true
                         profile.updatedAt = Date()
                         try? SyncDataService.shared.saveProfile(profile)
-                        NotificationCenter.default.post(name: .onboardingDidComplete, object: nil)
+                        AppEvents.onboardingDidComplete.send()
                     } label: {
                         Text("Skip (Dev)")
                             .font(.system(size: 14, weight: .light))

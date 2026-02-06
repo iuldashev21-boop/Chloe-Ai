@@ -120,3 +120,7 @@ class ArchetypeService {
         )
     }
 }
+
+// MARK: - Protocol Conformance
+
+extension ArchetypeService: ArchetypeServiceProtocol {}

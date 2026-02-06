@@ -358,7 +358,7 @@ struct SettingsView: View {
     #if DEBUG
     private func skipToMain() {
         Task { await authVM.devSignIn() }
-        NotificationCenter.default.post(name: .onboardingDidComplete, object: nil)
+        AppEvents.onboardingDidComplete.send()
     }
     #endif
 

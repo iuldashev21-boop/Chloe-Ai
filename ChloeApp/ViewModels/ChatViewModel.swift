@@ -19,13 +19,13 @@ class ChatViewModel: ObservableObject {
     @Published var conversationTitle: String = "New Conversation"
     @Published var isLimitReached = false
 
-    private let geminiService = GeminiService.shared
-    private let safetyService = SafetyService.shared
-    private let storageService = SyncDataService.shared
+    private let geminiService: GeminiServiceProtocol
+    private let safetyService: SafetyServiceProtocol
+    private let storageService: SyncDataServiceProtocol
+    private let archetypeService: ArchetypeServiceProtocol
     private let analystService = AnalystService.shared
 
     private var isAnalyzing = false
-    private var backgroundObserver: Any?
 
     private let goodbyeTemplates: [String] = [
         "Hey — I loved talking to you today. I'm going to recharge, but I'll be right here tomorrow. You've got this tonight. \u{1F49C}",
@@ -35,21 +35,16 @@ class ChatViewModel: ObservableObject {
 
     var conversationId: String?
 
-    init() {
-        backgroundObserver = NotificationCenter.default.addObserver(
-            forName: .appDidEnterBackground,
-            object: nil,
-            queue: nil
-        ) { [weak self] _ in
-            guard let self else { return }
-            Task { await self.triggerAnalysisIfPending() }
-        }
-    }
-
-    deinit {
-        if let observer = backgroundObserver {
-            NotificationCenter.default.removeObserver(observer)
-        }
+    init(
+        geminiService: GeminiServiceProtocol = GeminiService.shared,
+        safetyService: SafetyServiceProtocol = SafetyService.shared,
+        storageService: SyncDataServiceProtocol = SyncDataService.shared,
+        archetypeService: ArchetypeServiceProtocol = ArchetypeService.shared
+    ) {
+        self.geminiService = geminiService
+        self.safetyService = safetyService
+        self.storageService = storageService
+        self.archetypeService = archetypeService
     }
 
     private var isSending = false
@@ -123,7 +118,7 @@ class ChatViewModel: ObservableObject {
         do {
             let archetype: UserArchetype? = {
                 guard let answers = profile?.preferences?.archetypeAnswers else { return nil }
-                return ArchetypeService.shared.classify(answers: answers)
+                return archetypeService.classify(answers: answers)
             }()
 
             let currentVibe = storageService.loadLatestVibe()
@@ -137,7 +132,11 @@ class ChatViewModel: ObservableObject {
             // Phase 1: Triage (Router Classification)
             loadingState = .routing
 
-            let classification = try await geminiService.classifyMessage(message: text)
+            let classification = try await geminiService.classifyMessage(
+                message: text,
+                systemPrompt: Prompts.router,
+                attempt: 1
+            )
 
             #if DEBUG
             print("[ChatViewModel] Router: \(classification.category.rawValue) / \(classification.urgency.rawValue)")
@@ -208,7 +207,11 @@ class ChatViewModel: ObservableObject {
                 systemPrompt: strategistPrompt,
                 userFacts: userFacts,
                 lastSummary: lastSummary,
-                insight: insight
+                insight: insight,
+                temperature: 0.7,
+                userId: nil,
+                conversationId: nil,
+                attempt: 1
             )
 
             // Phase 3: Render

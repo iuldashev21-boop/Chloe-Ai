@@ -7,8 +7,14 @@ class VisionBoardViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var saveError: String?
 
+    private let syncDataService: SyncDataServiceProtocol
+
+    init(syncDataService: SyncDataServiceProtocol = SyncDataService.shared) {
+        self.syncDataService = syncDataService
+    }
+
     func loadItems() {
-        items = SyncDataService.shared.loadVisionItems()
+        items = syncDataService.loadVisionItems()
     }
 
     func addItem(_ item: VisionItem) {
@@ -49,7 +55,7 @@ class VisionBoardViewModel: ObservableObject {
 
     private func persistItems() {
         do {
-            try SyncDataService.shared.saveVisionItems(items)
+            try syncDataService.saveVisionItems(items)
             saveError = nil
         } catch {
             saveError = "Failed to save vision items: \(error.localizedDescription)"

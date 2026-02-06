@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		SC0000020000000000000001 /* ServiceContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = SC0000010000000000000001 /* ServiceContainer.swift */; };
+		SP0000020000000000000001 /* ServiceProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = SP0000010000000000000001 /* ServiceProtocols.swift */; };
 		0730A3B97A55099DE06BB3A4 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 51A2B70D95BD35EE7CE38665 /* Foundation.framework */; };
 		0B21A395DAC0A352C98340AD /* GoalsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11B72E6D6BDC5A74372822CE /* GoalsTests.swift */; };
 		13AAA29D3391452E7DCA5A2C /* ChloeViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 458E57E6C9CC6C99B2E71A2D /* ChloeViewModifiers.swift */; };
@@ -52,6 +54,7 @@
 		A10000290000000000000001 /* GoalsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000290000000000000001 /* GoalsViewModel.swift */; };
 		A10000300000000000000001 /* VisionBoardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000300000000000000001 /* VisionBoardViewModel.swift */; };
 		A10000310000000000000001 /* AffirmationsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000310000000000000001 /* AffirmationsViewModel.swift */; };
+		A10000320000000000000001 /* SanctuaryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000320000000000000001 /* SanctuaryViewModel.swift */; };
 		A10000330000000000000001 /* EmailLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000330000000000000001 /* EmailLoginView.swift */; };
 		A10000340000000000000001 /* OnboardingContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000340000000000000001 /* OnboardingContainerView.swift */; };
 		A10000350000000000000001 /* NameStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000350000000000000001 /* NameStepView.swift */; };
@@ -116,6 +119,7 @@
 		F10000260000000000000001 /* FlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000260000000000000001 /* FlowLayout.swift */; };
 		F10000280000000000000001 /* PlayfairDisplay-Italic-VF.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F20000280000000000000001 /* PlayfairDisplay-Italic-VF.ttf */; };
 		F10000290000000000000001 /* NotificationPrimingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000290000000000000001 /* NotificationPrimingView.swift */; };
+		F10000300000000000000001 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000300000000000000001 /* AuthService.swift */; };
 		FB0000020000000000000001 /* Feedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0000010000000000000001 /* Feedback.swift */; };
 		FB0000040000000000000001 /* FeedbackService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0000030000000000000001 /* FeedbackService.swift */; };
 		PK0000020000000000000001 /* PortkeyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = PK0000010000000000000001 /* PortkeyService.swift */; };
@@ -205,6 +209,7 @@
 		A20000290000000000000001 /* GoalsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalsViewModel.swift; sourceTree = "<group>"; };
 		A20000300000000000000001 /* VisionBoardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionBoardViewModel.swift; sourceTree = "<group>"; };
 		A20000310000000000000001 /* AffirmationsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AffirmationsViewModel.swift; sourceTree = "<group>"; };
+		A20000320000000000000001 /* SanctuaryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SanctuaryViewModel.swift; sourceTree = "<group>"; };
 		A20000330000000000000001 /* EmailLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailLoginView.swift; sourceTree = "<group>"; };
 		A20000340000000000000001 /* OnboardingContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingContainerView.swift; sourceTree = "<group>"; };
 		A20000350000000000000001 /* NameStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NameStepView.swift; sourceTree = "<group>"; };
@@ -259,12 +264,15 @@
 		F20000260000000000000001 /* FlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowLayout.swift; sourceTree = "<group>"; };
 		F20000280000000000000001 /* PlayfairDisplay-Italic-VF.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlayfairDisplay-Italic-VF.ttf"; sourceTree = "<group>"; };
 		F20000290000000000000001 /* NotificationPrimingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPrimingView.swift; sourceTree = "<group>"; };
+		F20000300000000000000001 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		F955E1ED52B5C3637CD25E60 /* SanctuaryTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SanctuaryTests.swift; sourceTree = "<group>"; };
 		FB0000010000000000000001 /* Feedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Feedback.swift; sourceTree = "<group>"; };
 		FB0000030000000000000001 /* FeedbackService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackService.swift; sourceTree = "<group>"; };
 		FE802F7583970BBCFC8559DB /* UITestSupport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UITestSupport.swift; sourceTree = "<group>"; };
 		FF899EC08EB9BF6F2427726E /* PasswordResetView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PasswordResetView.swift; sourceTree = "<group>"; };
 		PK0000010000000000000001 /* PortkeyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortkeyService.swift; sourceTree = "<group>"; };
+		SC0000010000000000000001 /* ServiceContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceContainer.swift; sourceTree = "<group>"; };
+		SP0000010000000000000001 /* ServiceProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceProtocols.swift; sourceTree = "<group>"; };
 		RS0000010000000000000001 /* ReportSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportSheet.swift; sourceTree = "<group>"; };
 		T20000010000000000000001 /* SafetyServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafetyServiceTests.swift; sourceTree = "<group>"; };
 		T20000020000000000000001 /* PromptBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptBuilderTests.swift; sourceTree = "<group>"; };
@@ -510,6 +518,7 @@
 				A20000290000000000000001 /* GoalsViewModel.swift */,
 				A20000300000000000000001 /* VisionBoardViewModel.swift */,
 				A20000310000000000000001 /* AffirmationsViewModel.swift */,
+				A20000320000000000000001 /* SanctuaryViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -517,11 +526,13 @@
 		A50000120000000000000001 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				SP0000030000000000000001 /* Protocols */,
 				A20000200000000000000001 /* GeminiService.swift */,
 				A20000210000000000000001 /* StorageService.swift */,
 				A20000220000000000000001 /* ArchetypeService.swift */,
 				A20000230000000000000001 /* SafetyService.swift */,
 				A20000240000000000000001 /* AnalystService.swift */,
+				F20000300000000000000001 /* AuthService.swift */,
 				74CE56D38B6D47E52BFB444E /* NotificationService.swift */,
 				A174B26D7E896B09C9D56F71 /* StreakService.swift */,
 				D20000010000000000000001 /* SupabaseClient.swift */,
@@ -531,8 +542,17 @@
 				FE802F7583970BBCFC8559DB /* UITestSupport.swift */,
 				FB0000030000000000000001 /* FeedbackService.swift */,
 				PK0000010000000000000001 /* PortkeyService.swift */,
+				SC0000010000000000000001 /* ServiceContainer.swift */,
 			);
 			path = Services;
+			sourceTree = "<group>";
+		};
+		SP0000030000000000000001 /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				SP0000010000000000000001 /* ServiceProtocols.swift */,
+			);
+			path = Protocols;
 			sourceTree = "<group>";
 		};
 		A50000130000000000000001 /* Theme */ = {
@@ -804,6 +824,7 @@
 				A10000220000000000000001 /* ArchetypeService.swift in Sources */,
 				A10000230000000000000001 /* SafetyService.swift in Sources */,
 				A10000240000000000000001 /* AnalystService.swift in Sources */,
+				F10000300000000000000001 /* AuthService.swift in Sources */,
 				A10000250000000000000001 /* AuthViewModel.swift in Sources */,
 				A10000260000000000000001 /* OnboardingViewModel.swift in Sources */,
 				A10000270000000000000001 /* ChatViewModel.swift in Sources */,
@@ -811,6 +832,7 @@
 				A10000290000000000000001 /* GoalsViewModel.swift in Sources */,
 				A10000300000000000000001 /* VisionBoardViewModel.swift in Sources */,
 				A10000310000000000000001 /* AffirmationsViewModel.swift in Sources */,
+				A10000320000000000000001 /* SanctuaryViewModel.swift in Sources */,
 				A10000330000000000000001 /* EmailLoginView.swift in Sources */,
 				A10000340000000000000001 /* OnboardingContainerView.swift in Sources */,
 				A10000350000000000000001 /* NameStepView.swift in Sources */,
@@ -860,6 +882,8 @@
 				FB0000020000000000000001 /* Feedback.swift in Sources */,
 				FB0000040000000000000001 /* FeedbackService.swift in Sources */,
 				PK0000020000000000000001 /* PortkeyService.swift in Sources */,
+				SC0000020000000000000001 /* ServiceContainer.swift in Sources */,
+				SP0000020000000000000001 /* ServiceProtocols.swift in Sources */,
 				RS0000020000000000000001 /* ReportSheet.swift in Sources */,
 				3F1056A9D3B58B1F800A7E17 /* RouterModels.swift in Sources */,
 				D9BA7887167B4B49328DEA74 /* StrategyOptionsView.swift in Sources */,

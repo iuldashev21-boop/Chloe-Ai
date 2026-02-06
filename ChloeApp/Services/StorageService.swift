@@ -390,3 +390,7 @@ class StorageService {
         keys.forEach { defaults.removeObject(forKey: $0) }
     }
 }
+
+// MARK: - Protocol Conformance
+
+extension StorageService: StorageServiceProtocol {}

@@ -185,3 +185,7 @@ class PortkeyService {
         #endif
     }
 }
+
+// MARK: - Protocol Conformance
+
+extension PortkeyService: PortkeyServiceProtocol {}

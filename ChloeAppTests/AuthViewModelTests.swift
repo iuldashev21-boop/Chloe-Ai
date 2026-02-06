@@ -10,6 +10,11 @@ final class AuthViewModelTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
+        // Reset AuthService.shared state before each test since AuthViewModel
+        // now forwards state from the shared singleton via Combine
+        AuthService.shared.authState = .unauthenticated
+        AuthService.shared.email = ""
+        AuthService.shared.errorMessage = nil
         sut = AuthViewModel()
         // Clear any stale flags from previous tests
         UserDefaults.standard.removeObject(forKey: "pendingPasswordRecovery")
@@ -21,6 +26,10 @@ final class AuthViewModelTests: XCTestCase {
         UserDefaults.standard.removeObject(forKey: "pendingPasswordRecovery")
         UserDefaults.standard.removeObject(forKey: "awaitingPasswordReset")
         StorageService.shared.clearAll()
+        // Reset shared auth state on teardown too
+        AuthService.shared.authState = .unauthenticated
+        AuthService.shared.email = ""
+        AuthService.shared.errorMessage = nil
         sut = nil
         super.tearDown()
     }
@@ -140,6 +149,8 @@ final class AuthViewModelTests: XCTestCase {
     }
 
     func testCheckIfBlocked_normalProfile_returnsFalse() {
+        // Set state on both ViewModel and AuthService since checkIfBlocked delegates to AuthService
+        AuthService.shared.authState = .authenticated
         sut.authState = .authenticated
         let profile = Profile(isBlocked: false)
         let result = sut.checkIfBlocked(profile)

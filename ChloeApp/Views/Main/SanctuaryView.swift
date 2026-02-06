@@ -2,31 +2,34 @@ import SwiftUI
 import PhotosUI
 import UniformTypeIdentifiers
 
+// MARK: - Navigation Destination Enum
+
+enum SanctuaryDestination: Hashable, Identifiable {
+    case journal
+    case history
+    case visionBoard
+    case goals
+    case affirmations
+    case settings
+
+    var id: Self { self }
+}
+
 struct SanctuaryView: View {
+    @Environment(\.scenePhase) private var scenePhase
+    @StateObject private var viewModel = SanctuaryViewModel()
     @StateObject private var chatVM = ChatViewModel()
     @State private var chatActive = false
     @State private var appeared = false
-    @State private var displayName = "babe"
-
-    // Ghost messages from last session
-    @State private var ghostMessages: [Message] = []
 
     // Sidebar
     @State private var sidebarOpen = false
-    @State private var conversations: [Conversation] = []
-    @State private var latestVibe: VibeScore? = nil
-    @State private var streak: GlowUpStreak? = nil
 
     // Recents sheet
     @State private var showRecentsSheet = false
 
-    // Navigation destinations
-    @State private var showJournal = false
-    @State private var showHistory = false
-    @State private var showVisionBoard = false
-    @State private var showGoals = false
-    @State private var showAffirmations = false
-    @State private var showSettings = false
+    // Navigation destination (replaces 6 individual boolean flags)
+    @State private var activeDestination: SanctuaryDestination? = nil
     @State private var navigatedFromSidebar = false
 
     // Camera & Photo picker
@@ -34,11 +37,9 @@ struct SanctuaryView: View {
     @State private var showPhotoPicker = false
     @State private var selectedPhotoItem: PhotosPickerItem? = nil
     @State private var showFileImporter = false
-    @State private var profileImageData: Data?
     @State private var showOfflineAlert = false
 
-    // Feedback system
-    @State private var feedbackStates: [String: MessageFeedbackState] = [:]
+    // Feedback reporting sheet
     @State private var reportingMessage: Message?
     @State private var reportingPreviousUserMessage: String = ""
 
@@ -50,7 +51,7 @@ struct SanctuaryView: View {
 
     var body: some View {
         ZStack(alignment: .leading) {
-            // Layer 0: Background - use same gradient as mainContentWrapper for seamless safe areas
+            // Layer 0: Background
             LinearGradient(
                 colors: [.chloeGradientStart, .chloeGradientEnd],
                 startPoint: .top,
@@ -63,15 +64,15 @@ struct SanctuaryView: View {
             // Layer 1: Sidebar
             SidebarView(
                 isOpen: $sidebarOpen,
-                conversations: conversations,
-                latestVibe: latestVibe,
-                streak: streak,
+                conversations: viewModel.conversations,
+                latestVibe: viewModel.latestVibe,
+                streak: viewModel.streak,
                 currentConversationId: chatVM.conversationId,
-                displayName: displayName,
-                profileImageData: profileImageData,
+                displayName: viewModel.displayName,
+                profileImageData: viewModel.profileImageData,
                 onNewChat: {
                     chatVM.startNewChat()
-                    ghostMessages = []
+                    viewModel.ghostMessages = []
                     withAnimation(.chloeSpring) {
                         chatActive = false
                         sidebarOpen = false
@@ -86,54 +87,45 @@ struct SanctuaryView: View {
                     }
                 },
                 onNavigate: { destination in
-                    // Track that we came from sidebar so we can reopen it on back
                     navigatedFromSidebar = true
-                    // Snap sidebar closed instantly (no animation) so the
-                    // navigation push doesn't reveal the main view first.
                     var tx = Transaction()
                     tx.disablesAnimations = true
                     withTransaction(tx) {
                         sidebarOpen = false
                     }
                     switch destination {
-                    case .journal: showJournal = true
-                    case .history: showHistory = true
-                    case .visionBoard: showVisionBoard = true
-                    case .goals: showGoals = true
-                    case .affirmations: showAffirmations = true
-                    case .settings: showSettings = true
+                    case .journal: activeDestination = .journal
+                    case .history: activeDestination = .history
+                    case .visionBoard: activeDestination = .visionBoard
+                    case .goals: activeDestination = .goals
+                    case .affirmations: activeDestination = .affirmations
+                    case .settings: activeDestination = .settings
                     }
                 },
                 onRenameConversation: { id, newTitle in
-                    try? SyncDataService.shared.renameConversation(id: id, newTitle: newTitle)
-                    loadConversations()
-                    if chatVM.conversationId == id {
-                        chatVM.conversationTitle = newTitle
-                    }
+                    viewModel.renameConversation(id: id, newTitle: newTitle, chatVM: chatVM)
                 },
                 onDeleteConversation: { id in
-                    guard SyncDataService.shared.deleteConversation(id: id) else {
+                    guard viewModel.deleteConversation(id: id, chatVM: chatVM) else {
                         showOfflineAlert = true
                         return
                     }
-                    loadConversations()
                     if chatVM.conversationId == id {
                         chatVM.startNewChat()
-                        ghostMessages = []
+                        viewModel.ghostMessages = []
                         withAnimation(.chloeSpring) {
                             chatActive = false
                         }
                     }
                 },
                 onToggleStarConversation: { id in
-                    try? SyncDataService.shared.toggleConversationStar(id: id)
-                    loadConversations()
+                    viewModel.toggleStarConversation(id: id)
                 }
             )
             .frame(width: screenWidth * 0.8)
             .offset(x: sidebarOpen ? 0 : -screenWidth * 0.8)
 
-            // Layer 1: Main content
+            // Layer 2: Main content
             mainContentWrapper
                 .scaleEffect(sidebarOpen ? 0.9 : 1.0)
                 .offset(x: sidebarOpen ? screenWidth * 0.8 : 0)
@@ -150,18 +142,26 @@ struct SanctuaryView: View {
         .animation(.spring(response: 0.45, dampingFraction: 0.8), value: sidebarOpen)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .navigationBar)
-        .navigationDestination(isPresented: $showJournal) { JournalView() }
-        .navigationDestination(isPresented: $showHistory) {
-            HistoryView { convo in
-                chatVM.conversationId = convo.id
-                chatVM.messages = SyncDataService.shared.loadMessages(forConversation: convo.id)
-                chatActive = true
+        .navigationDestination(item: $activeDestination) { destination in
+            switch destination {
+            case .journal:
+                JournalView()
+            case .history:
+                HistoryView { convo in
+                    chatVM.conversationId = convo.id
+                    chatVM.messages = SyncDataService.shared.loadMessages(forConversation: convo.id)
+                    chatActive = true
+                }
+            case .visionBoard:
+                VisionBoardView()
+            case .goals:
+                GoalsView()
+            case .affirmations:
+                AffirmationsView()
+            case .settings:
+                SettingsView()
             }
         }
-        .navigationDestination(isPresented: $showVisionBoard) { VisionBoardView() }
-        .navigationDestination(isPresented: $showGoals) { GoalsView() }
-        .navigationDestination(isPresented: $showAffirmations) { AffirmationsView() }
-        .navigationDestination(isPresented: $showSettings) { SettingsView() }
         .alert("You're Offline", isPresented: $showOfflineAlert) {
             Button("OK", role: .cancel) {}
         } message: {
@@ -178,7 +178,7 @@ struct SanctuaryView: View {
                 aiResponse: message.text,
                 onDismiss: { reportingMessage = nil },
                 onReported: {
-                    feedbackStates[message.id] = .reported
+                    viewModel.feedbackStates[message.id] = .reported
                     reportingMessage = nil
                 }
             )
@@ -225,45 +225,35 @@ struct SanctuaryView: View {
                 selectedPhotoItem = nil
             }
         }
-        .onChange(of: showSettings) { _, isShowing in
-            if !isShowing {
-                profileImageData = SyncDataService.shared.loadProfileImage()
+        .onChange(of: activeDestination) { oldValue, newValue in
+            if newValue == nil {
+                if oldValue == .settings {
+                    viewModel.reloadProfileImage()
+                }
                 reopenSidebarIfNeeded()
             }
         }
-        .onChange(of: showJournal) { _, isShowing in
-            if !isShowing { reopenSidebarIfNeeded() }
-        }
-        .onChange(of: showHistory) { _, isShowing in
-            if !isShowing { reopenSidebarIfNeeded() }
-        }
-        .onChange(of: showVisionBoard) { _, isShowing in
-            if !isShowing { reopenSidebarIfNeeded() }
-        }
-        .onChange(of: showGoals) { _, isShowing in
-            if !isShowing { reopenSidebarIfNeeded() }
-        }
-        .onChange(of: showAffirmations) { _, isShowing in
-            if !isShowing { reopenSidebarIfNeeded() }
-        }
         .onChange(of: chatVM.messages.count) {
-            loadConversations()
+            viewModel.loadConversations()
         }
         .onChange(of: chatActive) {
             if !chatActive && !chatVM.messages.isEmpty {
-                loadGhostMessages()
+                viewModel.loadGhostMessages(conversationId: chatVM.conversationId)
             }
         }
         .onAppear {
-            loadUserData()
-            loadGhostMessages()
-            loadConversations()
-            // Start fresh on first launch only
+            viewModel.loadData()
+            viewModel.loadGhostMessages(conversationId: chatVM.conversationId)
             if !appeared {
                 chatVM.startNewChat()
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 appeared = true
+            }
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .background {
+                Task { await chatVM.triggerAnalysisIfPending() }
             }
         }
     }
@@ -309,7 +299,7 @@ struct SanctuaryView: View {
                     if chatActive {
                         Button {
                             chatVM.startNewChat()
-                            ghostMessages = []
+                            viewModel.ghostMessages = []
                             withAnimation(.chloeSpring) {
                                 chatActive = false
                             }
@@ -342,7 +332,6 @@ struct SanctuaryView: View {
                 Spacer()
                     .frame(height: geo.size.height * Spacing.sanctuaryOrbY - Spacing.orbSizeSanctuary * 0.7)
 
-                // Orb
                 ChloeAvatar(size: Spacing.orbSizeSanctuary, isThinking: chatVM.isTyping)
                     .scaleEffect(appeared ? 1.0 : 0.3)
                     .opacity(appeared ? 1 : 0)
@@ -350,8 +339,7 @@ struct SanctuaryView: View {
 
                 Spacer().frame(height: Spacing.lg)
 
-                // Greeting
-                Text("Hey, \(displayName)")
+                Text("Hey, \(viewModel.displayName)")
                     .font(.chloeGreeting)
                     .tracking(36 * 0.03)
                     .foregroundStyle(LinearGradient.chloeHeadingGradient)
@@ -359,8 +347,7 @@ struct SanctuaryView: View {
 
                 Spacer().frame(height: Spacing.xs)
 
-                // Status line
-                Text(statusText)
+                Text(viewModel.statusText)
                     .font(.chloeStatus)
                     .tracking(3)
                     .textCase(.uppercase)
@@ -370,10 +357,9 @@ struct SanctuaryView: View {
 
                 Spacer().frame(height: Spacing.xl)
 
-                // Ghost messages
-                if !ghostMessages.isEmpty {
+                if !viewModel.ghostMessages.isEmpty {
                     VStack(spacing: Spacing.xxs) {
-                        ForEach(ghostMessages) { msg in
+                        ForEach(viewModel.ghostMessages) { msg in
                             ghostBubble(msg)
                         }
                     }
@@ -387,7 +373,6 @@ struct SanctuaryView: View {
 
                 Spacer()
 
-                // Input bar
                 chatInputBar
                     .opacity(appeared ? 1 : 0)
                     .offset(y: appeared ? 0 : 40)
@@ -403,21 +388,25 @@ struct SanctuaryView: View {
             ScrollView {
                 LazyVStack(spacing: Spacing.xs) {
                     ForEach(Array(chatVM.messages.enumerated()), id: \.element.id) { index, message in
-                        let previousUserMessage = findPreviousUserMessage(beforeIndex: index)
+                        let previousUserMessage = viewModel.findPreviousUserMessage(beforeIndex: index, in: chatVM.messages)
                         ChatBubble(
                             message: message,
                             conversationId: chatVM.conversationId ?? "",
                             previousUserMessage: previousUserMessage,
-                            feedbackState: feedbackStates[message.id] ?? .none,
+                            feedbackState: viewModel.feedbackStates[message.id] ?? .none,
                             onFeedback: { rating in
-                                handleFeedback(for: message, previousUserMessage: previousUserMessage, rating: rating)
+                                viewModel.handleFeedback(
+                                    for: message,
+                                    conversationId: chatVM.conversationId,
+                                    previousUserMessage: previousUserMessage,
+                                    rating: rating
+                                )
                             },
                             onReport: {
                                 reportingMessage = message
                                 reportingPreviousUserMessage = previousUserMessage ?? ""
                             },
                             onOptionSelect: { option in
-                                // Send option selection as follow-up message
                                 chatVM.inputText = "I'll go with: \(option.label)"
                                 Task { await chatVM.sendMessage() }
                             }
@@ -441,7 +430,7 @@ struct SanctuaryView: View {
                 .padding(.vertical, Spacing.sm)
             }
             .contentMargins(.top, 56, for: .scrollContent)
-                        .scrollDismissesKeyboard(.interactively)
+            .scrollDismissesKeyboard(.interactively)
             .defaultScrollAnchor(.bottom)
             .safeAreaInset(edge: .bottom) {
                 VStack(spacing: 0) {
@@ -531,15 +520,9 @@ struct SanctuaryView: View {
                     Task { await chatVM.sendMessage() }
                 },
                 onRecentsPressed: { showRecentsSheet = true },
-                onTakePhoto: {
-                    showCamera = true
-                },
-                onUploadImage: {
-                    showPhotoPicker = true
-                },
-                onPickFile: {
-                    showFileImporter = true
-                },
+                onTakePhoto: { showCamera = true },
+                onUploadImage: { showPhotoPicker = true },
+                onPickFile: { showFileImporter = true },
                 onFocus: {
                     if !chatActive { activateChat() }
                 }
@@ -605,13 +588,13 @@ struct SanctuaryView: View {
     private var recentsSheet: some View {
         NavigationStack {
             List {
-                if conversations.isEmpty {
+                if viewModel.conversations.isEmpty {
                     Text("No recent conversations")
                         .font(.chloeBodyDefault)
                         .foregroundColor(.chloeTextTertiary)
                         .listRowBackground(Color.clear)
                 } else {
-                    ForEach(conversations.prefix(15)) { convo in
+                    ForEach(viewModel.conversations.prefix(15)) { convo in
                         Button {
                             showRecentsSheet = false
                             chatVM.conversationId = convo.id
@@ -675,21 +658,10 @@ struct SanctuaryView: View {
         }
     }
 
-    // MARK: - Status Text
-
-    private var statusText: String {
-        let hour = Calendar.current.component(.hour, from: Date())
-        switch hour {
-        case 5..<12: return "Ready when you are."
-        case 12..<17: return "I'm holding space for you."
-        default: return "I'm here. No rush."
-        }
-    }
-
     // MARK: - Edge Swipe Gesture
 
     private var isInNestedScreen: Bool {
-        showJournal || showHistory || showVisionBoard || showGoals || showAffirmations || showSettings
+        activeDestination != nil
     }
 
     private var edgeSwipeDragGesture: some Gesture {
@@ -705,7 +677,7 @@ struct SanctuaryView: View {
             }
     }
 
-    // MARK: - Helpers
+    // MARK: - View Helpers
 
     private func activateChat() {
         withAnimation(.chloeSpring) {
@@ -716,7 +688,7 @@ struct SanctuaryView: View {
     private func openSidebar() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
         UISelectionFeedbackGenerator().selectionChanged()
-        loadConversations()
+        viewModel.loadConversations()
         sidebarOpen = true
     }
 
@@ -732,65 +704,7 @@ struct SanctuaryView: View {
     private func reopenSidebarIfNeeded() {
         guard navigatedFromSidebar else { return }
         navigatedFromSidebar = false
-        // Open immediately - no delay to avoid flicker
         sidebarOpen = true
-    }
-
-    private func loadUserData() {
-        if let profile = SyncDataService.shared.loadProfile() {
-            displayName = profile.displayName.isEmpty ? "babe" : profile.displayName
-        }
-        profileImageData = SyncDataService.shared.loadProfileImage()
-    }
-
-    private func loadGhostMessages() {
-        // Load ghost messages from the current conversation if available,
-        // otherwise fall back to the most recently updated conversation
-        let targetId: String? = chatVM.conversationId ?? SyncDataService.shared.loadConversations()
-            .sorted(by: { $0.updatedAt > $1.updatedAt })
-            .first?.id
-        guard let id = targetId else {
-            ghostMessages = []
-            return
-        }
-        let messages = SyncDataService.shared.loadMessages(forConversation: id)
-        ghostMessages = Array(messages.suffix(2))
-    }
-
-    private func loadConversations() {
-        conversations = SyncDataService.shared.loadConversations()
-            .sorted(by: { $0.updatedAt > $1.updatedAt })
-        latestVibe = SyncDataService.shared.loadLatestVibe()
-        let loadedStreak = SyncDataService.shared.loadStreak()
-        streak = loadedStreak.currentStreak > 0 ? loadedStreak : nil
-    }
-
-    // MARK: - Feedback Helpers
-
-    private func findPreviousUserMessage(beforeIndex index: Int) -> String? {
-        for i in stride(from: index - 1, through: 0, by: -1) {
-            if chatVM.messages[i].role == .user {
-                return chatVM.messages[i].text
-            }
-        }
-        return nil
-    }
-
-    private func handleFeedback(for message: Message, previousUserMessage: String?, rating: FeedbackRating) {
-        // Update UI state immediately
-        feedbackStates[message.id] = rating == .helpful ? .helpful : .notHelpful
-
-        // Submit feedback async
-        Task {
-            let feedback = Feedback(
-                messageId: message.id,
-                conversationId: chatVM.conversationId ?? "",
-                userMessage: previousUserMessage ?? "",
-                aiResponse: message.text,
-                rating: rating
-            )
-            try? await FeedbackService.shared.submitFeedback(feedback)
-        }
     }
 }
 

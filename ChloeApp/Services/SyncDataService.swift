@@ -2,6 +2,21 @@ import Foundation
 import UIKit
 import Combine
 
+// MARK: - App Event Bus (replaces custom Notification.Name broadcasts)
+
+/// Lightweight Combine-based event bus for app-wide events.
+/// Replaces NotificationCenter custom notifications with type-safe publishers.
+enum AppEvents {
+    /// Fired when onboarding completes (from OnboardingViewModel, dev skip flows, etc.)
+    static let onboardingDidComplete = PassthroughSubject<Void, Never>()
+
+    /// Fired when SyncDataService finishes pulling profile/data from cloud
+    static let profileDidSyncFromCloud = PassthroughSubject<Void, Never>()
+
+    /// Fired when a deep-link auth callback is processed by ChloeApp
+    static let authDeepLinkReceived = PassthroughSubject<Void, Never>()
+}
+
 /// Thread-safe actor for sync state management (Bug 2 fix)
 private actor SyncLock {
     private var isSyncing = false
@@ -120,7 +135,9 @@ class SyncDataService {
                 }
             }
         } catch {
-            // Profile not found or network error — skip silently
+            #if DEBUG
+            print("[SyncDataService] Profile sync failed: \(error.localizedDescription)")
+            #endif
         }
 
         // Sync conversations + messages (merge: union by ID, server wins for metadata)
@@ -156,12 +173,16 @@ class SyncDataService {
                         try local.saveMessages(mergedMessages, forConversation: remoteConvo.id)
                     }
                 } catch {
-                    // Message sync failed for this conversation — skip
+                    #if DEBUG
+                    print("[SyncDataService] Message sync failed for conversation \(remoteConvo.id): \(error.localizedDescription)")
+                    #endif
                 }
             }
             try local.saveConversations(merged)
         } catch {
-            // Conversation sync failed — skip silently
+            #if DEBUG
+            print("[SyncDataService] Conversation sync failed: \(error.localizedDescription)")
+            #endif
         }
 
         // Sync user_state (server wins if newer)
@@ -199,7 +220,9 @@ class SyncDataService {
                 }
             }
         } catch {
-            // User state not found or network error — skip silently
+            #if DEBUG
+            print("[SyncDataService] User state sync failed: \(error.localizedDescription)")
+            #endif
         }
 
         // Sync journal entries (merge by ID)
@@ -217,7 +240,7 @@ class SyncDataService {
             }
         } catch {
             #if DEBUG
-            print("[SyncDataService] Sync failed: \(error.localizedDescription)")
+            print("[SyncDataService] Journal sync failed: \(error.localizedDescription)")
             #endif
         }
 
@@ -251,7 +274,7 @@ class SyncDataService {
             }
         } catch {
             #if DEBUG
-            print("[SyncDataService] Sync failed: \(error.localizedDescription)")
+            print("[SyncDataService] Goals sync failed: \(error.localizedDescription)")
             #endif
         }
 
@@ -270,7 +293,7 @@ class SyncDataService {
             }
         } catch {
             #if DEBUG
-            print("[SyncDataService] Sync failed: \(error.localizedDescription)")
+            print("[SyncDataService] Affirmations sync failed: \(error.localizedDescription)")
             #endif
         }
 
@@ -301,7 +324,7 @@ class SyncDataService {
             }
         } catch {
             #if DEBUG
-            print("[SyncDataService] Sync failed: \(error.localizedDescription)")
+            print("[SyncDataService] Vision board sync failed: \(error.localizedDescription)")
             #endif
         }
 
@@ -319,13 +342,13 @@ class SyncDataService {
             }
         } catch {
             #if DEBUG
-            print("[SyncDataService] Sync failed: \(error.localizedDescription)")
+            print("[SyncDataService] User facts sync failed: \(error.localizedDescription)")
             #endif
         }
 
         // Notify that profile sync completed (for onboarding state refresh)
         await MainActor.run {
-            NotificationCenter.default.post(name: .profileDidSyncFromCloud, object: nil)
+            AppEvents.profileDidSyncFromCloud.send()
         }
     }
 
@@ -425,7 +448,16 @@ class SyncDataService {
 
     private func pushChatImageToCloud(_ data: Data, messageId: String) {
         guard network.isConnected else { hasPendingChanges = true; return }
-        Task { try? await remote.uploadChatImage(data, messageId: messageId) }
+        Task {
+            do {
+                _ = try await remote.uploadChatImage(data, messageId: messageId)
+            } catch {
+                #if DEBUG
+                print("[SyncDataService] Chat image upload failed for \(messageId): \(error.localizedDescription)")
+                #endif
+                hasPendingChanges = true
+            }
+        }
     }
 
     // MARK: - Profile Image
@@ -445,13 +477,30 @@ class SyncDataService {
         guard network.isConnected else { return }
         if let userId = remote.currentUserId {
             let path = "\(userId)/profile/profile_image.jpg"
-            Task { try? await remote.deleteStorageImage(path: path) }
+            Task { [remote] in
+                do {
+                    try await remote.deleteStorageImage(path: path)
+                } catch {
+                    #if DEBUG
+                    print("[SyncDataService] Profile image cloud delete failed: \(error.localizedDescription)")
+                    #endif
+                }
+            }
         }
     }
 
     private func pushProfileImageToCloud(_ data: Data) {
         guard network.isConnected else { hasPendingChanges = true; return }
-        Task { try? await remote.uploadProfileImage(data) }
+        Task {
+            do {
+                _ = try await remote.uploadProfileImage(data)
+            } catch {
+                #if DEBUG
+                print("[SyncDataService] Profile image upload failed: \(error.localizedDescription)")
+                #endif
+                hasPendingChanges = true
+            }
+        }
     }
 
     // MARK: - Conversations (+ cloud sync)
@@ -492,7 +541,15 @@ class SyncDataService {
     func deleteConversation(id: String) -> Bool {
         guard network.isConnected else { return false }
         local.deleteConversation(id: id)
-        Task { try? await remote.deleteConversation(id: id) }
+        Task { [remote] in
+            do {
+                try await remote.deleteConversation(id: id)
+            } catch {
+                #if DEBUG
+                print("[SyncDataService] Cloud delete failed for conversation \(id): \(error.localizedDescription)")
+                #endif
+            }
+        }
         return true
     }
 
@@ -544,7 +601,15 @@ class SyncDataService {
         var entries = local.loadJournalEntries()
         entries.removeAll { $0.id == id }
         try? local.saveJournalEntries(entries)
-        let task = Task { _ = try? await remote.deleteJournalEntry(id: id) }
+        let task = Task { [remote] in
+            do {
+                try await remote.deleteJournalEntry(id: id)
+            } catch {
+                #if DEBUG
+                print("[SyncDataService] Cloud delete failed for journal entry \(id): \(error.localizedDescription)")
+                #endif
+            }
+        }
         trackTask(task)
         return true
     }
@@ -575,7 +640,15 @@ class SyncDataService {
         var goals = local.loadGoals()
         goals.removeAll { $0.id == id }
         try? local.saveGoals(goals)
-        let task = Task { _ = try? await remote.deleteGoal(id: id) }
+        let task = Task { [remote] in
+            do {
+                try await remote.deleteGoal(id: id)
+            } catch {
+                #if DEBUG
+                print("[SyncDataService] Cloud delete failed for goal \(id): \(error.localizedDescription)")
+                #endif
+            }
+        }
         trackTask(task)
         return true
     }
@@ -606,7 +679,15 @@ class SyncDataService {
         var affirmations = local.loadAffirmations()
         affirmations.removeAll { $0.id == id }
         try? local.saveAffirmations(affirmations)
-        let task = Task { _ = try? await remote.deleteAffirmation(id: id) }
+        let task = Task { [remote] in
+            do {
+                try await remote.deleteAffirmation(id: id)
+            } catch {
+                #if DEBUG
+                print("[SyncDataService] Cloud delete failed for affirmation \(id): \(error.localizedDescription)")
+                #endif
+            }
+        }
         trackTask(task)
         return true
     }
@@ -644,11 +725,23 @@ class SyncDataService {
         var items = local.loadVisionItems()
         items.removeAll { $0.id == id }
         try? local.saveVisionItems(items)
-        let task = Task {
-            try? await remote.deleteVisionItem(id: id)
+        let task = Task { [remote] in
+            do {
+                try await remote.deleteVisionItem(id: id)
+            } catch {
+                #if DEBUG
+                print("[SyncDataService] Cloud delete failed for vision item \(id): \(error.localizedDescription)")
+                #endif
+            }
             if let userId = remote.currentUserId {
                 let path = "\(userId)/vision/\(id).jpg"
-                try? await remote.deleteStorageImage(path: path)
+                do {
+                    try await remote.deleteStorageImage(path: path)
+                } catch {
+                    #if DEBUG
+                    print("[SyncDataService] Vision image delete failed for \(id): \(error.localizedDescription)")
+                    #endif
+                }
             }
         }
         trackTask(task)
@@ -665,7 +758,16 @@ class SyncDataService {
 
     private func pushVisionImageToCloud(_ data: Data, itemId: String) {
         guard network.isConnected else { hasPendingChanges = true; return }
-        Task { try? await remote.uploadVisionImage(data, itemId: itemId) }
+        Task {
+            do {
+                _ = try await remote.uploadVisionImage(data, itemId: itemId)
+            } catch {
+                #if DEBUG
+                print("[SyncDataService] Vision image upload failed for \(itemId): \(error.localizedDescription)")
+                #endif
+                hasPendingChanges = true
+            }
+        }
     }
 
     // MARK: - User Facts (+ cloud sync)
@@ -811,3 +913,7 @@ class SyncDataService {
         try await remote.deleteAllUserData()
     }
 }
+
+// MARK: - Protocol Conformance
+
+extension SyncDataService: SyncDataServiceProtocol {}

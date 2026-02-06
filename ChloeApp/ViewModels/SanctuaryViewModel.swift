@@ -1,0 +1,123 @@
+import Foundation
+import SwiftUI
+
+@MainActor
+class SanctuaryViewModel: ObservableObject {
+
+    // MARK: - Published Properties
+
+    @Published var displayName: String = "babe"
+    @Published var profileImageData: Data?
+    @Published var ghostMessages: [Message] = []
+    @Published var conversations: [Conversation] = []
+    @Published var latestVibe: VibeScore?
+    @Published var streak: GlowUpStreak?
+    @Published var feedbackStates: [String: MessageFeedbackState] = [:]
+
+    // MARK: - Status Text
+
+    var statusText: String {
+        let hour = Calendar.current.component(.hour, from: Date())
+        switch hour {
+        case 5..<12: return "Ready when you are."
+        case 12..<17: return "I'm holding space for you."
+        default: return "I'm here. No rush."
+        }
+    }
+
+    // MARK: - Initial Data Loading
+
+    func loadData() {
+        loadUserData()
+        loadGhostMessages(conversationId: nil)
+        loadConversations()
+    }
+
+    // MARK: - User Data
+
+    func loadUserData() {
+        if let profile = SyncDataService.shared.loadProfile() {
+            displayName = profile.displayName.isEmpty ? "babe" : profile.displayName
+        }
+        profileImageData = SyncDataService.shared.loadProfileImage()
+    }
+
+    // MARK: - Ghost Messages
+
+    func loadGhostMessages(conversationId: String?) {
+        let targetId: String? = conversationId ?? SyncDataService.shared.loadConversations()
+            .sorted(by: { $0.updatedAt > $1.updatedAt })
+            .first?.id
+        guard let id = targetId else {
+            ghostMessages = []
+            return
+        }
+        let messages = SyncDataService.shared.loadMessages(forConversation: id)
+        ghostMessages = Array(messages.suffix(2))
+    }
+
+    // MARK: - Conversations & Sidebar Data
+
+    func loadConversations() {
+        conversations = SyncDataService.shared.loadConversations()
+            .sorted(by: { $0.updatedAt > $1.updatedAt })
+        latestVibe = SyncDataService.shared.loadLatestVibe()
+        let loadedStreak = SyncDataService.shared.loadStreak()
+        streak = loadedStreak.currentStreak > 0 ? loadedStreak : nil
+    }
+
+    // MARK: - Conversation Management
+
+    func renameConversation(id: String, newTitle: String, chatVM: ChatViewModel) {
+        try? SyncDataService.shared.renameConversation(id: id, newTitle: newTitle)
+        loadConversations()
+        if chatVM.conversationId == id {
+            chatVM.conversationTitle = newTitle
+        }
+    }
+
+    func deleteConversation(id: String, chatVM: ChatViewModel) -> Bool {
+        guard SyncDataService.shared.deleteConversation(id: id) else {
+            return false
+        }
+        loadConversations()
+        return true
+    }
+
+    func toggleStarConversation(id: String) {
+        try? SyncDataService.shared.toggleConversationStar(id: id)
+        loadConversations()
+    }
+
+    // MARK: - Feedback
+
+    func findPreviousUserMessage(beforeIndex index: Int, in messages: [Message]) -> String? {
+        for i in stride(from: index - 1, through: 0, by: -1) {
+            if messages[i].role == .user {
+                return messages[i].text
+            }
+        }
+        return nil
+    }
+
+    func handleFeedback(for message: Message, conversationId: String?, previousUserMessage: String?, rating: FeedbackRating) {
+        feedbackStates[message.id] = rating == .helpful ? .helpful : .notHelpful
+
+        Task {
+            let feedback = Feedback(
+                messageId: message.id,
+                conversationId: conversationId ?? "",
+                userMessage: previousUserMessage ?? "",
+                aiResponse: message.text,
+                rating: rating
+            )
+            try? await FeedbackService.shared.submitFeedback(feedback)
+        }
+    }
+
+    // MARK: - Profile Image Reload
+
+    func reloadProfileImage() {
+        profileImageData = SyncDataService.shared.loadProfileImage()
+    }
+}

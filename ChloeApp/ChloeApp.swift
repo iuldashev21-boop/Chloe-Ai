@@ -2,12 +2,6 @@ import SwiftUI
 import UserNotifications
 import Supabase
 
-extension Notification.Name {
-    static let appDidEnterBackground = Notification.Name("appDidEnterBackground")
-    static let authDeepLinkReceived = Notification.Name("authDeepLinkReceived")
-    static let profileDidSyncFromCloud = Notification.Name("profileDidSyncFromCloud")
-}
-
 @main
 struct ChloeApp: App {
     @AppStorage("isDarkMode") private var isDarkMode = false
@@ -69,8 +63,7 @@ struct ChloeApp: App {
                 lastSummary: lastSummary
             )
 
-            // Signal ChatViewModel to trigger pending analysis
-            NotificationCenter.default.post(name: .appDidEnterBackground, object: nil)
+            // Note: ChatViewModel now observes scenePhase directly via SanctuaryView
 
         case .inactive:
             break
@@ -120,8 +113,8 @@ struct ChloeApp: App {
                 #if DEBUG
                 print("[DeepLink] Session established successfully")
                 #endif
-                // Post notification for any additional handling
-                NotificationCenter.default.post(name: .authDeepLinkReceived, object: nil)
+                // Signal AuthViewModel to restore session after deep link auth
+                AppEvents.authDeepLinkReceived.send()
             } catch {
                 #if DEBUG
                 print("[DeepLink] Auth callback failed: \(error)")

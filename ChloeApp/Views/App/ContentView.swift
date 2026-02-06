@@ -43,13 +43,13 @@ struct ContentView: View {
             // Note: syncFromCloud is now handled by restoreSession() in background
             // to avoid duplicate/concurrent syncs that caused content duplication
         }
-        .onReceive(NotificationCenter.default.publisher(for: .onboardingDidComplete)) { _ in
+        .onReceive(AppEvents.onboardingDidComplete) { _ in
             onboardingComplete = true
             if !SyncDataService.shared.hasShownNotificationPriming() {
                 showNotificationPriming = true
             }
         }
-        .onReceive(NotificationCenter.default.publisher(for: .profileDidSyncFromCloud)) { _ in
+        .onReceive(AppEvents.profileDidSyncFromCloud) { _ in
             // Re-check onboarding status after cloud sync completes
             if let profile = SyncDataService.shared.loadProfile() {
                 onboardingComplete = profile.onboardingComplete

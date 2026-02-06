@@ -415,3 +415,7 @@ class GeminiService {
         return cleaned.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
+
+// MARK: - Protocol Conformance
+
+extension GeminiService: GeminiServiceProtocol {}
