@@ -49,7 +49,8 @@ struct ArchetypeQuizView: View {
     ]
 
     private var currentPage: (question: String, options: [(choice: ArchetypeChoice, title: String, description: String)]) {
-        pages[viewModel.quizPage]
+        let safeIndex = min(max(viewModel.quizPage, 0), pages.count - 1)
+        return pages[safeIndex]
     }
 
     private var currentAnswer: ArchetypeChoice? {

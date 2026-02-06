@@ -14,9 +14,30 @@ class StorageService {
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
 
+    // MARK: - In-Memory Caches (read-heavy, write-light data)
+
+    private var profileCache: Profile?
+    private var conversationsCache: [Conversation]?
+    private var journalEntriesCache: [JournalEntry]?
+    private var goalsCache: [Goal]?
+    private var affirmationsCache: [Affirmation]?
+    private var visionItemsCache: [VisionItem]?
+    private var userFactsCache: [UserFact]?
+
     private init() {
         encoder.dateEncodingStrategy = .iso8601
         decoder.dateDecodingStrategy = .iso8601
+    }
+
+    /// Clear all in-memory caches (call on memory pressure or sign-out)
+    func clearCaches() {
+        profileCache = nil
+        conversationsCache = nil
+        journalEntriesCache = nil
+        goalsCache = nil
+        affirmationsCache = nil
+        visionItemsCache = nil
+        userFactsCache = nil
     }
 
     // MARK: - Profile
@@ -24,11 +45,15 @@ class StorageService {
     func saveProfile(_ profile: Profile) throws {
         let data = try encoder.encode(profile)
         defaults.set(data, forKey: "profile")
+        profileCache = profile
     }
 
     func loadProfile() -> Profile? {
+        if let cached = profileCache { return cached }
         guard let data = defaults.data(forKey: "profile") else { return nil }
-        return try? decoder.decode(Profile.self, from: data)
+        let profile = try? decoder.decode(Profile.self, from: data)
+        profileCache = profile
+        return profile
     }
 
     // MARK: - Chat Images
@@ -90,11 +115,15 @@ class StorageService {
     func saveConversations(_ conversations: [Conversation]) throws {
         let data = try encoder.encode(conversations)
         defaults.set(data, forKey: "conversations")
+        conversationsCache = conversations
     }
 
     func loadConversations() -> [Conversation] {
+        if let cached = conversationsCache { return cached }
         guard let data = defaults.data(forKey: "conversations") else { return [] }
-        return (try? decoder.decode([Conversation].self, from: data)) ?? []
+        let conversations = (try? decoder.decode([Conversation].self, from: data)) ?? []
+        conversationsCache = conversations
+        return conversations
     }
 
     func saveConversation(_ conversation: Conversation) throws {
@@ -144,16 +173,33 @@ class StorageService {
         return (try? decoder.decode([Message].self, from: data)) ?? []
     }
 
+    /// Load the most recent `limit` messages for a conversation (for pagination).
+    /// Returns messages in chronological order (oldest first).
+    func loadMessages(forConversation conversationId: String, limit: Int) -> [Message] {
+        let all = loadMessages(forConversation: conversationId)
+        guard all.count > limit else { return all }
+        return Array(all.suffix(limit))
+    }
+
+    /// Total message count for a conversation (without decoding all messages).
+    func messageCount(forConversation conversationId: String) -> Int {
+        return loadMessages(forConversation: conversationId).count
+    }
+
     // MARK: - Journal
 
     func saveJournalEntries(_ entries: [JournalEntry]) throws {
         let data = try encoder.encode(entries)
         defaults.set(data, forKey: "journal_entries")
+        journalEntriesCache = entries
     }
 
     func loadJournalEntries() -> [JournalEntry] {
+        if let cached = journalEntriesCache { return cached }
         guard let data = defaults.data(forKey: "journal_entries") else { return [] }
-        return (try? decoder.decode([JournalEntry].self, from: data)) ?? []
+        let entries = (try? decoder.decode([JournalEntry].self, from: data)) ?? []
+        journalEntriesCache = entries
+        return entries
     }
 
     // MARK: - Goals
@@ -161,11 +207,15 @@ class StorageService {
     func saveGoals(_ goals: [Goal]) throws {
         let data = try encoder.encode(goals)
         defaults.set(data, forKey: "goals")
+        goalsCache = goals
     }
 
     func loadGoals() -> [Goal] {
+        if let cached = goalsCache { return cached }
         guard let data = defaults.data(forKey: "goals") else { return [] }
-        return (try? decoder.decode([Goal].self, from: data)) ?? []
+        let goals = (try? decoder.decode([Goal].self, from: data)) ?? []
+        goalsCache = goals
+        return goals
     }
 
     // MARK: - Affirmations
@@ -173,11 +223,15 @@ class StorageService {
     func saveAffirmations(_ affirmations: [Affirmation]) throws {
         let data = try encoder.encode(affirmations)
         defaults.set(data, forKey: "affirmations")
+        affirmationsCache = affirmations
     }
 
     func loadAffirmations() -> [Affirmation] {
+        if let cached = affirmationsCache { return cached }
         guard let data = defaults.data(forKey: "affirmations") else { return [] }
-        return (try? decoder.decode([Affirmation].self, from: data)) ?? []
+        let affirmations = (try? decoder.decode([Affirmation].self, from: data)) ?? []
+        affirmationsCache = affirmations
+        return affirmations
     }
 
     // MARK: - Vision Board
@@ -185,11 +239,15 @@ class StorageService {
     func saveVisionItems(_ items: [VisionItem]) throws {
         let data = try encoder.encode(items)
         defaults.set(data, forKey: "vision_items")
+        visionItemsCache = items
     }
 
     func loadVisionItems() -> [VisionItem] {
+        if let cached = visionItemsCache { return cached }
         guard let data = defaults.data(forKey: "vision_items") else { return [] }
-        return (try? decoder.decode([VisionItem].self, from: data)) ?? []
+        let items = (try? decoder.decode([VisionItem].self, from: data)) ?? []
+        visionItemsCache = items
+        return items
     }
 
     // MARK: - User Facts (separate from Profile)
@@ -197,11 +255,15 @@ class StorageService {
     func saveUserFacts(_ facts: [UserFact]) throws {
         let data = try encoder.encode(facts)
         defaults.set(data, forKey: "user_facts")
+        userFactsCache = facts
     }
 
     func loadUserFacts() -> [UserFact] {
+        if let cached = userFactsCache { return cached }
         guard let data = defaults.data(forKey: "user_facts") else { return [] }
-        return (try? decoder.decode([UserFact].self, from: data)) ?? []
+        let facts = (try? decoder.decode([UserFact].self, from: data)) ?? []
+        userFactsCache = facts
+        return facts
     }
 
     // MARK: - Latest Vibe
@@ -388,6 +450,7 @@ class StorageService {
             "notification_priming_shown", "notification_denied_after_priming",
         ]
         keys.forEach { defaults.removeObject(forKey: $0) }
+        clearCaches()
     }
 }
 

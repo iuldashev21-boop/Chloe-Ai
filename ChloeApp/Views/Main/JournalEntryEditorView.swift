@@ -10,11 +10,22 @@ struct JournalEntryEditorView: View {
     @State private var selectedMood: JournalMood?
     @State private var showMoodPicker = false
 
+    @State private var isSaving = false
     @FocusState private var titleFocused: Bool
     @FocusState private var contentFocused: Bool
 
+    private let contentLimit = 10000
+
     private var canSave: Bool {
         !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    private var remainingContentChars: Int {
+        contentLimit - content.count
+    }
+
+    private var showContentCounter: Bool {
+        content.count > contentLimit - 500
     }
 
     var body: some View {
@@ -52,6 +63,9 @@ struct JournalEntryEditorView: View {
 
     private var donePill: some View {
         Button {
+            guard !isSaving else { return }
+            isSaving = true
+            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
             let entry = JournalEntry(
                 title: title.trimmingCharacters(in: .whitespacesAndNewlines),
                 content: content.trimmingCharacters(in: .whitespacesAndNewlines),
@@ -62,13 +76,13 @@ struct JournalEntryEditorView: View {
         } label: {
             Text("Done")
                 .font(.chloeCaption)
-                .foregroundColor(canSave ? .white : .chloeTextTertiary)
+                .foregroundColor(canSave && !isSaving ? .white : .chloeTextTertiary)
                 .padding(.horizontal, Spacing.sm)
                 .padding(.vertical, Spacing.xxs)
-                .background(canSave ? Color.chloePrimary : Color.chloeSurface)
+                .background(canSave && !isSaving ? Color.chloePrimary : Color.chloeSurface)
                 .cornerRadius(Spacing.cornerRadiusLarge)
         }
-        .disabled(!canSave)
+        .disabled(!canSave || isSaving)
         .accessibilityLabel("Save entry")
         .animation(.spring(response: 0.35, dampingFraction: 0.8), value: canSave)
     }
@@ -102,17 +116,31 @@ struct JournalEntryEditorView: View {
                     .allowsHitTesting(false)
             }
 
-            TextEditor(text: $content)
-                .font(.chloeBodyDefault)
-                .foregroundColor(.chloeTextPrimary)
-                .focused($contentFocused)
-                .scrollContentBackground(.hidden)
-                .background(Color.clear)
-                .onChange(of: content) {
-                    if content.count > 10000 {
-                        content = String(content.prefix(10000))
+            VStack(spacing: 0) {
+                TextEditor(text: $content)
+                    .font(.chloeBodyDefault)
+                    .foregroundColor(.chloeTextPrimary)
+                    .focused($contentFocused)
+                    .scrollContentBackground(.hidden)
+                    .background(Color.clear)
+                    .onChange(of: content) {
+                        if content.count > contentLimit {
+                            content = String(content.prefix(contentLimit))
+                        }
+                    }
+
+                if showContentCounter {
+                    HStack {
+                        Spacer()
+                        Text("\(remainingContentChars) remaining")
+                            .font(.system(size: 11, weight: .regular))
+                            .foregroundColor(remainingContentChars <= 0 ? .red.opacity(0.8) : .chloeTextTertiary)
+                            .padding(.trailing, Spacing.xxs)
+                            .transition(.opacity)
+                            .animation(.easeInOut(duration: 0.15), value: showContentCounter)
                     }
                 }
+            }
         }
         .frame(maxHeight: .infinity)
     }

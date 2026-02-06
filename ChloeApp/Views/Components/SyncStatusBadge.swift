@@ -6,6 +6,7 @@ struct SyncStatusBadge: View {
     let status: SyncStatus
     var onRetry: (() -> Void)? = nil
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var isRotating = false
     @State private var showErrorDetail = false
 
@@ -19,8 +20,9 @@ struct SyncStatusBadge: View {
                 Image(systemName: "arrow.triangle.2.circlepath")
                     .font(.system(size: 12, weight: .medium))
                     .foregroundColor(.chloeTextTertiary)
-                    .rotationEffect(.degrees(isRotating ? 360 : 0))
+                    .rotationEffect(.degrees(!reduceMotion && isRotating ? 360 : 0))
                     .onAppear {
+                        guard !reduceMotion else { return }
                         withAnimation(.linear(duration: 1.5).repeatForever(autoreverses: false)) {
                             isRotating = true
                         }

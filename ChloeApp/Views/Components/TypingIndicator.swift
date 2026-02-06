@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct TypingIndicator: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var animating = false
 
     var body: some View {
@@ -9,11 +10,11 @@ struct TypingIndicator: View {
                 Circle()
                     .fill(Color.chloeAccentMuted)
                     .frame(width: 8, height: 8)
-                    .scaleEffect(animating ? 1.0 : 0.5)
+                    .scaleEffect(reduceMotion ? 1.0 : (animating ? 1.0 : 0.5))
                     .animation(
-                        .easeInOut(duration: 0.6)
-                        .repeatForever()
-                        .delay(Double(index) * 0.2),
+                        reduceMotion ? nil : .easeInOut(duration: 0.6)
+                            .repeatForever()
+                            .delay(Double(index) * 0.2),
                         value: animating
                     )
             }

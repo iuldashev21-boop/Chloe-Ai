@@ -63,6 +63,7 @@ struct AddToChatSheet: View {
                 Image(systemName: icon)
                     .font(.system(size: 24, weight: .light))
                     .foregroundColor(.chloeRosewood)
+                    .accessibilityHidden(true)
 
                 Text(label)
                     .font(.chloeCaption)
@@ -77,6 +78,7 @@ struct AddToChatSheet: View {
                     .stroke(Color.chloeBorderWarm, lineWidth: 1)
             )
         }
+        .accessibilityLabel(label)
     }
 }
 

@@ -17,6 +17,32 @@ struct EmailLoginView: View {
 
     enum Field: Hashable { case email, password }
 
+    // MARK: - Validation Helpers
+
+    private var isEmailFormatValid: Bool {
+        let trimmed = email.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let atIndex = trimmed.firstIndex(of: "@") else { return false }
+        let afterAt = trimmed[trimmed.index(after: atIndex)...]
+        return afterAt.contains(".")
+    }
+
+    /// Show email hint only after user has typed enough to warrant feedback
+    private var showEmailHint: Bool {
+        !email.isBlank && !isEmailFormatValid
+    }
+
+    private var isPasswordLongEnough: Bool {
+        password.count >= 6
+    }
+
+    private var canSubmit: Bool {
+        if authVM.isSignUpMode {
+            return !email.isBlank && isPasswordLongEnough
+        } else {
+            return !email.isBlank && !password.isEmpty
+        }
+    }
+
     var body: some View {
         ZStack {
             GradientBackground()
@@ -33,6 +59,7 @@ struct EmailLoginView: View {
                 .offset(x: keyboardVisible ? 120 : 0, y: keyboardVisible ? -60 : 0)
                 .animation(Spacing.chloeSpring, value: keyboardVisible)
                 .animation(Spacing.chloeSpring, value: showOrb)
+                .accessibilityHidden(true)
 
                 // MARK: - Header
                 VStack(spacing: Spacing.xs) {
@@ -64,6 +91,7 @@ struct EmailLoginView: View {
                         .keyboardType(.emailAddress)
                         .textContentType(.emailAddress)
                         .autocapitalization(.none)
+                        .autocorrectionDisabled()
                         .focused($focusedField, equals: .email)
                         .padding(.horizontal, Spacing.xs)
                         .frame(height: 48)
@@ -79,10 +107,20 @@ struct EmailLoginView: View {
                         .accessibilityLabel("Email address")
                         .accessibilityIdentifier("email-field")
 
+                    // Email format hint
+                    if showEmailHint {
+                        Text("Enter a valid email address")
+                            .font(.chloeCaption)
+                            .foregroundColor(.chloeRosewood.opacity(0.8))
+                            .padding(.horizontal, Spacing.screenHorizontal)
+                            .transition(.opacity)
+                            .animation(.easeInOut(duration: 0.2), value: showEmailHint)
+                    }
+
                     // MARK: - Password field
                     SecureField("Password", text: $password, prompt: Text("Password").font(.system(size: 17, weight: .light).italic()).foregroundColor(.chloeRosewood))
                         .font(.chloeBodyDefault)
-                        .textContentType(.password)
+                        .textContentType(authVM.isSignUpMode ? .newPassword : .password)
                         .focused($focusedField, equals: .password)
                         .padding(.horizontal, Spacing.xs)
                         .frame(height: 48)
@@ -98,6 +136,22 @@ struct EmailLoginView: View {
                         .accessibilityLabel("Password")
                         .accessibilityIdentifier("password-field")
 
+                    // Password requirements (signup mode only)
+                    if authVM.isSignUpMode && !password.isEmpty {
+                        HStack(spacing: Spacing.xxxs) {
+                            Image(systemName: isPasswordLongEnough ? "checkmark.circle.fill" : "circle")
+                                .font(.system(size: 12))
+                                .foregroundColor(isPasswordLongEnough ? Color(hex: "#4A7C59") : .chloeTextTertiary)
+
+                            Text("At least 6 characters")
+                                .font(.chloeCaption)
+                                .foregroundColor(isPasswordLongEnough ? Color(hex: "#4A7C59") : .chloeTextTertiary)
+                        }
+                        .padding(.horizontal, Spacing.screenHorizontal)
+                        .transition(.opacity)
+                        .animation(.easeInOut(duration: 0.2), value: isPasswordLongEnough)
+                    }
+
                     // MARK: - Error message
                     if let errorMessage = authVM.errorMessage {
                         Text(errorMessage)
@@ -106,15 +160,18 @@ struct EmailLoginView: View {
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, Spacing.screenHorizontal)
                             .transition(.opacity)
+                            .accessibilityAddTraits(.isStaticText)
+                            .accessibilityLabel("Error: \(errorMessage)")
                     }
 
                     // MARK: - Sign In / Sign Up button
                     Button {
+                        let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
                         Task {
                             if authVM.isSignUpMode {
-                                await authVM.signUp(email: email, password: password)
+                                await authVM.signUp(email: trimmedEmail, password: password)
                             } else {
-                                await authVM.signIn(email: email, password: password)
+                                await authVM.signIn(email: trimmedEmail, password: password)
                             }
                         }
                     } label: {
@@ -127,7 +184,7 @@ struct EmailLoginView: View {
                             .background(
                                 ZStack {
                                     Capsule().fill(.ultraThinMaterial)
-                                    Capsule().fill(Color.chloePrimary.opacity(email.isBlank || password.count < 6 ? 0.4 : 0.8))
+                                    Capsule().fill(Color.chloePrimary.opacity(canSubmit ? 0.8 : 0.4))
                                     LinearGradient(
                                         colors: [.clear, .white.opacity(0.25), .clear],
                                         startPoint: .leading,
@@ -155,7 +212,7 @@ struct EmailLoginView: View {
                             .clipShape(Capsule())
                             .shadow(color: Color(hex: "#B76E79").opacity(0.2), radius: 15, y: 8)
                     }
-                    .disabled(email.isBlank || password.count < 6 || authVM.isLoading)
+                    .disabled(!canSubmit || authVM.isLoading)
                     .buttonStyle(PressableButtonStyle())
                     .padding(.horizontal, Spacing.screenHorizontal)
                     .onAppear { startShimmerLoop() }

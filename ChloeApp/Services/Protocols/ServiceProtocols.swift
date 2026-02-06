@@ -33,6 +33,8 @@ protocol StorageServiceProtocol: AnyObject {
     // Messages
     func saveMessages(_ messages: [Message], forConversation conversationId: String) throws
     func loadMessages(forConversation conversationId: String) -> [Message]
+    func loadMessages(forConversation conversationId: String, limit: Int) -> [Message]
+    func messageCount(forConversation conversationId: String) -> Int
 
     // Journal
     func saveJournalEntries(_ entries: [JournalEntry]) throws
@@ -183,6 +185,8 @@ protocol SyncDataServiceProtocol: AnyObject {
     // Messages
     func saveMessages(_ messages: [Message], forConversation conversationId: String) throws
     func loadMessages(forConversation conversationId: String) -> [Message]
+    func loadMessages(forConversation conversationId: String, limit: Int) -> [Message]
+    func messageCount(forConversation conversationId: String) -> Int
 
     // Journal
     func saveJournalEntries(_ entries: [JournalEntry]) throws

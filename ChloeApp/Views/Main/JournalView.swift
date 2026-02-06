@@ -67,6 +67,9 @@ struct JournalView: View {
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
+        .refreshable {
+            viewModel.loadEntries()
+        }
     }
 
     // MARK: - Entry Card

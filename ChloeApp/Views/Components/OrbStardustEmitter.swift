@@ -3,6 +3,7 @@ import SwiftUI
 struct OrbStardustEmitter: View {
     var isEmitting: Bool
     var orbSize: CGFloat = Spacing.orbSizeSanctuary
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private struct Particle {
         var angle: CGFloat      // radial direction from center
@@ -15,6 +16,10 @@ struct OrbStardustEmitter: View {
     @State private var particles: [Particle] = []
 
     var body: some View {
+        if reduceMotion {
+            // Skip particle animation entirely when Reduce Motion is on
+            EmptyView()
+        } else {
         TimelineView(.periodic(from: .now, by: 1.0 / 30.0)) { timeline in
             Canvas { context, size in
                 guard isEmitting else { return }
@@ -69,6 +74,7 @@ struct OrbStardustEmitter: View {
                 )
             }
         }
+        } // end else (reduceMotion)
     }
 }
 

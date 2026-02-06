@@ -86,7 +86,9 @@ class GeminiService {
             throw GeminiError.emptyResponse
         }
 
-        guard let jsonData = text.data(using: .utf8) else {
+        let cleanedText = stripMarkdownWrapper(text)
+
+        guard let jsonData = cleanedText.data(using: .utf8) else {
             throw GeminiError.decodingFailed
         }
 

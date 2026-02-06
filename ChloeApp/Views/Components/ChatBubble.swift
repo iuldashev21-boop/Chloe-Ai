@@ -18,20 +18,17 @@ struct ChatBubble: View {
             if isUser { Spacer(minLength: 60) }
 
             VStack(alignment: isUser ? .trailing : .leading, spacing: Spacing.xxxs) {
-                // Image (if present)
-                if let imageUri = message.imageUri,
-                   let uiImage = UIImage(contentsOfFile: imageUri) {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(maxWidth: 240)
+                // Image (if present) — loaded as thumbnail at display resolution
+                if let imageUri = message.imageUri {
+                    ChatImageThumbnailView(imagePath: imageUri, maxWidth: 240)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .accessibilityLabel(isUser ? "You sent an image" : "Chloe sent an image")
                 }
 
                 // Text (if non-empty)
                 if !message.text.isEmpty {
                     Text(message.text)
-                        .font(.system(size: 17, weight: isUser ? .medium : .light))
+                        .font(isUser ? .chloeBodyDefault.weight(.medium) : .chloeBodyDefault.weight(.light))
                         .foregroundColor(.chloeTextPrimary)
                         .lineSpacing(8.5)
                 }
@@ -56,9 +53,20 @@ struct ChatBubble: View {
                 RoundedRectangle(cornerRadius: 16)
                     .stroke(isUser ? Color.clear : Color.chloePrimary, lineWidth: 0.5)
             )
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel(accessibilityMessageLabel)
 
             if !isUser { Spacer(minLength: 60) }
         }
+    }
+
+    /// Constructs a VoiceOver label with sender context
+    private var accessibilityMessageLabel: String {
+        let prefix = isUser ? "You said" : "Chloe said"
+        if message.text.isEmpty {
+            return isUser ? "You sent an image" : "Chloe sent an image"
+        }
+        return "\(prefix): \(message.text)"
     }
 
     @ViewBuilder
@@ -71,6 +79,7 @@ struct ChatBubble: View {
                 Image(systemName: feedbackState == .helpful ? "hand.thumbsup.fill" : "hand.thumbsup")
                     .foregroundColor(feedbackState == .helpful ? .chloePrimary : .chloeTextTertiary)
             }
+            .accessibilityLabel(feedbackState == .helpful ? "Marked as helpful" : "Mark as helpful")
             .accessibilityIdentifier(feedbackState == .helpful ? "thumbsUpFilled" : "thumbsUp")
             .disabled(feedbackState != .none)
 
@@ -81,6 +90,7 @@ struct ChatBubble: View {
                 Image(systemName: feedbackState == .notHelpful ? "hand.thumbsdown.fill" : "hand.thumbsdown")
                     .foregroundColor(feedbackState == .notHelpful ? .red : .chloeTextTertiary)
             }
+            .accessibilityLabel(feedbackState == .notHelpful ? "Marked as not helpful" : "Mark as not helpful")
             .accessibilityIdentifier(feedbackState == .notHelpful ? "thumbsDownFilled" : "thumbsDown")
             .disabled(feedbackState != .none)
 
@@ -91,11 +101,39 @@ struct ChatBubble: View {
                 Image(systemName: feedbackState == .reported ? "flag.fill" : "flag")
                     .foregroundColor(feedbackState == .reported ? .orange : .chloeTextTertiary)
             }
+            .accessibilityLabel(feedbackState == .reported ? "Response reported" : "Report this response")
             .accessibilityIdentifier(feedbackState == .reported ? "reportSubmitted" : "report")
             .disabled(feedbackState == .reported)
         }
         .font(.system(size: 14))
         .padding(.top, 4)
+    }
+}
+
+// MARK: - Chat Image Thumbnail (loads at display resolution via ImageIO)
+
+private struct ChatImageThumbnailView: View {
+    let imagePath: String
+    let maxWidth: CGFloat
+
+    @State private var thumbnail: UIImage?
+
+    var body: some View {
+        Group {
+            if let thumbnail {
+                Image(uiImage: thumbnail)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxWidth: maxWidth)
+            } else {
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.chloePrimaryLight)
+                    .frame(width: maxWidth, height: 160)
+            }
+        }
+        .task(id: imagePath) {
+            thumbnail = UIImage.thumbnail(atPath: imagePath, maxPixelSize: maxWidth)
+        }
     }
 }
 

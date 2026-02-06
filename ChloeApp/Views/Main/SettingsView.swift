@@ -16,6 +16,17 @@ struct SettingsView: View {
     @State private var showImageOptions = false
     @State private var showPhotoPicker = false
 
+    // Privacy & Data Management
+    @State private var showDataCollectionInfo = false
+    @State private var showDeleteAccountAlert = false
+    @State private var showDeleteConfirmation = false
+    @State private var deleteConfirmText = ""
+    @State private var isDeleting = false
+    @State private var showDeleteSuccess = false
+    @State private var showExportSheet = false
+    @State private var exportFileURL: URL?
+    @State private var isExporting = false
+
     var body: some View {
         ZStack {
             GradientBackground()
@@ -30,6 +41,7 @@ struct SettingsView: View {
                                 avatarView
                             }
                             .buttonStyle(.plain)
+                            .accessibilityLabel("Change profile photo")
 
                             VStack(alignment: .leading, spacing: Spacing.xxxs) {
                                 Text(profile?.displayName ?? "Chloe User")
@@ -115,6 +127,101 @@ struct SettingsView: View {
                                     .foregroundColor(.chloeTextTertiary)
                                     .accessibilityHidden(true)
                             }
+                        }
+                    }
+
+                    // Privacy & Legal Section
+                    settingsSection("PRIVACY & LEGAL") {
+                        VStack(spacing: 0) {
+                            Link(destination: URL(string: "https://chloe.app/privacy")!) {
+                                settingsRow(icon: "hand.raised", label: "Privacy Policy") {
+                                    Image(systemName: "arrow.up.right")
+                                        .font(.system(size: 12, weight: .regular))
+                                        .foregroundColor(.chloeTextTertiary)
+                                        .accessibilityHidden(true)
+                                }
+                            }
+                            .buttonStyle(.plain)
+
+                            Divider()
+                                .padding(.leading, 40)
+
+                            Link(destination: URL(string: "https://chloe.app/terms")!) {
+                                settingsRow(icon: "doc.text", label: "Terms of Service") {
+                                    Image(systemName: "arrow.up.right")
+                                        .font(.system(size: 12, weight: .regular))
+                                        .foregroundColor(.chloeTextTertiary)
+                                        .accessibilityHidden(true)
+                                }
+                            }
+                            .buttonStyle(.plain)
+
+                            Divider()
+                                .padding(.leading, 40)
+
+                            Button {
+                                showDataCollectionInfo = true
+                            } label: {
+                                settingsRow(icon: "eye", label: "What We Collect") {
+                                    Image(systemName: "chevron.right")
+                                        .font(.system(size: 12, weight: .regular))
+                                        .foregroundColor(.chloeTextTertiary)
+                                        .accessibilityHidden(true)
+                                }
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+
+                    // Data Management Section
+                    settingsSection("YOUR DATA") {
+                        VStack(spacing: 0) {
+                            Button {
+                                isExporting = true
+                                exportUserData()
+                            } label: {
+                                settingsRow(icon: "square.and.arrow.up", label: "Export My Data") {
+                                    if isExporting {
+                                        ProgressView()
+                                            .scaleEffect(0.8)
+                                    } else {
+                                        Image(systemName: "chevron.right")
+                                            .font(.system(size: 12, weight: .regular))
+                                            .foregroundColor(.chloeTextTertiary)
+                                            .accessibilityHidden(true)
+                                    }
+                                }
+                            }
+                            .buttonStyle(.plain)
+                            .disabled(isExporting)
+
+                            Divider()
+                                .padding(.leading, 40)
+
+                            Button {
+                                showDeleteAccountAlert = true
+                            } label: {
+                                HStack(spacing: Spacing.xs) {
+                                    Image(systemName: "trash")
+                                        .font(.system(size: 16, weight: .regular))
+                                        .foregroundColor(.red)
+                                        .frame(width: 24)
+                                        .accessibilityHidden(true)
+
+                                    Text("Delete Account")
+                                        .font(.chloeBodyDefault)
+                                        .foregroundColor(.red)
+
+                                    Spacer()
+
+                                    Image(systemName: "chevron.right")
+                                        .font(.system(size: 12, weight: .regular))
+                                        .foregroundColor(.chloeTextTertiary)
+                                        .accessibilityHidden(true)
+                                }
+                                .padding(.vertical, Spacing.xs)
+                            }
+                            .buttonStyle(.plain)
                         }
                     }
 
@@ -209,6 +316,47 @@ struct SettingsView: View {
                 selectedPhotoItem = nil
             }
         }
+        .sheet(isPresented: $showDataCollectionInfo) {
+            DataCollectionInfoView()
+        }
+        .sheet(isPresented: $showExportSheet) {
+            if let url = exportFileURL {
+                ShareSheetView(activityItems: [url])
+            }
+        }
+        // Delete Account — Step 1: Initial warning
+        .alert("Delete Account?", isPresented: $showDeleteAccountAlert) {
+            Button("Continue", role: .destructive) {
+                deleteConfirmText = ""
+                showDeleteConfirmation = true
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This will permanently delete ALL your data — profile, conversations, journal entries, goals, vision board, and cloud data. This cannot be undone.")
+        }
+        // Delete Account — Step 2: Type DELETE to confirm
+        .alert("Type DELETE to confirm", isPresented: $showDeleteConfirmation) {
+            TextField("Type DELETE", text: $deleteConfirmText)
+                .autocorrectionDisabled()
+                .textInputAutocapitalization(.characters)
+            Button("Delete Everything", role: .destructive) {
+                guard deleteConfirmText == "DELETE" else { return }
+                performDeleteAccount()
+            }
+            Button("Cancel", role: .cancel) {
+                deleteConfirmText = ""
+            }
+        } message: {
+            Text("This action is irreversible. Type DELETE to confirm permanent account deletion.")
+        }
+        // Delete Account — Success notification
+        .alert("Account Deleted", isPresented: $showDeleteSuccess) {
+            Button("OK") {
+                authVM.signOut()
+            }
+        } message: {
+            Text("All your data has been deleted. You will now be signed out.")
+        }
     }
 
     // MARK: - Helpers
@@ -220,6 +368,7 @@ struct SettingsView: View {
             .foregroundColor(.white)
             .frame(width: 18, height: 18)
             .background(Circle().fill(Color.chloePrimary))
+            .accessibilityHidden(true)
 
         if let profileImage {
             Image(uiImage: profileImage)
@@ -373,6 +522,96 @@ struct SettingsView: View {
     }
     #endif
 
+    // MARK: - Delete Account
+
+    private func performDeleteAccount() {
+        isDeleting = true
+        Task {
+            do {
+                try await SyncDataService.shared.deleteAccount()
+                await MainActor.run {
+                    isDeleting = false
+                    showDeleteSuccess = true
+                }
+            } catch {
+                await MainActor.run {
+                    isDeleting = false
+                    // Fall back to local clear + sign out even if cloud delete fails
+                    SyncDataService.shared.clearAll()
+                    authVM.signOut()
+                }
+            }
+        }
+    }
+
+    // MARK: - Data Export
+
+    private func exportUserData() {
+        Task {
+            let data = gatherExportData()
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+            encoder.dateEncodingStrategy = .iso8601
+
+            guard let jsonData = try? encoder.encode(data) else {
+                await MainActor.run { isExporting = false }
+                return
+            }
+
+            let tempDir = FileManager.default.temporaryDirectory
+            let fileName = "chloe_data_export_\(formattedExportDate).json"
+            let fileURL = tempDir.appendingPathComponent(fileName)
+
+            do {
+                try jsonData.write(to: fileURL)
+                await MainActor.run {
+                    exportFileURL = fileURL
+                    isExporting = false
+                    showExportSheet = true
+                }
+            } catch {
+                await MainActor.run { isExporting = false }
+            }
+        }
+    }
+
+    private func gatherExportData() -> ChloeDataExport {
+        let service = SyncDataService.shared
+        let profile = service.loadProfile()
+        let conversations = service.loadConversations()
+        let journalEntries = service.loadJournalEntries()
+        let goals = service.loadGoals()
+        let affirmations = service.loadAffirmations()
+        let visionItems = service.loadVisionItems()
+        let userFacts = service.loadUserFacts()
+
+        var conversationExports: [ConversationExport] = []
+        for convo in conversations {
+            let messages = service.loadMessages(forConversation: convo.id)
+            conversationExports.append(ConversationExport(
+                conversation: convo,
+                messages: messages
+            ))
+        }
+
+        return ChloeDataExport(
+            exportDate: Date(),
+            profile: profile,
+            conversations: conversationExports,
+            journalEntries: journalEntries,
+            goals: goals,
+            affirmations: affirmations,
+            visionItems: visionItems,
+            userFacts: userFacts
+        )
+    }
+
+    private var formattedExportDate: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: Date())
+    }
+
     // MARK: - Section Builder
 
     private func settingsSection<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
@@ -398,6 +637,7 @@ struct SettingsView: View {
                 .font(.system(size: 16, weight: .regular))
                 .foregroundColor(.chloePrimary)
                 .frame(width: 24)
+                .accessibilityHidden(true)
 
             Text(label)
                 .font(.chloeBodyDefault)
@@ -416,6 +656,7 @@ struct SettingsView: View {
                 .font(.system(size: 16, weight: .regular))
                 .foregroundColor(.chloePrimary)
                 .frame(width: 24)
+                .accessibilityHidden(true)
 
             Text(label)
                 .font(.chloeBodyDefault)
@@ -430,6 +671,36 @@ struct SettingsView: View {
         }
         .padding(.vertical, Spacing.xs)
     }
+}
+
+// MARK: - Data Export Models
+
+struct ChloeDataExport: Encodable {
+    let exportDate: Date
+    let profile: Profile?
+    let conversations: [ConversationExport]
+    let journalEntries: [JournalEntry]
+    let goals: [Goal]
+    let affirmations: [Affirmation]
+    let visionItems: [VisionItem]
+    let userFacts: [UserFact]
+}
+
+struct ConversationExport: Encodable {
+    let conversation: Conversation
+    let messages: [Message]
+}
+
+// MARK: - Share Sheet (UIKit wrapper)
+
+struct ShareSheetView: UIViewControllerRepresentable {
+    let activityItems: [Any]
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
 #Preview {

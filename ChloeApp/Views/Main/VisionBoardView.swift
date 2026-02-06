@@ -73,11 +73,10 @@ struct VisionBoardView: View {
 
     private func visionCard(_ item: VisionItem) -> some View {
         VStack(alignment: .leading, spacing: Spacing.xs) {
-            if let imagePath = item.imageUri,
-               let image = UIImage(contentsOfFile: imagePath) {
-                Image(uiImage: image)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
+            if let imagePath = item.imageUri {
+                // Load thumbnail at display resolution (120pt height) using ImageIO
+                // This avoids decoding the full-resolution image into memory
+                VisionThumbnailView(imagePath: imagePath, height: 120)
                     .frame(height: 120)
                     .clipped()
                     .cornerRadius(Spacing.cornerRadius)
@@ -113,6 +112,31 @@ struct VisionBoardView: View {
     private var addButton: some View {
         ChloeFloatingActionButton(accessibilityLabel: "Add vision") {
             showAddVision = true
+        }
+    }
+}
+
+// MARK: - Thumbnail View (loads image at display resolution via ImageIO)
+
+private struct VisionThumbnailView: View {
+    let imagePath: String
+    let height: CGFloat
+
+    @State private var thumbnail: UIImage?
+
+    var body: some View {
+        Group {
+            if let thumbnail {
+                Image(uiImage: thumbnail)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            } else {
+                Rectangle()
+                    .fill(Color.chloePrimaryLight)
+            }
+        }
+        .task(id: imagePath) {
+            thumbnail = UIImage.thumbnail(atPath: imagePath, maxPixelSize: height * 2)
         }
     }
 }

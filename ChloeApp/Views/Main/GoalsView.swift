@@ -64,6 +64,9 @@ struct GoalsView: View {
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
+        .refreshable {
+            viewModel.loadGoals()
+        }
     }
 
     // MARK: - Goal Card
@@ -125,6 +128,7 @@ private struct AddGoalSheet: View {
     @Environment(\.dismiss) private var dismiss
     @State private var title = ""
     @State private var description = ""
+    @State private var isSaving = false
 
     var onAdd: (Goal) -> Void
 
@@ -138,37 +142,58 @@ private struct AddGoalSheet: View {
                 Color.chloeBackground.ignoresSafeArea()
 
                 VStack(spacing: Spacing.lg) {
-                    TextField("Goal title", text: $title)
-                        .font(.chloeBodyDefault)
-                        .foregroundColor(.chloeTextPrimary)
-                        .padding(.horizontal, Spacing.sm)
-                        .padding(.vertical, Spacing.sm)
-                        .background(Color.chloeSurface)
-                        .cornerRadius(Spacing.cornerRadius)
-                        .onChange(of: title) {
-                            if title.count > 200 {
-                                title = String(title.prefix(200))
+                    VStack(alignment: .trailing, spacing: Spacing.xxxs) {
+                        TextField("Goal title", text: $title)
+                            .font(.chloeBodyDefault)
+                            .foregroundColor(.chloeTextPrimary)
+                            .padding(.horizontal, Spacing.sm)
+                            .padding(.vertical, Spacing.sm)
+                            .background(Color.chloeSurface)
+                            .cornerRadius(Spacing.cornerRadius)
+                            .onChange(of: title) {
+                                if title.count > 200 {
+                                    title = String(title.prefix(200))
+                                }
                             }
-                        }
 
-                    TextField("Description (optional)", text: $description, axis: .vertical)
-                        .font(.chloeBodyDefault)
-                        .foregroundColor(.chloeTextPrimary)
-                        .lineLimit(1...4)
-                        .padding(.horizontal, Spacing.sm)
-                        .padding(.vertical, Spacing.sm)
-                        .background(Color.chloeSurface)
-                        .cornerRadius(Spacing.cornerRadius)
-                        .onChange(of: description) {
-                            if description.count > 500 {
-                                description = String(description.prefix(500))
-                            }
+                        if title.count > 150 {
+                            Text("\(200 - title.count)")
+                                .font(.system(size: 11, weight: .regular))
+                                .foregroundColor(title.count >= 200 ? .red.opacity(0.8) : .chloeTextTertiary)
+                                .padding(.trailing, Spacing.xxs)
                         }
+                    }
+
+                    VStack(alignment: .trailing, spacing: Spacing.xxxs) {
+                        TextField("Description (optional)", text: $description, axis: .vertical)
+                            .font(.chloeBodyDefault)
+                            .foregroundColor(.chloeTextPrimary)
+                            .lineLimit(1...4)
+                            .padding(.horizontal, Spacing.sm)
+                            .padding(.vertical, Spacing.sm)
+                            .background(Color.chloeSurface)
+                            .cornerRadius(Spacing.cornerRadius)
+                            .onChange(of: description) {
+                                if description.count > 500 {
+                                    description = String(description.prefix(500))
+                                }
+                            }
+
+                        if description.count > 400 {
+                            Text("\(500 - description.count)")
+                                .font(.system(size: 11, weight: .regular))
+                                .foregroundColor(description.count >= 500 ? .red.opacity(0.8) : .chloeTextTertiary)
+                                .padding(.trailing, Spacing.xxs)
+                        }
+                    }
 
                     Spacer()
                 }
                 .padding(.horizontal, Spacing.screenHorizontal)
                 .padding(.top, Spacing.md)
+            }
+            .onTapGesture {
+                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
             }
             .navigationTitle("New Goal")
             .navigationBarTitleDisplayMode(.inline)
@@ -179,6 +204,8 @@ private struct AddGoalSheet: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Add") {
+                        guard !isSaving else { return }
+                        isSaving = true
                         let goal = Goal(
                             title: title.trimmingCharacters(in: .whitespacesAndNewlines),
                             description: description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : description.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -186,8 +213,8 @@ private struct AddGoalSheet: View {
                         onAdd(goal)
                         dismiss()
                     }
-                    .foregroundColor(canSave ? .chloePrimary : .chloeTextTertiary)
-                    .disabled(!canSave)
+                    .foregroundColor(canSave && !isSaving ? .chloePrimary : .chloeTextTertiary)
+                    .disabled(!canSave || isSaving)
                 }
             }
         }

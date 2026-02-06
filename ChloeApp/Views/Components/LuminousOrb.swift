@@ -4,6 +4,7 @@ struct LuminousOrb: View {
     var size: CGFloat = Spacing.orbSize
     var isFieldFocused: Bool = false
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var sparkleGlow = false
     @State private var sparkleRotation: Double = 0
 
@@ -12,9 +13,23 @@ struct LuminousOrb: View {
     var body: some View {
         ZStack {
             // MARK: - Fluid Nebula (Canvas swirl)
-            FluidNebula()
-                .frame(width: 80, height: 80)
-                .clipShape(Circle())
+            if !reduceMotion {
+                FluidNebula()
+                    .frame(width: 80, height: 80)
+                    .clipShape(Circle())
+            } else {
+                // Static gradient circle for reduced motion
+                Circle()
+                    .fill(
+                        RadialGradient(
+                            colors: [Color(hex: "#FFF8F0"), Color(hex: "#FFE5D9"), Color(hex: "#B76E79")],
+                            center: .center,
+                            startRadius: 0,
+                            endRadius: 40
+                        )
+                    )
+                    .frame(width: 80, height: 80)
+            }
 
             // MARK: - Sparkle (The Heart)
             ZStack {
@@ -32,12 +47,13 @@ struct LuminousOrb: View {
             .shadow(color: .white.opacity(0.9), radius: 4)
             .shadow(color: Color(hex: "#B76E79").opacity(0.7), radius: 10)
             .shadow(color: Color(hex: "#B76E79").opacity(0.3), radius: 25)
-            .rotationEffect(.degrees(sparkleRotation))
-            .scaleEffect(sparkleGlow ? 1.1 : 0.9)
-            .opacity(sparkleGlow ? 1.0 : 0.7)
+            .rotationEffect(.degrees(reduceMotion ? 0 : sparkleRotation))
+            .scaleEffect(reduceMotion ? 1.0 : (sparkleGlow ? 1.1 : 0.9))
+            .opacity(reduceMotion ? 1.0 : (sparkleGlow ? 1.0 : 0.7))
         }
         .frame(width: 80, height: 80)
         .onAppear {
+            guard !reduceMotion else { return }
             withAnimation(.easeInOut(duration: 4).repeatForever(autoreverses: true)) {
                 sparkleGlow = true
             }
@@ -46,6 +62,7 @@ struct LuminousOrb: View {
             }
         }
         .onChange(of: isFieldFocused) { _, focused in
+            guard !reduceMotion else { return }
             // Re-trigger breathing at faster/slower rate
             sparkleGlow = false
             withAnimation(.easeInOut(duration: focused ? 1.5 : 4.0).repeatForever(autoreverses: true)) {

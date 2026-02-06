@@ -20,23 +20,34 @@ class NotificationService {
         }
     }
 
+    /// Check if notifications are currently authorized. Returns false if denied or not determined.
+    func isAuthorized() async -> Bool {
+        let settings = await center.notificationSettings()
+        return settings.authorizationStatus == .authorized
+    }
+
     // MARK: - Engagement Notifications (analyst-driven, no weekly cap)
 
     func scheduleEngagementNotification(text: String) {
-        let content = UNMutableNotificationContent()
-        content.title = "Chloe"
-        content.body = text
-        content.sound = .default
+        // Check permission before scheduling to avoid silent failures
+        center.getNotificationSettings { [weak self] settings in
+            guard settings.authorizationStatus == .authorized, let self else { return }
 
-        // Schedule 4 hours from now
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 4 * 3600, repeats: false)
-        let request = UNNotificationRequest(
-            identifier: "engagement_\(UUID().uuidString)",
-            content: content,
-            trigger: trigger
-        )
+            let content = UNMutableNotificationContent()
+            content.title = "Chloe"
+            content.body = text
+            content.sound = .default
 
-        center.add(request)
+            // Schedule 4 hours from now
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 4 * 3600, repeats: false)
+            let request = UNNotificationRequest(
+                identifier: "engagement_\(UUID().uuidString)",
+                content: content,
+                trigger: trigger
+            )
+
+            self.center.add(request)
+        }
     }
 
     // MARK: - Fallback Vibe Check (generic, capped at 3/week)
@@ -44,35 +55,40 @@ class NotificationService {
     func scheduleFallbackVibeCheck(displayName: String?, lastSummary: String?) {
         guard storage.canSendGenericNotification() else { return }
 
-        let content = UNMutableNotificationContent()
-        content.title = "Chloe"
-        content.sound = .default
+        // Check permission before scheduling to avoid silent failures
+        center.getNotificationSettings { [weak self] settings in
+            guard settings.authorizationStatus == .authorized, let self else { return }
 
-        let name = displayName ?? "babe"
-        if let summary = lastSummary, !summary.isEmpty {
-            // Contextual message from last session
-            content.body = "Hey \(name), how did that go? \(summary)"
-        } else {
-            // Generic fallback
-            let fallbacks = [
-                "Hey \(name), just checking in. How are you feeling today?",
-                "Hey \(name), I was thinking about you. Come talk to me when you're ready.",
-                "Hey \(name), quick vibe check -- how's your energy today?",
-            ]
-            content.body = fallbacks.randomElement() ?? fallbacks[0]
+            let content = UNMutableNotificationContent()
+            content.title = "Chloe"
+            content.sound = .default
+
+            let name = displayName ?? "babe"
+            if let summary = lastSummary, !summary.isEmpty {
+                // Contextual message from last session
+                content.body = "Hey \(name), how did that go? \(summary)"
+            } else {
+                // Generic fallback
+                let fallbacks = [
+                    "Hey \(name), just checking in. How are you feeling today?",
+                    "Hey \(name), I was thinking about you. Come talk to me when you're ready.",
+                    "Hey \(name), quick vibe check -- how's your energy today?",
+                ]
+                content.body = fallbacks.randomElement() ?? fallbacks[0]
+            }
+
+            // Schedule 24-48 hours from now (randomized)
+            let delay = Double.random(in: 24 * 3600 ... 48 * 3600)
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: delay, repeats: false)
+            let request = UNNotificationRequest(
+                identifier: "fallback_\(UUID().uuidString)",
+                content: content,
+                trigger: trigger
+            )
+
+            self.center.add(request)
+            self.storage.incrementGenericNotificationCount()
         }
-
-        // Schedule 24-48 hours from now (randomized)
-        let delay = Double.random(in: 24 * 3600 ... 48 * 3600)
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: delay, repeats: false)
-        let request = UNNotificationRequest(
-            identifier: "fallback_\(UUID().uuidString)",
-            content: content,
-            trigger: trigger
-        )
-
-        center.add(request)
-        storage.incrementGenericNotificationCount()
     }
 
     // MARK: - Streak Loss Warning (generic, capped at 3/week)
@@ -80,24 +96,29 @@ class NotificationService {
     func scheduleStreakLossNotification() {
         guard storage.canSendGenericNotification() else { return }
 
-        // Remove any existing streak notification before scheduling a new one
-        center.removePendingNotificationRequests(withIdentifiers: ["streak_warning"])
+        // Check permission before scheduling to avoid silent failures
+        center.getNotificationSettings { [weak self] settings in
+            guard settings.authorizationStatus == .authorized, let self else { return }
 
-        let content = UNMutableNotificationContent()
-        content.title = "Chloe"
-        content.body = "Your glow-up streak is about to expire! Come say hi before it resets."
-        content.sound = .default
+            // Remove any existing streak notification before scheduling a new one
+            self.center.removePendingNotificationRequests(withIdentifiers: ["streak_warning"])
 
-        // 48 hours from now
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 48 * 3600, repeats: false)
-        let request = UNNotificationRequest(
-            identifier: "streak_warning",
-            content: content,
-            trigger: trigger
-        )
+            let content = UNMutableNotificationContent()
+            content.title = "Chloe"
+            content.body = "Your glow-up streak is about to expire! Come say hi before it resets."
+            content.sound = .default
 
-        center.add(request)
-        storage.incrementGenericNotificationCount()
+            // 48 hours from now
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 48 * 3600, repeats: false)
+            let request = UNNotificationRequest(
+                identifier: "streak_warning",
+                content: content,
+                trigger: trigger
+            )
+
+            self.center.add(request)
+            self.storage.incrementGenericNotificationCount()
+        }
     }
 
     // MARK: - Daily Affirmation
@@ -110,30 +131,35 @@ class NotificationService {
 
     /// Schedule affirmation for random time between 7-9 AM tomorrow
     func scheduleAffirmationNotification(text: String) {
-        let content = UNMutableNotificationContent()
-        content.title = "Chloe"
-        content.body = text
-        content.sound = .default
+        // Check permission before scheduling to avoid silent failures
+        center.getNotificationSettings { [weak self] settings in
+            guard settings.authorizationStatus == .authorized, let self else { return }
 
-        // Random hour between 7-9, random minute
-        let hour = Int.random(in: 7...8)
-        let minute = Int.random(in: 0...59)
+            let content = UNMutableNotificationContent()
+            content.title = "Chloe"
+            content.body = text
+            content.sound = .default
 
-        var dateComponents = DateComponents()
-        dateComponents.hour = hour
-        dateComponents.minute = minute
+            // Random hour between 7-9, random minute
+            let hour = Int.random(in: 7...8)
+            let minute = Int.random(in: 0...59)
 
-        // Next occurrence of this time (tomorrow if already past today)
-        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
+            var dateComponents = DateComponents()
+            dateComponents.hour = hour
+            dateComponents.minute = minute
 
-        let identifier = "affirmation_\(UUID().uuidString)"
-        let request = UNNotificationRequest(
-            identifier: identifier,
-            content: content,
-            trigger: trigger
-        )
+            // Next occurrence of this time (tomorrow if already past today)
+            let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
 
-        center.add(request)
+            let identifier = "affirmation_\(UUID().uuidString)"
+            let request = UNNotificationRequest(
+                identifier: identifier,
+                content: content,
+                trigger: trigger
+            )
+
+            self.center.add(request)
+        }
     }
 
     // MARK: - Cancellation

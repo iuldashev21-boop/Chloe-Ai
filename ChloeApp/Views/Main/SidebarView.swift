@@ -64,12 +64,15 @@ struct SidebarView: View {
                     Image(systemName: "flame.fill")
                         .font(.system(size: 14))
                         .foregroundColor(.chloePrimary)
+                        .accessibilityHidden(true)
                     Text("\(streak.currentStreak) day streak")
                         .font(.chloeSidebarChatItem)
                         .foregroundColor(.chloeTextSecondary)
                 }
                 .padding(.horizontal, Spacing.lg)
                 .padding(.vertical, Spacing.xs)
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("\(streak.currentStreak) day streak")
             }
 
             Spacer().frame(height: Spacing.lg)
@@ -163,6 +166,7 @@ struct SidebarView: View {
                     .font(.system(size: 16, weight: .regular))
                     .foregroundColor(.chloePrimary)
                     .frame(width: 24)
+                    .accessibilityHidden(true)
                 Text(label)
                     .font(.chloeSidebarMenuItem)
                     .foregroundColor(.chloeTextPrimary)
@@ -173,6 +177,7 @@ struct SidebarView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(label)
         .accessibilityIdentifier(identifier ?? label.lowercased().replacingOccurrences(of: " ", with: "-"))
     }
 
@@ -243,6 +248,7 @@ struct SidebarView: View {
                         .font(.system(size: 11, weight: .regular))
                         .foregroundColor(.chloePrimary.opacity(0.6))
                         .frame(width: 16)
+                        .accessibilityHidden(true)
                 }
                 Text(convo.title)
                     .font(.chloeSidebarChatItem)
@@ -279,6 +285,7 @@ struct SidebarView: View {
                         .frame(width: 28, height: 28)
                         .contentShape(Rectangle())
                 }
+                .accessibilityLabel("Options for \(convo.title)")
             }
             .padding(.horizontal, Spacing.lg)
             .padding(.vertical, Spacing.xxs)
@@ -290,7 +297,7 @@ struct SidebarView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(convo.title)
+        .accessibilityLabel(convo.starred ? "\(convo.title), starred" : convo.title)
         .accessibilityIdentifier("conversation-\(convo.id)")
     }
 }

@@ -34,17 +34,17 @@ struct OptionCard: View {
         Button(action: action) {
             VStack(alignment: .leading, spacing: Spacing.xxs) {
                 Text(option.label)
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.chloeSubheadline)
                     .foregroundColor(isSelected ? .chloeTextPrimary : .chloeTextSecondary)
 
                 Text(option.action)
-                    .font(.system(size: 14, weight: .regular))
+                    .font(.chloeBodyDefault)
                     .foregroundColor(.chloeTextSecondary)
                     .lineLimit(2)
 
                 if !option.outcome.isEmpty {
                     Text("\(option.outcome)")
-                        .font(.system(size: 13, weight: .light, design: .default))
+                        .font(.chloeCaptionLight)
                         .foregroundColor(.chloeTextTertiary)
                         .italic()
                 }
@@ -67,6 +67,9 @@ struct OptionCard: View {
             .animation(.easeOut(duration: 0.2), value: isSelected)
         }
         .buttonStyle(.plain)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(option.label). \(option.action)")
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }
 

@@ -42,7 +42,8 @@ class OnboardingViewModel: ObservableObject {
 
         // Save profile with preferences
         var profile = syncDataService.loadProfile() ?? Profile()
-        profile.displayName = preferences.name ?? ""
+        let trimmedName = (preferences.name ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        profile.displayName = trimmedName.isEmpty ? "" : trimmedName
         profile.preferences = preferences
         profile.onboardingComplete = true
         profile.updatedAt = Date()

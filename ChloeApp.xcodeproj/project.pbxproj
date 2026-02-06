@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		SC0000020000000000000001 /* ServiceContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = SC0000010000000000000001 /* ServiceContainer.swift */; };
 		SP0000020000000000000001 /* ServiceProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = SP0000010000000000000001 /* ServiceProtocols.swift */; };
+		DC0000010000000000000001 /* DataCollectionInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0000020000000000000001 /* DataCollectionInfoView.swift */; };
 		0730A3B97A55099DE06BB3A4 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 51A2B70D95BD35EE7CE38665 /* Foundation.framework */; };
 		0B21A395DAC0A352C98340AD /* GoalsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11B72E6D6BDC5A74372822CE /* GoalsTests.swift */; };
 		13AAA29D3391452E7DCA5A2C /* ChloeViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 458E57E6C9CC6C99B2E71A2D /* ChloeViewModifiers.swift */; };
@@ -238,6 +239,7 @@
 		BA5DAFF02E46B79A5EABE633 /* ChloeFloatingActionButton.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ChloeApp/Views/Components/ChloeFloatingActionButton.swift; sourceTree = SOURCE_ROOT; };
 		C4DF9A3F95ADE9B8CAC88DA2 /* RouterModels.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RouterModels.swift; sourceTree = "<group>"; };
 		C5ED54293ECCDC6658CA097B /* RateLimitTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RateLimitTests.swift; sourceTree = "<group>"; };
+		DC0000020000000000000001 /* DataCollectionInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataCollectionInfoView.swift; sourceTree = "<group>"; };
 		D20000010000000000000001 /* SupabaseClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseClient.swift; sourceTree = "<group>"; };
 		D30000020000000000000001 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
 		D30000030000000000000001 /* SupabaseDataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseDataService.swift; sourceTree = "<group>"; };
@@ -470,6 +472,7 @@
 			children = (
 				F20000110000000000000001 /* AddVisionSheet.swift */,
 				A20000490000000000000001 /* AffirmationsView.swift */,
+				DC0000020000000000000001 /* DataCollectionInfoView.swift */,
 				A20000470000000000000001 /* GoalsView.swift */,
 				F20000120000000000000001 /* HistoryView.swift */,
 				F20000130000000000000001 /* JournalDetailView.swift */,
@@ -849,6 +852,7 @@
 				A10000480000000000000001 /* VisionBoardView.swift in Sources */,
 				A10000490000000000000001 /* AffirmationsView.swift in Sources */,
 				A10000500000000000000001 /* SettingsView.swift in Sources */,
+				DC0000010000000000000001 /* DataCollectionInfoView.swift in Sources */,
 				A10000520000000000000001 /* ChatBubble.swift in Sources */,
 				A10000530000000000000001 /* ChatInputBar.swift in Sources */,
 				A10000540000000000000001 /* TypingIndicator.swift in Sources */,

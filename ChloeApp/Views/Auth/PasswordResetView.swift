@@ -10,6 +10,21 @@ struct PasswordResetView: View {
     @State private var appeared = false
     @FocusState private var emailFocused: Bool
 
+    private var isEmailFormatValid: Bool {
+        let trimmed = email.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let atIndex = trimmed.firstIndex(of: "@") else { return false }
+        let afterAt = trimmed[trimmed.index(after: atIndex)...]
+        return afterAt.contains(".")
+    }
+
+    private var showEmailHint: Bool {
+        !email.isBlank && !isEmailFormatValid
+    }
+
+    private var canSubmit: Bool {
+        isEmailFormatValid
+    }
+
     var body: some View {
         ZStack {
             GradientBackground()
@@ -119,6 +134,7 @@ struct PasswordResetView: View {
                 .keyboardType(.emailAddress)
                 .textContentType(.emailAddress)
                 .autocapitalization(.none)
+                .autocorrectionDisabled()
                 .focused($emailFocused)
                 .padding(.horizontal, Spacing.xs)
                 .frame(height: 48)
@@ -131,6 +147,16 @@ struct PasswordResetView: View {
                         .animation(.easeInOut(duration: 0.3), value: emailFocused)
                 }
                 .padding(.horizontal, Spacing.screenHorizontal)
+
+            // Email format hint
+            if showEmailHint {
+                Text("Enter a valid email address")
+                    .font(.chloeCaption)
+                    .foregroundColor(.chloeRosewood.opacity(0.8))
+                    .padding(.horizontal, Spacing.screenHorizontal)
+                    .transition(.opacity)
+                    .animation(.easeInOut(duration: 0.2), value: showEmailHint)
+            }
 
             // Error message
             if let error = errorMessage {
@@ -163,10 +189,10 @@ struct PasswordResetView: View {
                 .frame(height: 52)
                 .background(
                     Capsule()
-                        .fill(Color.chloePrimary.opacity(email.isBlank ? 0.4 : 0.8))
+                        .fill(Color.chloePrimary.opacity(canSubmit ? 0.8 : 0.4))
                 )
             }
-            .disabled(email.isBlank || isLoading)
+            .disabled(!canSubmit || isLoading)
             .buttonStyle(PressableButtonStyle())
             .padding(.horizontal, Spacing.screenHorizontal)
         }
@@ -233,8 +259,10 @@ struct PasswordResetView: View {
         isLoading = true
         errorMessage = nil
 
+        let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
+
         do {
-            try await authVM.sendPasswordReset(email: email)
+            try await authVM.sendPasswordReset(email: trimmedEmail)
             withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
                 showSuccess = true
             }

@@ -20,6 +20,10 @@ class ChatViewModel: ObservableObject {
     @Published var conversationTitle: String = "New Conversation"
     @Published var isLimitReached = false
     @Published var isOffline = false
+    @Published var hasOlderMessages = false
+
+    /// Number of messages to load initially per conversation
+    private let messagePageSize = 100
 
     private let geminiService: GeminiServiceProtocol
     private let safetyService: SafetyServiceProtocol
@@ -67,7 +71,7 @@ class ChatViewModel: ObservableObject {
             .store(in: &cancellables)
     }
 
-    private var isSending = false
+    @Published private(set) var isSending = false
 
     func sendMessage() async {
         guard !isSending else { return }
@@ -285,6 +289,12 @@ class ChatViewModel: ObservableObject {
                     await self?.triggerBackgroundAnalysis()
                 }
             }
+        } catch is CancellationError {
+            // Task was cancelled (e.g., app backgrounded). Save what we have and allow retry.
+            lastFailedText = text
+            loadingState = .idle
+            saveMessages()
+            showError("Message interrupted. Tap to retry.")
         } catch let geminiError as GeminiError {
             lastFailedText = text
             loadingState = .idle
@@ -350,13 +360,29 @@ class ChatViewModel: ObservableObject {
         errorDismissTask?.cancel()
         isTyping = false
         isLimitReached = false
+        hasOlderMessages = false
         conversationTitle = "New Conversation"
     }
 
     func loadConversation(id: String) {
         conversationId = id
-        messages = storageService.loadMessages(forConversation: id)
+        let totalCount = storageService.messageCount(forConversation: id)
+        if totalCount > messagePageSize {
+            messages = storageService.loadMessages(forConversation: id, limit: messagePageSize)
+            hasOlderMessages = true
+        } else {
+            messages = storageService.loadMessages(forConversation: id)
+            hasOlderMessages = false
+        }
         conversationTitle = storageService.loadConversation(id: id)?.title ?? "New Conversation"
+    }
+
+    /// Load older messages when user scrolls to the top of the chat.
+    func loadOlderMessages() {
+        guard hasOlderMessages, let id = conversationId else { return }
+        let allMessages = storageService.loadMessages(forConversation: id)
+        messages = allMessages
+        hasOlderMessages = false
     }
 
     private func saveMessages() {

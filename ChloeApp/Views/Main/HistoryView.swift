@@ -3,8 +3,12 @@ import SwiftUI
 struct HistoryView: View {
     @State private var conversations: [Conversation] = []
     @State private var isLoading = true
+    @State private var displayLimit = 50
     @Environment(\.dismiss) private var dismiss
     var onSelectConversation: ((Conversation) -> Void)?
+
+    /// All conversations sorted by most recent, loaded once
+    @State private var allConversations: [Conversation] = []
 
     var body: some View {
         ZStack {
@@ -33,9 +37,27 @@ struct HistoryView: View {
                             }
                             .buttonStyle(.plain)
                         }
+
+                        // "Load more" button when there are more conversations
+                        if displayLimit < allConversations.count {
+                            Button {
+                                displayLimit += 50
+                                conversations = Array(allConversations.prefix(displayLimit))
+                            } label: {
+                                Text("Load more conversations")
+                                    .font(.chloeBodyDefault)
+                                    .foregroundColor(.chloePrimary)
+                                    .padding(.vertical, Spacing.sm)
+                            }
+                        }
                     }
                     .padding(.horizontal, Spacing.screenHorizontal)
                     .padding(.vertical, Spacing.sm)
+                }
+                .refreshable {
+                    allConversations = SyncDataService.shared.loadConversations()
+                        .sorted(by: { $0.updatedAt > $1.updatedAt })
+                    conversations = Array(allConversations.prefix(displayLimit))
                 }
             }
         }
@@ -44,8 +66,9 @@ struct HistoryView: View {
         .toolbar(.visible, for: .navigationBar)
         .toolbarRole(.editor)
         .onAppear {
-            conversations = SyncDataService.shared.loadConversations()
+            allConversations = SyncDataService.shared.loadConversations()
                 .sorted(by: { $0.updatedAt > $1.updatedAt })
+            conversations = Array(allConversations.prefix(displayLimit))
             isLoading = false
         }
     }

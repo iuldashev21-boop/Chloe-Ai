@@ -36,7 +36,14 @@ struct NameStepView: View {
                     .font(.custom(ChloeFont.heroBoldItalic, size: 24))
                     .foregroundColor(.chloeTextPrimary)
                     .multilineTextAlignment(.center)
+                    .textContentType(.name)
+                    .autocorrectionDisabled()
                     .focused($nameFieldFocused)
+                    .onChange(of: viewModel.nameText) {
+                        if viewModel.nameText.count > 30 {
+                            viewModel.nameText = String(viewModel.nameText.prefix(30))
+                        }
+                    }
                     .padding(.horizontal, Spacing.xxl)
                     .padding(.vertical, Spacing.sm)
                     .background(Color.clear)

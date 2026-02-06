@@ -3,6 +3,7 @@ import SwiftUI
 struct ChatInputBar: View {
     @Binding var text: String
     @Binding var pendingImage: UIImage?
+    var isSending: Bool = false
     var onSend: () -> Void
     var onRecentsPressed: () -> Void = {}
     var onTakePhoto: () -> Void = {}
@@ -13,8 +14,18 @@ struct ChatInputBar: View {
     @State private var showAddSheet = false
     @FocusState private var isFocused: Bool
 
+    private let characterLimit = 4000
+
     private var canSend: Bool {
-        !text.isBlank || pendingImage != nil
+        (!text.isBlank || pendingImage != nil) && text.count <= characterLimit && !isSending
+    }
+
+    private var remainingCharacters: Int {
+        characterLimit - text.count
+    }
+
+    private var showCharacterCounter: Bool {
+        text.count > characterLimit - 500
     }
 
     var body: some View {
@@ -32,6 +43,7 @@ struct ChatInputBar: View {
                                 RoundedRectangle(cornerRadius: 10)
                                     .stroke(Color.chloeBorderWarm, lineWidth: 0.5)
                             )
+                            .accessibilityLabel("Attached image")
 
                         Button {
                             withAnimation(.easeOut(duration: 0.2)) {
@@ -42,6 +54,7 @@ struct ChatInputBar: View {
                                 .font(.system(size: 18))
                                 .foregroundStyle(.white, Color.chloeTextTertiary)
                         }
+                        .accessibilityLabel("Remove attached image")
                         .offset(x: 6, y: -6)
                     }
                     Spacer()
@@ -60,21 +73,37 @@ struct ChatInputBar: View {
                         .foregroundColor(.chloeRosewood)
                         .frame(width: 44, height: 44)
                 }
+                .accessibilityLabel("Add attachment")
 
                 // Text field
-                TextField("", text: $text, axis: .vertical)
-                    .font(.chloeInputPlaceholder(16))
-                    .lineLimit(1...5)
-                    .focused($isFocused)
-                    .placeholder(when: text.isBlank) {
-                        Text("What's on your heart?")
-                            .font(.chloeInputPlaceholder(16))
-                            .foregroundColor(.chloeTextTertiary)
+                VStack(alignment: .trailing, spacing: 2) {
+                    TextField("", text: $text, axis: .vertical)
+                        .font(.chloeInputPlaceholder(16))
+                        .lineLimit(1...5)
+                        .focused($isFocused)
+                        .placeholder(when: text.isBlank) {
+                            Text("What's on your heart?")
+                                .font(.chloeInputPlaceholder(16))
+                                .foregroundColor(.chloeTextTertiary)
+                        }
+                        .onChange(of: isFocused) { _, focused in
+                            if focused { onFocus() }
+                        }
+                        .onChange(of: text) {
+                            if text.count > characterLimit {
+                                text = String(text.prefix(characterLimit))
+                            }
+                        }
+                        .accessibilityIdentifier("chat-input")
+
+                    if showCharacterCounter {
+                        Text("\(remainingCharacters)")
+                            .font(.system(size: 11, weight: .regular))
+                            .foregroundColor(remainingCharacters <= 0 ? .red.opacity(0.8) : .chloeTextTertiary)
+                            .transition(.opacity)
+                            .animation(.easeInOut(duration: 0.15), value: showCharacterCounter)
                     }
-                    .onChange(of: isFocused) { _, focused in
-                        if focused { onFocus() }
-                    }
-                    .accessibilityIdentifier("chat-input")
+                }
 
                 // Mic / Send button
                 Button {
@@ -87,6 +116,7 @@ struct ChatInputBar: View {
                         .foregroundColor(canSend ? .chloePrimary : .chloeTextTertiary)
                         .contentTransition(.symbolEffect(.replace))
                 }
+                .disabled(isSending)
                 .accessibilityLabel(canSend ? "Send" : "Microphone")
                 .accessibilityIdentifier("send-button")
             }

@@ -674,6 +674,14 @@ class SyncDataService: ObservableObject {
         return local.loadMessages(forConversation: conversationId)
     }
 
+    func loadMessages(forConversation conversationId: String, limit: Int) -> [Message] {
+        return local.loadMessages(forConversation: conversationId, limit: limit)
+    }
+
+    func messageCount(forConversation conversationId: String) -> Int {
+        return local.messageCount(forConversation: conversationId)
+    }
+
     private func pushMessagesToCloud(_ messages: [Message], forConversation conversationId: String) {
         guard network.isConnected else { hasPendingChanges = true; return }
         Task { [weak self] in

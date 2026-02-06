@@ -61,6 +61,7 @@ struct SanctuaryView: View {
             .ignoresSafeArea()
             EtherealDustParticles()
                 .ignoresSafeArea()
+                .accessibilityHidden(true)
 
             // Layer 1: Sidebar
             SidebarView(
@@ -395,6 +396,18 @@ struct SanctuaryView: View {
         ScrollViewReader { proxy in
             ScrollView {
                 LazyVStack(spacing: Spacing.xs) {
+                    // Load older messages button (pagination)
+                    if chatVM.hasOlderMessages {
+                        Button {
+                            chatVM.loadOlderMessages()
+                        } label: {
+                            Text("Load earlier messages")
+                                .font(.chloeCaption)
+                                .foregroundColor(.chloePrimary)
+                                .padding(.vertical, Spacing.xs)
+                        }
+                    }
+
                     ForEach(Array(chatVM.messages.enumerated()), id: \.element.id) { index, message in
                         let previousUserMessage = viewModel.findPreviousUserMessage(beforeIndex: index, in: chatVM.messages)
                         ChatBubble(
@@ -447,6 +460,7 @@ struct SanctuaryView: View {
                         HStack(spacing: Spacing.xxxs) {
                             Image(systemName: "wifi.slash")
                                 .font(.system(size: 12, weight: .medium))
+                                .accessibilityHidden(true)
                             Text("No internet connection")
                                 .font(.chloeCaption)
                         }
@@ -455,6 +469,8 @@ struct SanctuaryView: View {
                         .padding(.bottom, Spacing.xxxs)
                         .transition(.opacity)
                         .animation(.easeInOut(duration: 0.3), value: chatVM.isOffline)
+                        .accessibilityElement(children: .combine)
+                        .accessibilityAddTraits(.updatesFrequently)
                     }
 
                     // Error / retry banner
@@ -529,6 +545,7 @@ struct SanctuaryView: View {
             ChatInputBar(
                 text: $chatVM.inputText,
                 pendingImage: $chatVM.pendingImage,
+                isSending: chatVM.isSending,
                 onSend: {
                     UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                     if !chatActive { activateChat() }
@@ -558,6 +575,7 @@ struct SanctuaryView: View {
                         endPoint: .bottomTrailing
                     )
                 )
+                .accessibilityHidden(true)
 
             Text("Chloe is recharging")
                 .font(.chloeHeadline)
@@ -656,7 +674,7 @@ struct SanctuaryView: View {
             if message.role == .user { Spacer(minLength: 60) }
 
             Text(message.text)
-                .font(.system(size: 17, weight: message.role == .user ? .medium : .light))
+                .font(message.role == .user ? .chloeBodyDefault.weight(.medium) : .chloeBodyDefault.weight(.light))
                 .foregroundColor(.chloeTextPrimary)
                 .lineSpacing(8.5)
                 .padding(.horizontal, Spacing.sm)
@@ -668,6 +686,7 @@ struct SanctuaryView: View {
                 )
                 .cornerRadius(Spacing.cornerRadius)
                 .lineLimit(2)
+                .accessibilityLabel(message.role == .user ? "You said: \(message.text)" : "Chloe said: \(message.text)")
 
             if message.role == .chloe { Spacer(minLength: 60) }
         }

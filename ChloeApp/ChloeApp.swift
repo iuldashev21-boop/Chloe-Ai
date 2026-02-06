@@ -55,7 +55,21 @@ struct ChloeApp: App {
                 .onOpenURL { url in
                     handleDeepLink(url)
                 }
+                .onReceive(NotificationCenter.default.publisher(for: UIApplication.didReceiveMemoryWarningNotification)) { _ in
+                    handleMemoryWarning()
+                }
         }
+    }
+
+    private func handleMemoryWarning() {
+        #if DEBUG
+        print("[ChloeApp] Memory warning received — clearing caches")
+        #endif
+        // Clear StorageService in-memory caches
+        StorageService.shared.clearCaches()
+        // Clear URLCache for any network-loaded images
+        URLCache.shared.removeAllCachedResponses()
+        trackSignal("app.memoryWarning")
     }
 
     private func handleScenePhaseChange(_ phase: ScenePhase) {
@@ -107,6 +121,15 @@ struct ChloeApp: App {
         print("[DeepLink] Received URL: \(url.absoluteString)")
         #endif
 
+        // Guard against malformed URLs — must have a scheme and host/path to be valid
+        guard url.scheme != nil, !url.absoluteString.isEmpty,
+              url.host != nil || url.path.count > 1 else {
+            #if DEBUG
+            print("[DeepLink] Ignoring malformed URL")
+            #endif
+            return
+        }
+
         // Check if user was awaiting password reset (flag set when they requested reset)
         // This is more reliable than parsing URL since Supabase PKCE doesn't include type=recovery
         let awaitingReset = UserDefaults.standard.bool(forKey: "awaitingPasswordReset")
@@ -136,6 +159,7 @@ struct ChloeApp: App {
                 #if DEBUG
                 print("[DeepLink] Auth callback failed: \(error)")
                 #endif
+                // Silent fail for users — deep link auth errors don't need user-facing alerts
             }
         }
     }

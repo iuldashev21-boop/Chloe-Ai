@@ -138,14 +138,28 @@ struct AddVisionSheet: View {
                 .font(.chloeHeadline)
                 .foregroundColor(.chloeTextPrimary)
 
-            TextField("What's your vision?", text: $title)
-                .font(.chloeBodyDefault)
-                .foregroundColor(.chloeTextPrimary)
-                .padding(.horizontal, Spacing.sm)
-                .padding(.vertical, Spacing.sm)
-                .background(Color.chloeSurface)
-                .cornerRadius(Spacing.cornerRadius)
-                .shadow(color: Color.black.opacity(0.04), radius: 6, y: 2)
+            VStack(alignment: .trailing, spacing: Spacing.xxxs) {
+                TextField("What's your vision?", text: $title)
+                    .font(.chloeBodyDefault)
+                    .foregroundColor(.chloeTextPrimary)
+                    .padding(.horizontal, Spacing.sm)
+                    .padding(.vertical, Spacing.sm)
+                    .background(Color.chloeSurface)
+                    .cornerRadius(Spacing.cornerRadius)
+                    .shadow(color: Color.black.opacity(0.04), radius: 6, y: 2)
+                    .onChange(of: title) {
+                        if title.count > 150 {
+                            title = String(title.prefix(150))
+                        }
+                    }
+
+                if title.count > 120 {
+                    Text("\(150 - title.count)")
+                        .font(.system(size: 11, weight: .regular))
+                        .foregroundColor(title.count >= 150 ? .red.opacity(0.8) : .chloeTextTertiary)
+                        .padding(.trailing, Spacing.xxs)
+                }
+            }
         }
     }
 

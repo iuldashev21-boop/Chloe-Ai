@@ -26,7 +26,7 @@ class VisionBoardViewModel: ObservableObject {
     }
 
     func deleteItem(at offsets: IndexSet) {
-        for index in offsets {
+        for index in offsets where index < items.count {
             cleanupImageFile(for: items[index])
         }
         items.remove(atOffsets: offsets)

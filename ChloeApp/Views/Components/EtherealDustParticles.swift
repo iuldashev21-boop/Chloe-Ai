@@ -11,9 +11,14 @@ struct EtherealDustParticles: View {
         var opacity: Double
     }
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var particles: [Particle] = []
 
     var body: some View {
+        if reduceMotion {
+            // Show a static subtle overlay instead of animated particles
+            Color.clear
+        } else {
         TimelineView(.animation) { timeline in
             Canvas { context, size in
                 let t = CGFloat(timeline.date.timeIntervalSinceReferenceDate)
@@ -73,5 +78,6 @@ struct EtherealDustParticles: View {
 
             particles = dust + bokeh
         }
+        } // end else (reduceMotion)
     }
 }

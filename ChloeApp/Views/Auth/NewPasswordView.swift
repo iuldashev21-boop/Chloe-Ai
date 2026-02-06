@@ -101,20 +101,35 @@ struct NewPasswordView: View {
                         }
                         .padding(.horizontal, Spacing.screenHorizontal)
 
-                    // Password requirements hint
-                    if !password.isEmpty && password.count < 6 {
-                        Text("Password must be at least 6 characters")
-                            .font(.chloeCaption)
-                            .foregroundColor(.chloeRosewood)
-                            .padding(.horizontal, Spacing.screenHorizontal)
-                    }
+                    // Password requirements
+                    if !password.isEmpty {
+                        VStack(alignment: .leading, spacing: Spacing.xxxs) {
+                            HStack(spacing: Spacing.xxxs) {
+                                Image(systemName: password.count >= 6 ? "checkmark.circle.fill" : "circle")
+                                    .font(.system(size: 12))
+                                    .foregroundColor(password.count >= 6 ? Color(hex: "#4A7C59") : .chloeTextTertiary)
 
-                    // Mismatch hint
-                    if !confirmPassword.isEmpty && password != confirmPassword {
-                        Text("Passwords don't match")
-                            .font(.chloeCaption)
-                            .foregroundColor(.red.opacity(0.9))
-                            .padding(.horizontal, Spacing.screenHorizontal)
+                                Text("At least 6 characters")
+                                    .font(.chloeCaption)
+                                    .foregroundColor(password.count >= 6 ? Color(hex: "#4A7C59") : .chloeTextTertiary)
+                            }
+
+                            if !confirmPassword.isEmpty {
+                                HStack(spacing: Spacing.xxxs) {
+                                    Image(systemName: password == confirmPassword ? "checkmark.circle.fill" : "xmark.circle.fill")
+                                        .font(.system(size: 12))
+                                        .foregroundColor(password == confirmPassword ? Color(hex: "#4A7C59") : .red.opacity(0.8))
+
+                                    Text("Passwords match")
+                                        .font(.chloeCaption)
+                                        .foregroundColor(password == confirmPassword ? Color(hex: "#4A7C59") : .red.opacity(0.8))
+                                }
+                            }
+                        }
+                        .padding(.horizontal, Spacing.screenHorizontal)
+                        .transition(.opacity)
+                        .animation(.easeInOut(duration: 0.2), value: password.count >= 6)
+                        .animation(.easeInOut(duration: 0.2), value: password == confirmPassword)
                     }
 
                     // Error message
