@@ -5,6 +5,7 @@ enum GeminiError: Error, LocalizedError {
     case noAPIKey
     case timeout
     case noConnection
+    case rateLimited
     case apiError(Int, String)
     case emptyResponse
     case decodingFailed
@@ -15,6 +16,7 @@ enum GeminiError: Error, LocalizedError {
         case .noAPIKey: return "API key not configured"
         case .timeout: return "Chloe is taking too long to respond. Please try again."
         case .noConnection: return "No internet connection. Please check your network and try again."
+        case .rateLimited: return "Chloe needs a moment to recharge. Try again in a minute."
         case .apiError(let code, let msg): return "API error (\(code)): \(msg)"
         case .emptyResponse: return "I'm having a moment — can you try again?"
         case .decodingFailed: return "Failed to parse response"
@@ -189,8 +191,7 @@ class GeminiService {
             print("[GeminiService] JSON decode failed (attempt \(attempt)): \(error)")
             #endif
 
-            // FIX 5: Analytics tracking (TODO: Wire up TelemetryDeck when configured)
-            // TelemetryDeck.signal("strategist_json_failure", parameters: ["attempt": "\(attempt)"])
+            trackSignal("gemini.error.jsonDecode", parameters: ["context": "strategist", "attempt": "\(attempt)"])
 
             // FIX 2: Retry once before falling back
             if attempt < 2 {
@@ -269,6 +270,8 @@ class GeminiService {
             print("[GeminiService] Router decode failed (attempt \(attempt)): \(error)")
             #endif
 
+            trackSignal("gemini.error.jsonDecode", parameters: ["context": "router", "attempt": "\(attempt)"])
+
             if attempt < 2 {
                 try? await Task.sleep(nanoseconds: 500_000_000)
                 return try await classifyMessage(
@@ -340,33 +343,63 @@ class GeminiService {
 
     // MARK: - Private Helpers
 
+    /// Maximum number of retries for rate-limited (429) responses.
+    private let maxRateLimitRetries = 3
+
     private func makeRequest(body: [String: Any]) async throws -> Data {
         guard !apiKey.isEmpty, let url = URL(string: baseURL) else {
             throw GeminiError.noAPIKey
         }
 
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue(apiKey, forHTTPHeaderField: "x-goog-api-key")
-        request.timeoutInterval = timeoutInterval
-        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        let httpBody = try JSONSerialization.data(withJSONObject: body)
 
-        do {
-            let (data, response) = try await URLSession.shared.data(for: request)
-            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
-                let errorText = String(data: data, encoding: .utf8) ?? "Unknown error"
-                throw GeminiError.apiError(httpResponse.statusCode, errorText)
-            }
-            return data
-        } catch let urlError as URLError {
-            switch urlError.code {
-            case .notConnectedToInternet, .networkConnectionLost:
-                throw GeminiError.noConnection
-            default:
-                throw GeminiError.timeout
+        for attempt in 0..<maxRateLimitRetries {
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.setValue(apiKey, forHTTPHeaderField: "x-goog-api-key")
+            request.timeoutInterval = timeoutInterval
+            request.httpBody = httpBody
+
+            do {
+                let (data, response) = try await URLSession.shared.data(for: request)
+                if let httpResponse = response as? HTTPURLResponse {
+                    if httpResponse.statusCode == 200 {
+                        return data
+                    }
+                    if httpResponse.statusCode == 429 {
+                        trackSignal("gemini.error.rateLimited", parameters: ["attempt": "\(attempt + 1)"])
+                        #if DEBUG
+                        print("[GeminiService] Rate limited (429), attempt \(attempt + 1)/\(maxRateLimitRetries)")
+                        #endif
+                        // Exponential backoff: 2s, 4s, 8s
+                        if attempt < maxRateLimitRetries - 1 {
+                            let delay = UInt64(pow(2.0, Double(attempt + 1))) * 1_000_000_000
+                            try await Task.sleep(nanoseconds: delay)
+                            continue
+                        }
+                        throw GeminiError.rateLimited
+                    }
+                    let errorText = String(data: data, encoding: .utf8) ?? "Unknown error"
+                    trackSignal("gemini.error.apiError", parameters: ["statusCode": "\(httpResponse.statusCode)"])
+                    throw GeminiError.apiError(httpResponse.statusCode, errorText)
+                }
+                return data
+            } catch let error as GeminiError {
+                throw error
+            } catch let urlError as URLError {
+                switch urlError.code {
+                case .notConnectedToInternet, .networkConnectionLost:
+                    trackSignal("gemini.error.noConnection")
+                    throw GeminiError.noConnection
+                default:
+                    trackSignal("gemini.error.timeout")
+                    throw GeminiError.timeout
+                }
             }
         }
+        // Should not reach here, but safety net
+        throw GeminiError.rateLimited
     }
 
     private func loadImageData(from path: String) -> Data? {

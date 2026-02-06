@@ -19,6 +19,7 @@ struct SanctuaryView: View {
     @Environment(\.scenePhase) private var scenePhase
     @StateObject private var viewModel = SanctuaryViewModel()
     @StateObject private var chatVM = ChatViewModel()
+    @ObservedObject private var syncService = SyncDataService.shared
     @State private var chatActive = false
     @State private var appeared = false
 
@@ -294,6 +295,13 @@ struct SanctuaryView: View {
                     .accessibilityLabel("Open sidebar")
                     .accessibilityIdentifier("sidebar-button")
 
+                    SyncStatusBadge(
+                        status: syncService.syncStatus,
+                        onRetry: {
+                            Task { await syncService.retryPendingSync() }
+                        }
+                    )
+
                     Spacer()
 
                     if chatActive {
@@ -434,7 +442,23 @@ struct SanctuaryView: View {
             .defaultScrollAnchor(.bottom)
             .safeAreaInset(edge: .bottom) {
                 VStack(spacing: 0) {
-                    if let error = chatVM.errorMessage {
+                    // Offline indicator
+                    if chatVM.isOffline {
+                        HStack(spacing: Spacing.xxxs) {
+                            Image(systemName: "wifi.slash")
+                                .font(.system(size: 12, weight: .medium))
+                            Text("No internet connection")
+                                .font(.chloeCaption)
+                        }
+                        .foregroundColor(.chloeTextTertiary)
+                        .padding(.horizontal, Spacing.screenHorizontal)
+                        .padding(.bottom, Spacing.xxxs)
+                        .transition(.opacity)
+                        .animation(.easeInOut(duration: 0.3), value: chatVM.isOffline)
+                    }
+
+                    // Error / retry banner
+                    if let error = chatVM.errorMessage, !chatVM.isOffline || chatVM.lastFailedText != nil {
                         HStack {
                             if chatVM.lastFailedText != nil {
                                 Button {
@@ -470,15 +494,6 @@ struct SanctuaryView: View {
                         }
                         .padding(.horizontal, Spacing.screenHorizontal)
                         .padding(.bottom, Spacing.xxxs)
-                        .onAppear {
-                            if chatVM.lastFailedText == nil {
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-                                    withAnimation {
-                                        chatVM.errorMessage = nil
-                                    }
-                                }
-                            }
-                        }
                     }
 
                     chatInputBar

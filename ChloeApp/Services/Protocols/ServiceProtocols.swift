@@ -149,6 +149,10 @@ protocol SafetyServiceProtocol: AnyObject {
 /// Protocol abstracting SyncDataService's public API for dependency injection and testing.
 protocol SyncDataServiceProtocol: AnyObject {
 
+    // Sync Status
+    var syncStatus: SyncStatus { get }
+    func retryPendingSync() async
+
     // Cloud Sync
     func pushAllToCloud() async
     func syncFromCloud() async

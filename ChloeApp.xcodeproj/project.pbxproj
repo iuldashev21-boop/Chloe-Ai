@@ -22,6 +22,7 @@
 		8E2FBEDE9E149919CA704D01 /* JournalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9E9EFD831A08021FF5E4BB /* JournalTests.swift */; };
 		8E3D83A5B652B8DED38B2FC3 /* ChloeFloatingActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA5DAFF02E46B79A5EABE633 /* ChloeFloatingActionButton.swift */; };
 		90C3CBE435FAA7DCD942145D /* ChloeEmptyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = D43EE6EBAC2A490942E57A64 /* ChloeEmptyState.swift */; };
+		E1A2B3C4D5E6F70800112233 /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A2B3C4D5E6F70800112234 /* EmptyStateView.swift */; };
 		9BBEC161B700F341AD344FC6 /* EmailConfirmationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D623CEA22CB36B5ED4A247C /* EmailConfirmationView.swift */; };
 		9BBEC162B700F342AD344FC7 /* NewPasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D623CEB22CB36B6ED4A247D /* NewPasswordView.swift */; };
 		A10000010000000000000001 /* ChloeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000001 /* ChloeApp.swift */; };
@@ -99,6 +100,7 @@
 		F10000010000000000000001 /* CameraPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000010000000000000001 /* CameraPickerView.swift */; };
 		F10000020000000000000001 /* ChloeButtonLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000020000000000000001 /* ChloeButtonLabel.swift */; };
 		F10000020000000000000099 /* BentoGridCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000020000000000000099 /* BentoGridCard.swift */; };
+		SB0000010000000000000001 /* SyncStatusBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = SB0000020000000000000001 /* SyncStatusBadge.swift */; };
 		F10000040000000000000001 /* LuminousOrb.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000040000000000000001 /* LuminousOrb.swift */; };
 		F10000050000000000000001 /* OrbStardustEmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000050000000000000001 /* OrbStardustEmitter.swift */; };
 		F10000060000000000000001 /* PlusBloomMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000060000000000000001 /* PlusBloomMenu.swift */; };
@@ -241,9 +243,11 @@
 		D30000030000000000000001 /* SupabaseDataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseDataService.swift; sourceTree = "<group>"; };
 		D30000040000000000000001 /* SyncDataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncDataService.swift; sourceTree = "<group>"; };
 		D43EE6EBAC2A490942E57A64 /* ChloeEmptyState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ChloeApp/Views/Components/ChloeEmptyState.swift; sourceTree = SOURCE_ROOT; };
+		E1A2B3C4D5E6F70800112234 /* EmptyStateView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ChloeApp/Views/Components/EmptyStateView.swift; sourceTree = SOURCE_ROOT; };
 		F20000010000000000000001 /* CameraPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPickerView.swift; sourceTree = "<group>"; };
 		F20000020000000000000001 /* ChloeButtonLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChloeButtonLabel.swift; sourceTree = "<group>"; };
 		F20000020000000000000099 /* BentoGridCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BentoGridCard.swift; sourceTree = "<group>"; };
+		SB0000020000000000000001 /* SyncStatusBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncStatusBadge.swift; sourceTree = "<group>"; };
 		F20000040000000000000001 /* LuminousOrb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LuminousOrb.swift; sourceTree = "<group>"; };
 		F20000050000000000000001 /* OrbStardustEmitter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrbStardustEmitter.swift; sourceTree = "<group>"; };
 		F20000060000000000000001 /* PlusBloomMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlusBloomMenu.swift; sourceTree = "<group>"; };
@@ -504,6 +508,8 @@
 				902324AB633D17FC0C08036A /* StrategyOptionsView.swift */,
 				BA5DAFF02E46B79A5EABE633 /* ChloeFloatingActionButton.swift */,
 				D43EE6EBAC2A490942E57A64 /* ChloeEmptyState.swift */,
+				E1A2B3C4D5E6F70800112234 /* EmptyStateView.swift */,
+				SB0000020000000000000001 /* SyncStatusBadge.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -854,6 +860,7 @@
 				3EF786585C46034254C21D71 /* DailyUsage.swift in Sources */,
 				F10000010000000000000001 /* CameraPickerView.swift in Sources */,
 				F10000020000000000000099 /* BentoGridCard.swift in Sources */,
+				SB0000010000000000000001 /* SyncStatusBadge.swift in Sources */,
 				F10000020000000000000001 /* ChloeButtonLabel.swift in Sources */,
 				F10000040000000000000001 /* LuminousOrb.swift in Sources */,
 				F10000050000000000000001 /* OrbStardustEmitter.swift in Sources */,
@@ -893,6 +900,7 @@
 				13AAA29D3391452E7DCA5A2C /* ChloeViewModifiers.swift in Sources */,
 				8E3D83A5B652B8DED38B2FC3 /* ChloeFloatingActionButton.swift in Sources */,
 				90C3CBE435FAA7DCD942145D /* ChloeEmptyState.swift in Sources */,
+				E1A2B3C4D5E6F70800112233 /* EmptyStateView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

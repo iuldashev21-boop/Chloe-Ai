@@ -8,7 +8,12 @@ struct GoalsView: View {
         ZStack(alignment: .bottomTrailing) {
             GradientBackground()
 
-            if viewModel.goals.isEmpty {
+            if viewModel.isLoading {
+                ProgressView()
+                    .controlSize(.regular)
+                    .tint(.chloePrimary)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if viewModel.goals.isEmpty {
                 emptyState
             } else {
                 goalList
@@ -31,7 +36,11 @@ struct GoalsView: View {
     // MARK: - Empty State
 
     private var emptyState: some View {
-        ChloeEmptyState(iconName: "target", message: "Set your first goal")
+        EmptyStateView(
+            icon: "target",
+            title: "No goals set yet",
+            subtitle: "Set your first goal to start tracking progress"
+        )
     }
 
     // MARK: - Goal List

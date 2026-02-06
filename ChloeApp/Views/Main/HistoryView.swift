@@ -2,6 +2,7 @@ import SwiftUI
 
 struct HistoryView: View {
     @State private var conversations: [Conversation] = []
+    @State private var isLoading = true
     @Environment(\.dismiss) private var dismiss
     var onSelectConversation: ((Conversation) -> Void)?
 
@@ -9,8 +10,17 @@ struct HistoryView: View {
         ZStack {
             GradientBackground()
 
-            if conversations.isEmpty {
-                ChloeEmptyState(iconName: "clock.arrow.circlepath", message: "No conversations yet")
+            if isLoading {
+                ProgressView()
+                    .controlSize(.regular)
+                    .tint(.chloePrimary)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if conversations.isEmpty {
+                EmptyStateView(
+                    icon: "bubble.left.and.bubble.right",
+                    title: "No conversations yet",
+                    subtitle: "Start chatting with Chloe to see your history here"
+                )
             } else {
                 ScrollView {
                     LazyVStack(spacing: Spacing.xs) {
@@ -36,6 +46,7 @@ struct HistoryView: View {
         .onAppear {
             conversations = SyncDataService.shared.loadConversations()
                 .sorted(by: { $0.updatedAt > $1.updatedAt })
+            isLoading = false
         }
     }
 

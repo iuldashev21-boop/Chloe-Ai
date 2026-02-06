@@ -14,12 +14,15 @@ class VisionBoardViewModel: ObservableObject {
     }
 
     func loadItems() {
+        isLoading = true
         items = syncDataService.loadVisionItems()
+        isLoading = false
     }
 
     func addItem(_ item: VisionItem) {
         items.append(item)
         persistItems()
+        trackSignal("visionBoard.itemCreated")
     }
 
     func deleteItem(at offsets: IndexSet) {

@@ -20,5 +20,7 @@ class AffirmationsViewModel: ObservableObject {
         guard let index = affirmations.firstIndex(where: { $0.id == id }) else { return }
         affirmations[index].isSaved.toggle()
         try? syncDataService.saveAffirmations(affirmations)
+        let action = affirmations[index].isSaved ? "saved" : "unsaved"
+        trackSignal("affirmations.toggled", parameters: ["action": action])
     }
 }

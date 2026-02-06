@@ -15,13 +15,16 @@ class JournalViewModel: ObservableObject {
     }
 
     func loadEntries() {
+        isLoading = true
         entries = syncDataService.loadJournalEntries()
+        isLoading = false
     }
 
     func addEntry(_ entry: JournalEntry) {
         entries.insert(entry, at: 0)
         persistEntries()
         StreakService.shared.recordActivity(source: .journal)
+        trackSignal("journal.entryCreated")
     }
 
     func deleteEntry(at offsets: IndexSet) {

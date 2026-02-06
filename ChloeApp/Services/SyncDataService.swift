@@ -17,6 +17,16 @@ enum AppEvents {
     static let authDeepLinkReceived = PassthroughSubject<Void, Never>()
 }
 
+// MARK: - Sync Status
+
+/// Represents the current state of cloud synchronization.
+enum SyncStatus: Equatable {
+    case idle           // Nothing to sync
+    case syncing        // Currently syncing
+    case pending        // Has unsynced changes, waiting to retry
+    case error(String)  // Last sync failed with reason
+}
+
 /// Thread-safe actor for sync state management (Bug 2 fix)
 private actor SyncLock {
     private var isSyncing = false
@@ -35,7 +45,7 @@ private actor SyncLock {
 /// Offline-first data service. Wraps local StorageService + remote SupabaseDataService.
 /// All reads come from local (instant). All writes go to local first, then async push to Supabase.
 /// On app launch, pulls from Supabase and merges (server wins for profile).
-class SyncDataService {
+class SyncDataService: ObservableObject {
     static let shared = SyncDataService()
 
     private let local = StorageService.shared
@@ -43,17 +53,32 @@ class SyncDataService {
     private let network = NetworkMonitor.shared
     private var cancellables = Set<AnyCancellable>()
 
+    /// Published sync status for UI observation
+    @Published var syncStatus: SyncStatus = .idle
+
     /// Tracks whether any writes happened while offline (thread-safe via lock)
     private let _pendingLock = NSLock()
     private var _hasPendingChanges = false
     private var hasPendingChanges: Bool {
         get { _pendingLock.lock(); defer { _pendingLock.unlock() }; return _hasPendingChanges }
-        set { _pendingLock.lock(); defer { _pendingLock.unlock() }; _hasPendingChanges = newValue }
+        set {
+            _pendingLock.lock()
+            _hasPendingChanges = newValue
+            _pendingLock.unlock()
+            if newValue {
+                scheduleRetry()
+            }
+        }
     }
 
     /// In-flight cloud sync tasks — cancelled on clearAll() to prevent stale writes
     private var inflightTasks: [Task<Void, Never>] = []
     private let _taskLock = NSLock()
+
+    /// Retry state
+    private var retryTask: Task<Void, Never>?
+    private var retryCount = 0
+    private let maxRetries = 3
 
     /// Track a fire-and-forget cloud task so it can be cancelled on sign-out
     private func trackTask(_ task: Task<Void, Never>) {
@@ -79,10 +104,62 @@ class SyncDataService {
         network.didReconnect
             .sink { [weak self] in
                 guard let self, self.hasPendingChanges else { return }
-                self.hasPendingChanges = false
-                Task { await self.pushAllToCloud() }
+                self.retryCount = 0 // Reset retry count on reconnect
+                Task { await self.retryPendingSync() }
             }
             .store(in: &cancellables)
+    }
+
+    // MARK: - Retry Mechanism
+
+    /// Schedule an automatic retry after 30 seconds. Cancels any existing scheduled retry.
+    private func scheduleRetry() {
+        retryTask?.cancel()
+        guard retryCount < maxRetries else {
+            DispatchQueue.main.async { [weak self] in
+                self?.syncStatus = .pending
+            }
+            return
+        }
+        DispatchQueue.main.async { [weak self] in
+            if self?.syncStatus != .syncing {
+                self?.syncStatus = .pending
+            }
+        }
+        retryTask = Task { [weak self] in
+            try? await Task.sleep(nanoseconds: 30_000_000_000) // 30 seconds
+            guard !Task.isCancelled else { return }
+            await self?.retryPendingSync()
+        }
+    }
+
+    /// Retry pushing pending changes to cloud. Can be called manually or automatically.
+    func retryPendingSync() async {
+        guard hasPendingChanges else {
+            await MainActor.run { syncStatus = .idle }
+            return
+        }
+        guard network.isConnected else {
+            await MainActor.run { syncStatus = .pending }
+            return
+        }
+
+        retryCount += 1
+        await MainActor.run { syncStatus = .syncing }
+
+        await pushAllToCloud()
+
+        // Check if pushAllToCloud encountered errors (hasPendingChanges would be re-set)
+        if hasPendingChanges {
+            if retryCount >= maxRetries {
+                await MainActor.run { syncStatus = .pending }
+            } else {
+                scheduleRetry()
+            }
+        } else {
+            retryCount = 0
+            await MainActor.run { syncStatus = .idle }
+        }
     }
 
     /// Push current local state to Supabase (idempotent — safe to call anytime)
@@ -126,6 +203,8 @@ class SyncDataService {
 
         guard network.isConnected else { return }
 
+        await MainActor.run { syncStatus = .syncing }
+
         // Sync profile (server wins if newer)
         do {
             if let remoteProfile = try await remote.fetchProfile() {
@@ -138,6 +217,7 @@ class SyncDataService {
             #if DEBUG
             print("[SyncDataService] Profile sync failed: \(error.localizedDescription)")
             #endif
+            trackSignal("sync.error.profile")
         }
 
         // Sync conversations + messages (merge: union by ID, server wins for metadata)
@@ -176,6 +256,7 @@ class SyncDataService {
                     #if DEBUG
                     print("[SyncDataService] Message sync failed for conversation \(remoteConvo.id): \(error.localizedDescription)")
                     #endif
+                    trackSignal("sync.error.messages")
                 }
             }
             try local.saveConversations(merged)
@@ -183,6 +264,7 @@ class SyncDataService {
             #if DEBUG
             print("[SyncDataService] Conversation sync failed: \(error.localizedDescription)")
             #endif
+            trackSignal("sync.error.conversations")
         }
 
         // Sync user_state (server wins if newer)
@@ -223,6 +305,7 @@ class SyncDataService {
             #if DEBUG
             print("[SyncDataService] User state sync failed: \(error.localizedDescription)")
             #endif
+            trackSignal("sync.error.userState")
         }
 
         // Sync journal entries (merge by ID)
@@ -242,6 +325,7 @@ class SyncDataService {
             #if DEBUG
             print("[SyncDataService] Journal sync failed: \(error.localizedDescription)")
             #endif
+            trackSignal("sync.error.journal")
         }
 
         // Sync goals (timestamp-based merge - server wins if newer)
@@ -276,6 +360,7 @@ class SyncDataService {
             #if DEBUG
             print("[SyncDataService] Goals sync failed: \(error.localizedDescription)")
             #endif
+            trackSignal("sync.error.goals")
         }
 
         // Sync affirmations (merge by ID)
@@ -295,6 +380,7 @@ class SyncDataService {
             #if DEBUG
             print("[SyncDataService] Affirmations sync failed: \(error.localizedDescription)")
             #endif
+            trackSignal("sync.error.affirmations")
         }
 
         // Sync vision board items (merge by ID + download images)
@@ -326,6 +412,7 @@ class SyncDataService {
             #if DEBUG
             print("[SyncDataService] Vision board sync failed: \(error.localizedDescription)")
             #endif
+            trackSignal("sync.error.visionBoard")
         }
 
         // Sync user facts (merge by ID)
@@ -344,11 +431,15 @@ class SyncDataService {
             #if DEBUG
             print("[SyncDataService] User facts sync failed: \(error.localizedDescription)")
             #endif
+            trackSignal("sync.error.userFacts")
         }
 
         // Notify that profile sync completed (for onboarding state refresh)
         await MainActor.run {
             AppEvents.profileDidSyncFromCloud.send()
+            if !hasPendingChanges {
+                syncStatus = .idle
+            }
         }
     }
 
@@ -382,11 +473,15 @@ class SyncDataService {
     private func pushProfileToCloud() {
         guard network.isConnected else { hasPendingChanges = true; return }
         guard let profile = local.loadProfile() else { return }
-        Task {
+        Task { [weak self] in
+            await MainActor.run { self?.syncStatus = .syncing }
             do {
-                try await remote.upsertProfile(profile)
+                try await self?.remote.upsertProfile(profile)
+                await MainActor.run {
+                    if self?.hasPendingChanges != true { self?.syncStatus = .idle }
+                }
             } catch {
-                hasPendingChanges = true
+                self?.hasPendingChanges = true
             }
         }
     }
@@ -555,11 +650,15 @@ class SyncDataService {
 
     private func pushConversationToCloud(_ conversation: Conversation) {
         guard network.isConnected else { hasPendingChanges = true; return }
-        Task {
+        Task { [weak self] in
+            await MainActor.run { self?.syncStatus = .syncing }
             do {
-                try await remote.upsertConversation(conversation)
+                try await self?.remote.upsertConversation(conversation)
+                await MainActor.run {
+                    if self?.hasPendingChanges != true { self?.syncStatus = .idle }
+                }
             } catch {
-                hasPendingChanges = true
+                self?.hasPendingChanges = true
             }
         }
     }
@@ -578,8 +677,15 @@ class SyncDataService {
     private func pushMessagesToCloud(_ messages: [Message], forConversation conversationId: String) {
         guard network.isConnected else { hasPendingChanges = true; return }
         Task { [weak self] in
-            do { try await self?.remote.upsertMessages(messages, forConversation: conversationId) }
-            catch { self?.hasPendingChanges = true }
+            await MainActor.run { self?.syncStatus = .syncing }
+            do {
+                try await self?.remote.upsertMessages(messages, forConversation: conversationId)
+                await MainActor.run {
+                    if self?.hasPendingChanges != true { self?.syncStatus = .idle }
+                }
+            } catch {
+                self?.hasPendingChanges = true
+            }
         }
     }
 
@@ -617,8 +723,15 @@ class SyncDataService {
     private func pushJournalEntriesToCloud(_ entries: [JournalEntry]) {
         guard network.isConnected else { hasPendingChanges = true; return }
         Task { [weak self] in
-            do { try await self?.remote.upsertJournalEntries(entries) }
-            catch { self?.hasPendingChanges = true }
+            await MainActor.run { self?.syncStatus = .syncing }
+            do {
+                try await self?.remote.upsertJournalEntries(entries)
+                await MainActor.run {
+                    if self?.hasPendingChanges != true { self?.syncStatus = .idle }
+                }
+            } catch {
+                self?.hasPendingChanges = true
+            }
         }
     }
 
@@ -656,8 +769,15 @@ class SyncDataService {
     private func pushGoalsToCloud(_ goals: [Goal]) {
         guard network.isConnected else { hasPendingChanges = true; return }
         Task { [weak self] in
-            do { try await self?.remote.upsertGoals(goals) }
-            catch { self?.hasPendingChanges = true }
+            await MainActor.run { self?.syncStatus = .syncing }
+            do {
+                try await self?.remote.upsertGoals(goals)
+                await MainActor.run {
+                    if self?.hasPendingChanges != true { self?.syncStatus = .idle }
+                }
+            } catch {
+                self?.hasPendingChanges = true
+            }
         }
     }
 
@@ -896,8 +1016,16 @@ class SyncDataService {
     /// Clears local data only (for sign out). Cloud data is preserved.
     func clearAll() {
         cancelAllInflightTasks()
+        retryTask?.cancel()
+        retryTask = nil
+        retryCount = 0
         local.clearAll()
-        hasPendingChanges = false
+        _pendingLock.lock()
+        _hasPendingChanges = false
+        _pendingLock.unlock()
+        DispatchQueue.main.async { [weak self] in
+            self?.syncStatus = .idle
+        }
         // Cloud data is intentionally NOT deleted on sign out.
         // User's data stays in Supabase so they can sign back in and restore it.
     }
@@ -906,8 +1034,14 @@ class SyncDataService {
     /// Throws if cloud deletion fails so the caller can inform the user.
     func deleteAccount() async throws {
         cancelAllInflightTasks()
+        retryTask?.cancel()
+        retryTask = nil
+        retryCount = 0
         local.clearAll()
-        hasPendingChanges = false
+        _pendingLock.lock()
+        _hasPendingChanges = false
+        _pendingLock.unlock()
+        await MainActor.run { syncStatus = .idle }
         // Delete cloud data only on explicit account deletion
         guard network.isConnected else { return }
         try await remote.deleteAllUserData()

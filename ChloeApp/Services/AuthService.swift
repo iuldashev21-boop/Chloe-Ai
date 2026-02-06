@@ -137,6 +137,7 @@ class AuthService: ObservableObject {
 
             AuthLogger.stateChange(from: .authenticating, to: .authenticated, reason: "signIn succeeded")
             authState = .authenticated
+            trackSignal("auth.signIn.success")
 
             // Full sync in background for other data (messages, journal, etc.)
             // syncFromCloud() sends AppEvents.profileDidSyncFromCloud when it completes.
@@ -147,6 +148,7 @@ class AuthService: ObservableObject {
             AuthLogger.error("signIn failed", error: error)
             authState = .unauthenticated
             errorMessage = friendlyError(error)
+            trackSignal("auth.signIn.error", parameters: ["errorType": classifyAuthError(error)])
         }
     }
 
@@ -171,16 +173,19 @@ class AuthService: ObservableObject {
                 syncProfileFromSession(session.user)
                 AuthLogger.stateChange(from: .authenticating, to: .authenticated, reason: "signUp succeeded (no email confirmation)")
                 authState = .authenticated
+                trackSignal("auth.signUp.success")
             } else {
                 // Email confirmation required - navigate to confirmation screen
                 let newState = AuthState.awaitingEmailConfirmation(email: trimmedEmail)
                 AuthLogger.stateChange(from: .authenticating, to: newState, reason: "email confirmation required")
                 authState = newState
+                trackSignal("auth.signUp.awaitingConfirmation")
             }
         } catch {
             AuthLogger.error("signUp failed", error: error)
             authState = .unauthenticated
             errorMessage = friendlyError(error)
+            trackSignal("auth.signUp.error", parameters: ["errorType": classifyAuthError(error)])
         }
     }
 
@@ -218,6 +223,7 @@ class AuthService: ObservableObject {
             redirectTo: URL(string: "chloeapp://auth-callback")
         )
         AuthLogger.event("Password reset email sent", detail: "email=\(email)")
+        trackSignal("auth.passwordReset.requested")
     }
 
     func updatePassword(_ newPassword: String) async throws {
@@ -252,6 +258,7 @@ class AuthService: ObservableObject {
 
     func signOut() {
         AuthLogger.stateChange(from: authState, to: .unauthenticated, reason: "signOut called")
+        trackSignal("auth.signOut")
         Task {
             try? await supabase.auth.signOut()
         }
@@ -401,6 +408,33 @@ class AuthService: ObservableObject {
             profile.updatedAt = .distantPast
         }
         try? syncDataService.saveProfile(profile)
+    }
+
+    /// Classify auth errors into safe, non-PII categories for analytics
+    private func classifyAuthError(_ error: Error) -> String {
+        let message = String(describing: error).lowercased()
+        if message.contains("rate") || message.contains("429") || message.contains("limit") {
+            return "rateLimited"
+        }
+        if message.contains("invalid login") || message.contains("invalid_credentials") {
+            return "invalidCredentials"
+        }
+        if message.contains("email not confirmed") {
+            return "emailNotConfirmed"
+        }
+        if message.contains("already registered") || message.contains("already been registered") {
+            return "emailAlreadyRegistered"
+        }
+        if message.contains("password") && message.contains("short") {
+            return "passwordTooShort"
+        }
+        if message.contains("validate email") || message.contains("invalid email") || message.contains("invalid format") {
+            return "invalidEmail"
+        }
+        if message.contains("network") || message.contains("offline") || message.contains("internet") {
+            return "networkError"
+        }
+        return "unknown"
     }
 
     private func friendlyError(_ error: Error) -> String {

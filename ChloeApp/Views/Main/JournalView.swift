@@ -8,7 +8,12 @@ struct JournalView: View {
         ZStack(alignment: .bottomTrailing) {
             GradientBackground()
 
-            if viewModel.entries.isEmpty {
+            if viewModel.isLoading {
+                ProgressView()
+                    .controlSize(.regular)
+                    .tint(.chloePrimary)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if viewModel.entries.isEmpty {
                 emptyState
             } else {
                 entryList
@@ -31,7 +36,11 @@ struct JournalView: View {
     // MARK: - Empty State
 
     private var emptyState: some View {
-        ChloeEmptyState(iconName: "book.closed", message: "Begin writing")
+        EmptyStateView(
+            icon: "book",
+            title: "No journal entries yet",
+            subtitle: "Tap + to start writing about your day"
+        )
     }
 
     // MARK: - Entry List

@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import Combine
 
 /// Loading states for agentic pipeline
 enum LoadingState: Equatable {
@@ -18,14 +19,18 @@ class ChatViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var conversationTitle: String = "New Conversation"
     @Published var isLimitReached = false
+    @Published var isOffline = false
 
     private let geminiService: GeminiServiceProtocol
     private let safetyService: SafetyServiceProtocol
     private let storageService: SyncDataServiceProtocol
     private let archetypeService: ArchetypeServiceProtocol
     private let analystService = AnalystService.shared
+    private let networkMonitor: NetworkMonitor
 
     private var isAnalyzing = false
+    private var cancellables = Set<AnyCancellable>()
+    private var errorDismissTask: Task<Void, Never>?
 
     private let goodbyeTemplates: [String] = [
         "Hey — I loved talking to you today. I'm going to recharge, but I'll be right here tomorrow. You've got this tonight. \u{1F49C}",
@@ -39,12 +44,27 @@ class ChatViewModel: ObservableObject {
         geminiService: GeminiServiceProtocol = GeminiService.shared,
         safetyService: SafetyServiceProtocol = SafetyService.shared,
         storageService: SyncDataServiceProtocol = SyncDataService.shared,
-        archetypeService: ArchetypeServiceProtocol = ArchetypeService.shared
+        archetypeService: ArchetypeServiceProtocol = ArchetypeService.shared,
+        networkMonitor: NetworkMonitor = .shared
     ) {
         self.geminiService = geminiService
         self.safetyService = safetyService
         self.storageService = storageService
         self.archetypeService = archetypeService
+        self.networkMonitor = networkMonitor
+
+        // Observe network connectivity changes
+        networkMonitor.$isConnected
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] connected in
+                self?.isOffline = !connected
+                if !connected {
+                    self?.showError("No internet connection.", autoDismiss: false)
+                } else if self?.errorMessage == "No internet connection." {
+                    self?.errorMessage = nil
+                }
+            }
+            .store(in: &cancellables)
     }
 
     private var isSending = false
@@ -58,15 +78,22 @@ class ChatViewModel: ObservableObject {
         let image = pendingImage
         guard !text.isEmpty || image != nil else { return }
 
+        // Offline guard — fail fast with clear feedback
+        if isOffline {
+            showError("No internet connection. Please check your network and try again.", autoDismiss: false)
+            return
+        }
+
         // Input length guard — Gemini has per-request token limits; reject obviously oversized input
         if text.count > 10_000 {
-            errorMessage = "Message is too long. Please shorten it and try again."
+            showError("Message is too long. Please shorten it and try again.")
             return
         }
 
         inputText = ""
         pendingImage = nil
         errorMessage = nil
+        errorDismissTask?.cancel()
 
         // Save image to disk if present
         var imageUri: String? = nil
@@ -102,6 +129,7 @@ class ChatViewModel: ObservableObject {
         // Add user message
         let userMsg = Message(conversationId: conversationId, role: .user, text: text, imageUri: imageUri)
         messages.append(userMsg)
+        trackSignal("chat.messageSent")
 
         // Increment daily usage
         usage.messageCount += 1
@@ -257,10 +285,28 @@ class ChatViewModel: ObservableObject {
                     await self?.triggerBackgroundAnalysis()
                 }
             }
-        } catch {
-            errorMessage = "Message failed to send. Tap to retry."
+        } catch let geminiError as GeminiError {
             lastFailedText = text
             loadingState = .idle
+            switch geminiError {
+            case .rateLimited:
+                showError("Chloe needs a moment to recharge. Try again in a minute.")
+                trackSignal("chat.error.rateLimited")
+            case .noConnection:
+                showError("No internet connection. Please check your network and try again.", autoDismiss: false)
+                trackSignal("chat.error.noConnection")
+            case .timeout:
+                showError("Chloe is taking too long to respond. Tap to retry.")
+                trackSignal("chat.error.timeout")
+            default:
+                showError("Message failed to send. Tap to retry.")
+                trackSignal("chat.error.other")
+            }
+        } catch {
+            lastFailedText = text
+            loadingState = .idle
+            showError("Message failed to send. Tap to retry.")
+            trackSignal("chat.error.unknown")
         }
 
         isTyping = false
@@ -280,11 +326,28 @@ class ChatViewModel: ObservableObject {
         await sendMessage()
     }
 
+    /// Show an error message as an inline banner. Auto-clears after 5 seconds
+    /// unless `autoDismiss` is false (used for persistent states like offline).
+    private func showError(_ message: String, autoDismiss: Bool = true) {
+        errorDismissTask?.cancel()
+        errorMessage = message
+        if autoDismiss {
+            errorDismissTask = Task { @MainActor [weak self] in
+                try? await Task.sleep(nanoseconds: 5_000_000_000)
+                guard !Task.isCancelled else { return }
+                if self?.errorMessage == message {
+                    withAnimation { self?.errorMessage = nil }
+                }
+            }
+        }
+    }
+
     func startNewChat() {
         conversationId = UUID().uuidString.lowercased()
         messages = []
         inputText = ""
         errorMessage = nil
+        errorDismissTask?.cancel()
         isTyping = false
         isLimitReached = false
         conversationTitle = "New Conversation"

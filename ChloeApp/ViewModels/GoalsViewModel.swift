@@ -14,12 +14,15 @@ class GoalsViewModel: ObservableObject {
     }
 
     func loadGoals() {
+        isLoading = true
         goals = syncDataService.loadGoals()
+        isLoading = false
     }
 
     func addGoal(_ goal: Goal) {
         goals.append(goal)
         persistGoals()
+        trackSignal("goals.goalCreated")
     }
 
     func deleteGoal(at offsets: IndexSet) {

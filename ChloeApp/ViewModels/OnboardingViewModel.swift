@@ -13,6 +13,7 @@ class OnboardingViewModel: ObservableObject {
 
     init(syncDataService: SyncDataServiceProtocol = SyncDataService.shared) {
         self.syncDataService = syncDataService
+        trackSignal("onboarding.start")
     }
 
     let totalSteps = 4
@@ -23,6 +24,7 @@ class OnboardingViewModel: ObservableObject {
 
     func nextStep() {
         if currentStep < totalSteps - 1 {
+            trackSignal("onboarding.step\(currentStep).complete")
             currentStep += 1
         } else {
             completeOnboarding()
@@ -48,5 +50,6 @@ class OnboardingViewModel: ObservableObject {
         try? syncDataService.saveProfile(profile)
         isComplete = true
         AppEvents.onboardingDidComplete.send()
+        trackSignal("onboarding.complete")
     }
 }

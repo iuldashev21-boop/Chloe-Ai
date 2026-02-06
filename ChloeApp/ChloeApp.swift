@@ -1,6 +1,15 @@
 import SwiftUI
 import UserNotifications
 import Supabase
+import TelemetryDeck
+
+/// Safe wrapper for TelemetryDeck signals — no-ops when TelemetryDeck isn't initialized (e.g. in tests).
+private var _telemetryInitialized = false
+
+func trackSignal(_ name: String, parameters: [String: String] = [:]) {
+    guard _telemetryInitialized else { return }
+    TelemetryDeck.signal(name, parameters: parameters)
+}
 
 @main
 struct ChloeApp: App {
@@ -11,6 +20,14 @@ struct ChloeApp: App {
         #if DEBUG
         UITestSupport.setupTestEnvironment()
         #endif
+
+        // Initialize TelemetryDeck analytics (privacy-first, no PII collected)
+        let telemetryAppID = Bundle.main.infoDictionary?["TELEMETRY_DECK_APP_ID"] as? String ?? ""
+        if !telemetryAppID.isEmpty && telemetryAppID != "YOUR_TELEMETRY_DECK_APP_ID" {
+            let config = TelemetryDeck.Config(appID: telemetryAppID)
+            TelemetryDeck.initialize(config: config)
+            _telemetryInitialized = true
+        }
     }
 
     var body: some Scene {

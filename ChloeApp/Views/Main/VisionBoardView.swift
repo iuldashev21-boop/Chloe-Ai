@@ -13,7 +13,12 @@ struct VisionBoardView: View {
         ZStack(alignment: .bottomTrailing) {
             GradientBackground()
 
-            if viewModel.items.isEmpty {
+            if viewModel.isLoading {
+                ProgressView()
+                    .controlSize(.regular)
+                    .tint(.chloePrimary)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if viewModel.items.isEmpty {
                 emptyState
             } else {
                 itemGrid
@@ -36,7 +41,11 @@ struct VisionBoardView: View {
     // MARK: - Empty State
 
     private var emptyState: some View {
-        ChloeEmptyState(iconName: "star", message: "Add your first vision")
+        EmptyStateView(
+            icon: "photo.on.rectangle",
+            title: "Your vision board is empty",
+            subtitle: "Add images that inspire your future self"
+        )
     }
 
     // MARK: - Item Grid

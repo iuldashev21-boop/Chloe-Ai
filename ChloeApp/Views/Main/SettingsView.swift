@@ -3,6 +3,7 @@ import PhotosUI
 
 struct SettingsView: View {
     @EnvironmentObject var authVM: AuthViewModel
+    @ObservedObject private var syncService = SyncDataService.shared
     @AppStorage("notificationsEnabled") private var notificationsEnabled = true
     @AppStorage("hapticFeedbackEnabled") private var hapticFeedbackEnabled = true
     @AppStorage("isDarkMode") private var isDarkMode = false
@@ -84,6 +85,16 @@ struct SettingsView: View {
                                 isOn: $isDarkMode
                             )
                         }
+                    }
+
+                    // Sync Section
+                    settingsSection("DATA") {
+                        SyncStatusSettingsRow(
+                            status: syncService.syncStatus,
+                            onRetry: {
+                                Task { await syncService.retryPendingSync() }
+                            }
+                        )
                     }
 
                     // Support Section
