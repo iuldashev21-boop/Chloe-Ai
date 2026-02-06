@@ -1,6 +1,7 @@
 import SwiftUI
 import AuthenticationServices
 import Combine
+import CryptoKit
 
 struct EmailLoginView: View {
     @EnvironmentObject var authVM: AuthViewModel
@@ -14,6 +15,7 @@ struct EmailLoginView: View {
     @State private var showFields = false
     @State private var keyboardVisible = false
     @State private var showPasswordReset = false
+    @State private var currentNonce: String?
 
     enum Field: Hashable { case email, password }
 
@@ -278,15 +280,39 @@ struct EmailLoginView: View {
 
                     // MARK: - Sign in with Apple
                     SignInWithAppleButton(.signIn) { request in
+                        let nonce = randomNonceString()
+                        currentNonce = nonce
                         request.requestedScopes = [.email, .fullName]
-                    } onCompletion: { _ in
-                        // TODO: handle Apple sign-in result
+                        request.nonce = sha256(nonce)
+                    } onCompletion: { result in
+                        switch result {
+                        case .success(let authorization):
+                            guard let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential,
+                                  let identityToken = appleIDCredential.identityToken,
+                                  let idTokenString = String(data: identityToken, encoding: .utf8),
+                                  let nonce = currentNonce else {
+                                authVM.errorMessage = "Apple sign-in failed. Please try again."
+                                return
+                            }
+                            let fullName = appleIDCredential.fullName
+                            Task {
+                                await authVM.signInWithApple(
+                                    idToken: idTokenString,
+                                    nonce: nonce,
+                                    fullName: fullName
+                                )
+                            }
+                        case .failure(let error):
+                            if (error as NSError).code != ASAuthorizationError.canceled.rawValue {
+                                authVM.errorMessage = "Apple sign-in failed. Please try again."
+                            }
+                        }
                     }
                     .signInWithAppleButtonStyle(.white)
                     .frame(height: 50)
-                    .clipShape(RoundedRectangle(cornerRadius: 28))
-                    .buttonStyle(PressableButtonStyle())
+                    .cornerRadius(28)
                     .padding(.horizontal, Spacing.screenHorizontal)
+                    .disabled(authVM.isLoading)
 
                     // MARK: - Skip (Dev)
                     #if DEBUG
@@ -331,7 +357,11 @@ struct EmailLoginView: View {
         .navigationDestination(isPresented: $showPasswordReset) {
             PasswordResetView()
         }
-        .onTapGesture { focusedField = nil }
+        .background {
+            Color.clear
+                .contentShape(Rectangle())
+                .onTapGesture { focusedField = nil }
+        }
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now()) {
                 withAnimation { showOrb = true }
@@ -367,6 +397,26 @@ struct EmailLoginView: View {
     private func stopShimmerLoop() {
         shimmerTimer?.invalidate()
         shimmerTimer = nil
+    }
+
+    private func randomNonceString(length: Int = 32) -> String {
+        precondition(length > 0)
+        var randomBytes = [UInt8](repeating: 0, count: length)
+        let errorCode = SecRandomCopyBytes(kSecRandomDefault, randomBytes.count, &randomBytes)
+        if errorCode != errSecSuccess {
+            fatalError("Unable to generate nonce. SecRandomCopyBytes failed with OSStatus \(errorCode)")
+        }
+        let charset: [Character] = Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
+        let nonce = randomBytes.map { byte in
+            charset[Int(byte) % charset.count]
+        }
+        return String(nonce)
+    }
+
+    private func sha256(_ input: String) -> String {
+        let inputData = Data(input.utf8)
+        let hashed = SHA256.hash(data: inputData)
+        return hashed.compactMap { String(format: "%02x", $0) }.joined()
     }
 
 }

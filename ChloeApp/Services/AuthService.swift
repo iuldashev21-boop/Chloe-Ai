@@ -189,6 +189,69 @@ class AuthService: ObservableObject {
         }
     }
 
+    // MARK: - Sign In with Apple
+
+    func signInWithApple(idToken: String, nonce: String, fullName: PersonNameComponents?) async {
+        AuthLogger.stateChange(from: authState, to: .authenticating, reason: "Apple sign-in started")
+        authState = .authenticating
+        errorMessage = nil
+
+        do {
+            let session = try await supabase.auth.signInWithIdToken(
+                credentials: .init(
+                    provider: .apple,
+                    idToken: idToken,
+                    nonce: nonce
+                )
+            )
+            self.email = session.user.email ?? ""
+            AuthLogger.event("Apple sign-in session established", detail: "email=\(session.user.email ?? "unknown")")
+
+            // Fetch existing profile from cloud first (returning user)
+            if let remoteProfile = try? await SupabaseDataService.shared.fetchProfile() {
+                try? storageService.saveProfile(remoteProfile)
+                AuthLogger.event("Profile fetched from cloud", detail: "onboardingComplete=\(remoteProfile.onboardingComplete)")
+            } else {
+                // New Apple sign-in user — create profile with name from Apple
+                var profile = Profile(id: session.user.id.uuidString)
+                profile.email = session.user.email ?? ""
+                if let fullName = fullName {
+                    let displayName = [fullName.givenName, fullName.familyName]
+                        .compactMap { $0 }
+                        .joined(separator: " ")
+                    if !displayName.isEmpty {
+                        profile.displayName = displayName
+                    }
+                }
+                profile.updatedAt = .distantPast
+                try? syncDataService.saveProfile(profile)
+                AuthLogger.event("Created profile from Apple sign-in", detail: "name=\(profile.displayName)")
+            }
+
+            // Check if user is blocked
+            if let profile = syncDataService.loadProfile(),
+               checkIfBlocked(profile) {
+                AuthLogger.stateChange(from: .authenticating, to: .unauthenticated, reason: "user blocked")
+                authState = .unauthenticated
+                return
+            }
+
+            AuthLogger.stateChange(from: .authenticating, to: .authenticated, reason: "Apple sign-in succeeded")
+            authState = .authenticated
+            trackSignal("auth.signInWithApple.success")
+
+            // Full sync in background
+            Task.detached { [syncDataService] in
+                await syncDataService.syncFromCloud()
+            }
+        } catch {
+            AuthLogger.error("Apple sign-in failed", error: error)
+            authState = .unauthenticated
+            errorMessage = friendlyError(error)
+            trackSignal("auth.signInWithApple.error", parameters: ["errorType": classifyAuthError(error)])
+        }
+    }
+
     // MARK: - Resend Confirmation Email
 
     func resendConfirmationEmail() async {

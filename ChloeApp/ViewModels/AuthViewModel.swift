@@ -168,6 +168,11 @@ class AuthViewModel: ObservableObject {
         await authService.signUp(email: email, password: password)
     }
 
+    func signInWithApple(idToken: String, nonce: String, fullName: PersonNameComponents?) async {
+        successMessage = nil
+        await authService.signInWithApple(idToken: idToken, nonce: nonce, fullName: fullName)
+    }
+
     func resendConfirmationEmail() async {
         await authService.resendConfirmationEmail()
     }

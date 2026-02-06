@@ -294,6 +294,7 @@ protocol AuthServiceProtocol: AnyObject {
 
     func signIn(email: String, password: String) async
     func signUp(email: String, password: String) async
+    func signInWithApple(idToken: String, nonce: String, fullName: PersonNameComponents?) async
     func resendConfirmationEmail() async
     func cancelEmailConfirmation()
     func sendPasswordReset(email: String) async throws
