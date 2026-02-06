@@ -133,7 +133,7 @@ struct SettingsView: View {
                     // Privacy & Legal Section
                     settingsSection("PRIVACY & LEGAL") {
                         VStack(spacing: 0) {
-                            Link(destination: URL(string: "https://chloe.app/privacy")!) {
+                            Link(destination: URL(string: "https://auth-redirect-one.vercel.app/privacy")!) {
                                 settingsRow(icon: "hand.raised", label: "Privacy Policy") {
                                     Image(systemName: "arrow.up.right")
                                         .font(.system(size: 12, weight: .regular))
@@ -146,7 +146,7 @@ struct SettingsView: View {
                             Divider()
                                 .padding(.leading, 40)
 
-                            Link(destination: URL(string: "https://chloe.app/terms")!) {
+                            Link(destination: URL(string: "https://auth-redirect-one.vercel.app/terms")!) {
                                 settingsRow(icon: "doc.text", label: "Terms of Service") {
                                     Image(systemName: "arrow.up.right")
                                         .font(.system(size: 12, weight: .regular))
