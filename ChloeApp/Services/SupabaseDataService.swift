@@ -470,12 +470,21 @@ class SupabaseDataService {
         guard let userId = currentUserId, !items.isEmpty else { return }
 
         let dtos = items.map { item in
-            SupabaseVisionItemDTO(
+            // Convert local file path to Supabase storage path so other devices can resolve it
+            var cloudImageUrl = item.imageUri
+            if let localPath = item.imageUri, localPath.hasPrefix("/") {
+                let filename = URL(fileURLWithPath: localPath).lastPathComponent
+                if let uid = currentUserId {
+                    cloudImageUrl = "\(uid)/vision/\(filename)"
+                }
+            }
+
+            return SupabaseVisionItemDTO(
                 id: item.id,
                 userId: userId,
                 title: item.title,
                 category: item.category.rawValue,
-                imageUrl: item.imageUri,
+                imageUrl: cloudImageUrl,
                 createdAt: item.createdAt,
                 updatedAt: item.updatedAt
             )

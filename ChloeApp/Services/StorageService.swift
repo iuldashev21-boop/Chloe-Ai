@@ -14,6 +14,13 @@ class StorageService {
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
 
+    // MARK: - Thread Safety
+
+    /// Serializes all reads/writes to caches and UserDefaults to prevent TOCTOU races.
+    /// Multiple ViewModels can call StorageService concurrently; this lock ensures
+    /// read-modify-write sequences (e.g. saveConversation, pushInsight) are atomic.
+    private let lock = NSLock()
+
     // MARK: - In-Memory Caches (read-heavy, write-light data)
 
     private var profileCache: Profile?
@@ -31,6 +38,12 @@ class StorageService {
 
     /// Clear all in-memory caches (call on memory pressure or sign-out)
     func clearCaches() {
+        lock.lock()
+        defer { lock.unlock() }
+        _clearCaches()
+    }
+
+    private func _clearCaches() {
         profileCache = nil
         conversationsCache = nil
         journalEntriesCache = nil
@@ -43,12 +56,26 @@ class StorageService {
     // MARK: - Profile
 
     func saveProfile(_ profile: Profile) throws {
+        lock.lock()
+        defer { lock.unlock() }
+        try _saveProfile(profile)
+    }
+
+    func loadProfile() -> Profile? {
+        lock.lock()
+        defer { lock.unlock() }
+        return _loadProfile()
+    }
+
+    /// Unlocked save — caller must hold `lock`.
+    private func _saveProfile(_ profile: Profile) throws {
         let data = try encoder.encode(profile)
         defaults.set(data, forKey: "profile")
         profileCache = profile
     }
 
-    func loadProfile() -> Profile? {
+    /// Unlocked load — caller must hold `lock`.
+    private func _loadProfile() -> Profile? {
         if let cached = profileCache { return cached }
         guard let data = defaults.data(forKey: "profile") else { return nil }
         let profile = try? decoder.decode(Profile.self, from: data)
@@ -108,29 +135,104 @@ class StorageService {
     }
 
     func loadProfileImage() -> Data? {
-        guard let profile = loadProfile(),
+        lock.lock()
+        defer { lock.unlock() }
+        guard let profile = _loadProfile(),
               let path = profile.profileImageUri else { return nil }
         return FileManager.default.contents(atPath: path)
     }
 
     func deleteProfileImage() throws {
-        guard var profile = loadProfile(),
+        lock.lock()
+        defer { lock.unlock() }
+        guard var profile = _loadProfile(),
               let path = profile.profileImageUri else { return }
         try? FileManager.default.removeItem(atPath: path)
         profile.profileImageUri = nil
         profile.updatedAt = Date()
-        try saveProfile(profile)
+        try _saveProfile(profile)
     }
 
     // MARK: - Conversations (metadata only, messages stored separately)
 
     func saveConversations(_ conversations: [Conversation]) throws {
+        lock.lock()
+        defer { lock.unlock() }
+        try _saveConversations(conversations)
+    }
+
+    func loadConversations() -> [Conversation] {
+        lock.lock()
+        defer { lock.unlock() }
+        return _loadConversations()
+    }
+
+    func saveConversation(_ conversation: Conversation) throws {
+        lock.lock()
+        defer { lock.unlock() }
+        var conversations = _loadConversations()
+        if let index = conversations.firstIndex(where: { $0.id == conversation.id }) {
+            conversations[index] = conversation
+        } else {
+            conversations.append(conversation)
+        }
+        try _saveConversations(conversations)
+    }
+
+    func loadConversation(id: String) -> Conversation? {
+        lock.lock()
+        defer { lock.unlock() }
+        return _loadConversations().first { $0.id == id }
+    }
+
+    func renameConversation(id: String, newTitle: String) throws {
+        lock.lock()
+        defer { lock.unlock() }
+        guard var convo = _loadConversations().first(where: { $0.id == id }) else { return }
+        convo.title = newTitle
+        convo.updatedAt = Date()
+        var conversations = _loadConversations()
+        if let index = conversations.firstIndex(where: { $0.id == convo.id }) {
+            conversations[index] = convo
+        } else {
+            conversations.append(convo)
+        }
+        try _saveConversations(conversations)
+    }
+
+    func toggleConversationStar(id: String) throws {
+        lock.lock()
+        defer { lock.unlock() }
+        guard var convo = _loadConversations().first(where: { $0.id == id }) else { return }
+        convo.starred.toggle()
+        convo.updatedAt = Date()
+        var conversations = _loadConversations()
+        if let index = conversations.firstIndex(where: { $0.id == convo.id }) {
+            conversations[index] = convo
+        } else {
+            conversations.append(convo)
+        }
+        try _saveConversations(conversations)
+    }
+
+    func deleteConversation(id: String) {
+        lock.lock()
+        defer { lock.unlock() }
+        defaults.removeObject(forKey: "messages_\(id)")
+        var conversations = _loadConversations()
+        conversations.removeAll { $0.id == id }
+        try? _saveConversations(conversations)
+    }
+
+    /// Unlocked save — caller must hold `lock`.
+    private func _saveConversations(_ conversations: [Conversation]) throws {
         let data = try encoder.encode(conversations)
         defaults.set(data, forKey: "conversations")
         conversationsCache = conversations
     }
 
-    func loadConversations() -> [Conversation] {
+    /// Unlocked load — caller must hold `lock`.
+    private func _loadConversations() -> [Conversation] {
         if let cached = conversationsCache { return cached }
         guard let data = defaults.data(forKey: "conversations") else { return [] }
         let conversations = (try? decoder.decode([Conversation].self, from: data)) ?? []
@@ -138,75 +240,67 @@ class StorageService {
         return conversations
     }
 
-    func saveConversation(_ conversation: Conversation) throws {
-        var conversations = loadConversations()
-        if let index = conversations.firstIndex(where: { $0.id == conversation.id }) {
-            conversations[index] = conversation
-        } else {
-            conversations.append(conversation)
-        }
-        try saveConversations(conversations)
-    }
-
-    func loadConversation(id: String) -> Conversation? {
-        return loadConversations().first { $0.id == id }
-    }
-
-    func renameConversation(id: String, newTitle: String) throws {
-        guard var convo = loadConversation(id: id) else { return }
-        convo.title = newTitle
-        convo.updatedAt = Date()
-        try saveConversation(convo)
-    }
-
-    func toggleConversationStar(id: String) throws {
-        guard var convo = loadConversation(id: id) else { return }
-        convo.starred.toggle()
-        convo.updatedAt = Date()
-        try saveConversation(convo)
-    }
-
-    func deleteConversation(id: String) {
-        defaults.removeObject(forKey: "messages_\(id)")
-        var conversations = loadConversations()
-        conversations.removeAll { $0.id == id }
-        try? saveConversations(conversations)
-    }
-
     // MARK: - Messages (stored per conversation)
 
     func saveMessages(_ messages: [Message], forConversation conversationId: String) throws {
+        lock.lock()
+        defer { lock.unlock() }
         let data = try encoder.encode(messages)
         defaults.set(data, forKey: "messages_\(conversationId)")
     }
 
     func loadMessages(forConversation conversationId: String) -> [Message] {
-        guard let data = defaults.data(forKey: "messages_\(conversationId)") else { return [] }
-        return (try? decoder.decode([Message].self, from: data)) ?? []
+        lock.lock()
+        defer { lock.unlock() }
+        return _loadMessages(forConversation: conversationId)
     }
 
     /// Load the most recent `limit` messages for a conversation (for pagination).
     /// Returns messages in chronological order (oldest first).
     func loadMessages(forConversation conversationId: String, limit: Int) -> [Message] {
-        let all = loadMessages(forConversation: conversationId)
+        lock.lock()
+        defer { lock.unlock() }
+        let all = _loadMessages(forConversation: conversationId)
         guard all.count > limit else { return all }
         return Array(all.suffix(limit))
     }
 
     /// Total message count for a conversation (without decoding all messages).
     func messageCount(forConversation conversationId: String) -> Int {
-        return loadMessages(forConversation: conversationId).count
+        lock.lock()
+        defer { lock.unlock() }
+        return _loadMessages(forConversation: conversationId).count
+    }
+
+    /// Unlocked load — caller must hold `lock`.
+    private func _loadMessages(forConversation conversationId: String) -> [Message] {
+        guard let data = defaults.data(forKey: "messages_\(conversationId)") else { return [] }
+        return (try? decoder.decode([Message].self, from: data)) ?? []
     }
 
     // MARK: - Journal
 
     func saveJournalEntries(_ entries: [JournalEntry]) throws {
+        lock.lock()
+        defer { lock.unlock() }
+        try _saveJournalEntries(entries)
+    }
+
+    func loadJournalEntries() -> [JournalEntry] {
+        lock.lock()
+        defer { lock.unlock() }
+        return _loadJournalEntries()
+    }
+
+    /// Unlocked save — caller must hold `lock`.
+    private func _saveJournalEntries(_ entries: [JournalEntry]) throws {
         let data = try encoder.encode(entries)
         defaults.set(data, forKey: "journal_entries")
         journalEntriesCache = entries
     }
 
-    func loadJournalEntries() -> [JournalEntry] {
+    /// Unlocked load — caller must hold `lock`.
+    private func _loadJournalEntries() -> [JournalEntry] {
         if let cached = journalEntriesCache { return cached }
         guard let data = defaults.data(forKey: "journal_entries") else { return [] }
         let entries = (try? decoder.decode([JournalEntry].self, from: data)) ?? []
@@ -217,12 +311,26 @@ class StorageService {
     // MARK: - Goals
 
     func saveGoals(_ goals: [Goal]) throws {
+        lock.lock()
+        defer { lock.unlock() }
+        try _saveGoals(goals)
+    }
+
+    func loadGoals() -> [Goal] {
+        lock.lock()
+        defer { lock.unlock() }
+        return _loadGoals()
+    }
+
+    /// Unlocked save — caller must hold `lock`.
+    private func _saveGoals(_ goals: [Goal]) throws {
         let data = try encoder.encode(goals)
         defaults.set(data, forKey: "goals")
         goalsCache = goals
     }
 
-    func loadGoals() -> [Goal] {
+    /// Unlocked load — caller must hold `lock`.
+    private func _loadGoals() -> [Goal] {
         if let cached = goalsCache { return cached }
         guard let data = defaults.data(forKey: "goals") else { return [] }
         let goals = (try? decoder.decode([Goal].self, from: data)) ?? []
@@ -233,12 +341,26 @@ class StorageService {
     // MARK: - Affirmations
 
     func saveAffirmations(_ affirmations: [Affirmation]) throws {
+        lock.lock()
+        defer { lock.unlock() }
+        try _saveAffirmations(affirmations)
+    }
+
+    func loadAffirmations() -> [Affirmation] {
+        lock.lock()
+        defer { lock.unlock() }
+        return _loadAffirmations()
+    }
+
+    /// Unlocked save — caller must hold `lock`.
+    private func _saveAffirmations(_ affirmations: [Affirmation]) throws {
         let data = try encoder.encode(affirmations)
         defaults.set(data, forKey: "affirmations")
         affirmationsCache = affirmations
     }
 
-    func loadAffirmations() -> [Affirmation] {
+    /// Unlocked load — caller must hold `lock`.
+    private func _loadAffirmations() -> [Affirmation] {
         if let cached = affirmationsCache { return cached }
         guard let data = defaults.data(forKey: "affirmations") else { return [] }
         let affirmations = (try? decoder.decode([Affirmation].self, from: data)) ?? []
@@ -249,12 +371,26 @@ class StorageService {
     // MARK: - Vision Board
 
     func saveVisionItems(_ items: [VisionItem]) throws {
+        lock.lock()
+        defer { lock.unlock() }
+        try _saveVisionItems(items)
+    }
+
+    func loadVisionItems() -> [VisionItem] {
+        lock.lock()
+        defer { lock.unlock() }
+        return _loadVisionItems()
+    }
+
+    /// Unlocked save — caller must hold `lock`.
+    private func _saveVisionItems(_ items: [VisionItem]) throws {
         let data = try encoder.encode(items)
         defaults.set(data, forKey: "vision_items")
         visionItemsCache = items
     }
 
-    func loadVisionItems() -> [VisionItem] {
+    /// Unlocked load — caller must hold `lock`.
+    private func _loadVisionItems() -> [VisionItem] {
         if let cached = visionItemsCache { return cached }
         guard let data = defaults.data(forKey: "vision_items") else { return [] }
         let items = (try? decoder.decode([VisionItem].self, from: data)) ?? []
@@ -265,12 +401,26 @@ class StorageService {
     // MARK: - User Facts (separate from Profile)
 
     func saveUserFacts(_ facts: [UserFact]) throws {
+        lock.lock()
+        defer { lock.unlock() }
+        try _saveUserFacts(facts)
+    }
+
+    func loadUserFacts() -> [UserFact] {
+        lock.lock()
+        defer { lock.unlock() }
+        return _loadUserFacts()
+    }
+
+    /// Unlocked save — caller must hold `lock`.
+    private func _saveUserFacts(_ facts: [UserFact]) throws {
         let data = try encoder.encode(facts)
         defaults.set(data, forKey: "user_facts")
         userFactsCache = facts
     }
 
-    func loadUserFacts() -> [UserFact] {
+    /// Unlocked load — caller must hold `lock`.
+    private func _loadUserFacts() -> [UserFact] {
         if let cached = userFactsCache { return cached }
         guard let data = defaults.data(forKey: "user_facts") else { return [] }
         let facts = (try? decoder.decode([UserFact].self, from: data)) ?? []
@@ -281,10 +431,14 @@ class StorageService {
     // MARK: - Latest Vibe
 
     func saveLatestVibe(_ vibe: VibeScore) {
+        lock.lock()
+        defer { lock.unlock() }
         defaults.set(vibe.rawValue, forKey: "latest_vibe")
     }
 
     func loadLatestVibe() -> VibeScore? {
+        lock.lock()
+        defer { lock.unlock() }
         guard let raw = defaults.string(forKey: "latest_vibe") else { return nil }
         return VibeScore(rawValue: raw)
     }
@@ -292,11 +446,15 @@ class StorageService {
     // MARK: - Daily Usage
 
     func saveDailyUsage(_ usage: DailyUsage) throws {
+        lock.lock()
+        defer { lock.unlock() }
         let data = try encoder.encode(usage)
         defaults.set(data, forKey: "daily_usage")
     }
 
     func loadDailyUsage() -> DailyUsage {
+        lock.lock()
+        defer { lock.unlock() }
         guard let data = defaults.data(forKey: "daily_usage"),
               let usage = try? decoder.decode(DailyUsage.self, from: data) else {
             return DailyUsage(date: DailyUsage.todayKey(), messageCount: 0)
@@ -311,22 +469,30 @@ class StorageService {
     // MARK: - Messages Since Analysis
 
     func saveMessagesSinceAnalysis(_ count: Int) {
+        lock.lock()
+        defer { lock.unlock() }
         defaults.set(count, forKey: "messages_since_analysis")
     }
 
     func loadMessagesSinceAnalysis() -> Int {
+        lock.lock()
+        defer { lock.unlock() }
         return defaults.integer(forKey: "messages_since_analysis")
     }
 
     // MARK: - Streak
 
     func saveStreak(_ streak: GlowUpStreak) {
+        lock.lock()
+        defer { lock.unlock() }
         if let data = try? encoder.encode(streak) {
             defaults.set(data, forKey: "glow_up_streak")
         }
     }
 
     func loadStreak() -> GlowUpStreak {
+        lock.lock()
+        defer { lock.unlock() }
         guard let data = defaults.data(forKey: "glow_up_streak"),
               let streak = try? decoder.decode(GlowUpStreak.self, from: data) else {
             return GlowUpStreak()
@@ -337,27 +503,35 @@ class StorageService {
     // MARK: - Latest Summary
 
     func saveLatestSummary(_ summary: String) {
+        lock.lock()
+        defer { lock.unlock() }
         defaults.set(summary, forKey: "latest_summary")
     }
 
     func loadLatestSummary() -> String? {
+        lock.lock()
+        defer { lock.unlock() }
         return defaults.string(forKey: "latest_summary")
     }
 
     // MARK: - Insight Queue (FIFO with dedup + expiry)
 
     func pushInsight(_ insight: String) {
-        var queue = loadInsightQueue()
+        lock.lock()
+        defer { lock.unlock() }
+        var queue = _loadInsightQueue()
         // Dedup: skip if a similar insight already exists (case-insensitive substring)
         let lowered = insight.lowercased()
         let isDuplicate = queue.contains { lowered.contains($0.text.lowercased()) || $0.text.lowercased().contains(lowered) }
         guard !isDuplicate else { return }
         queue.append(InsightEntry(text: insight, createdAt: Date()))
-        saveInsightQueue(queue)
+        _saveInsightQueue(queue)
     }
 
     func popInsight() -> String? {
-        var queue = loadInsightQueue()
+        lock.lock()
+        defer { lock.unlock() }
+        var queue = _loadInsightQueue()
         let expiryDate = Calendar.current.date(byAdding: .day, value: -14, to: Date()) ?? Date()
         // Skip and discard expired insights
         while let first = queue.first {
@@ -368,30 +542,36 @@ class StorageService {
             }
         }
         guard !queue.isEmpty else {
-            saveInsightQueue(queue)
+            _saveInsightQueue(queue)
             return nil
         }
         let oldest = queue.removeFirst()
-        saveInsightQueue(queue)
+        _saveInsightQueue(queue)
         return oldest.text
     }
 
     /// Load raw insight entries (for cloud sync)
     func loadInsightEntries() -> [InsightEntry] {
-        return loadInsightQueue()
+        lock.lock()
+        defer { lock.unlock() }
+        return _loadInsightQueue()
     }
 
     /// Replace insight queue from cloud data (for sync)
     func replaceInsightEntries(_ entries: [InsightEntry]) {
-        saveInsightQueue(entries)
+        lock.lock()
+        defer { lock.unlock() }
+        _saveInsightQueue(entries)
     }
 
-    private func loadInsightQueue() -> [InsightEntry] {
+    /// Unlocked load — caller must hold `lock`.
+    private func _loadInsightQueue() -> [InsightEntry] {
         guard let data = defaults.data(forKey: "insight_queue") else { return [] }
         return (try? decoder.decode([InsightEntry].self, from: data)) ?? []
     }
 
-    private func saveInsightQueue(_ queue: [InsightEntry]) {
+    /// Unlocked save — caller must hold `lock`.
+    private func _saveInsightQueue(_ queue: [InsightEntry]) {
         if let data = try? encoder.encode(queue) {
             defaults.set(data, forKey: "insight_queue")
         }
@@ -400,21 +580,29 @@ class StorageService {
     // MARK: - Notification Rate Limiting (generic notifications only)
 
     func incrementGenericNotificationCount() {
-        resetNotificationWeekIfNeeded()
+        lock.lock()
+        defer { lock.unlock() }
+        _resetNotificationWeekIfNeeded()
         let count = defaults.integer(forKey: "generic_notif_count")
         defaults.set(count + 1, forKey: "generic_notif_count")
     }
 
     func getGenericNotificationCountThisWeek() -> Int {
-        resetNotificationWeekIfNeeded()
+        lock.lock()
+        defer { lock.unlock() }
+        _resetNotificationWeekIfNeeded()
         return defaults.integer(forKey: "generic_notif_count")
     }
 
     func canSendGenericNotification() -> Bool {
-        return getGenericNotificationCountThisWeek() < 3
+        lock.lock()
+        defer { lock.unlock() }
+        _resetNotificationWeekIfNeeded()
+        return defaults.integer(forKey: "generic_notif_count") < 3
     }
 
-    private func resetNotificationWeekIfNeeded() {
+    /// Unlocked — caller must hold `lock`.
+    private func _resetNotificationWeekIfNeeded() {
         let calendar = Calendar.current
         let now = Date()
         let weekStart = calendar.dateInterval(of: .weekOfYear, for: now)?.start ?? now
@@ -429,26 +617,36 @@ class StorageService {
     // MARK: - Notification Permission Priming
 
     func setNotificationPrimingShown() {
+        lock.lock()
+        defer { lock.unlock() }
         defaults.set(true, forKey: "notification_priming_shown")
     }
 
     func hasShownNotificationPriming() -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
         return defaults.bool(forKey: "notification_priming_shown")
     }
 
     func setNotificationDeniedAfterPriming() {
+        lock.lock()
+        defer { lock.unlock() }
         defaults.set(true, forKey: "notification_denied_after_priming")
     }
 
     func wasNotificationDeniedAfterPriming() -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
         return defaults.bool(forKey: "notification_denied_after_priming")
     }
 
     // MARK: - Clear All
 
     func clearAll() {
+        lock.lock()
+        defer { lock.unlock() }
         // Clear per-conversation message keys first
-        let conversations = loadConversations()
+        let conversations = _loadConversations()
         for convo in conversations {
             defaults.removeObject(forKey: "messages_\(convo.id)")
         }
@@ -462,7 +660,7 @@ class StorageService {
             "notification_priming_shown", "notification_denied_after_priming",
         ]
         keys.forEach { defaults.removeObject(forKey: $0) }
-        clearCaches()
+        _clearCaches()
     }
 }
 
