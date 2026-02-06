@@ -12,6 +12,7 @@ struct ChatInputBar: View {
     var onFocus: () -> Void = {}
 
     @State private var showAddSheet = false
+    @State private var sendTrigger = false
     @FocusState private var isFocused: Bool
 
     private let characterLimit = 4000
@@ -80,6 +81,7 @@ struct ChatInputBar: View {
                     TextField("", text: $text, axis: .vertical)
                         .font(.chloeInputPlaceholder(16))
                         .lineLimit(1...5)
+                        .submitLabel(.send)
                         .focused($isFocused)
                         .placeholder(when: text.isBlank) {
                             Text("What's on your heart?")
@@ -108,6 +110,7 @@ struct ChatInputBar: View {
                 // Mic / Send button
                 Button {
                     if canSend {
+                        sendTrigger.toggle()
                         onSend()
                     }
                 } label: {
@@ -116,6 +119,7 @@ struct ChatInputBar: View {
                         .foregroundColor(canSend ? .chloePrimary : .chloeTextTertiary)
                         .contentTransition(.symbolEffect(.replace))
                 }
+                .sensoryFeedback(.impact(weight: .light), trigger: sendTrigger)
                 .disabled(isSending)
                 .accessibilityLabel(canSend ? "Send" : "Microphone")
                 .accessibilityIdentifier("send-button")

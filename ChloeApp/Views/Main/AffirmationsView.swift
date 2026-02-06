@@ -5,15 +5,11 @@ struct AffirmationsView: View {
         ZStack {
             GradientBackground()
 
-            VStack(spacing: Spacing.lg) {
-                Text("Affirmations")
-                    .font(.chloeTitle)
-                    .foregroundColor(.chloeTextPrimary)
-
-                Text("Coming soon")
-                    .font(.chloeBodyDefault)
-                    .foregroundColor(.chloeTextTertiary)
-            }
+            EmptyStateView(
+                icon: "sparkles",
+                title: "Affirmations coming soon",
+                subtitle: "Daily affirmations to nurture your mindset and support your growth"
+            )
         }
         .navigationTitle("Affirmations")
     }

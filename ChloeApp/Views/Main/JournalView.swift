@@ -3,6 +3,7 @@ import SwiftUI
 struct JournalView: View {
     @StateObject private var viewModel = JournalViewModel()
     @State private var showEditor = false
+    @State private var pendingDeleteOffsets: IndexSet?
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
@@ -62,13 +63,26 @@ struct JournalView: View {
                 ))
             }
             .onDelete { offsets in
-                viewModel.deleteEntry(at: offsets)
+                pendingDeleteOffsets = offsets
             }
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
         .refreshable {
             viewModel.loadEntries()
+        }
+        .confirmationDialog("Delete Entry", isPresented: .init(
+            get: { pendingDeleteOffsets != nil },
+            set: { if !$0 { pendingDeleteOffsets = nil } }
+        )) {
+            Button("Delete", role: .destructive) {
+                if let offsets = pendingDeleteOffsets {
+                    viewModel.deleteEntry(at: offsets)
+                    pendingDeleteOffsets = nil
+                }
+            }
+        } message: {
+            Text("Are you sure you want to delete this entry?")
         }
     }
 

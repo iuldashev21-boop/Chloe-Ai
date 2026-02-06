@@ -3,6 +3,7 @@ import SwiftUI
 struct GoalsView: View {
     @StateObject private var viewModel = GoalsViewModel()
     @State private var showAddGoal = false
+    @State private var pendingDeleteOffsets: IndexSet?
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
@@ -59,13 +60,26 @@ struct GoalsView: View {
                     ))
             }
             .onDelete { offsets in
-                viewModel.deleteGoal(at: offsets)
+                pendingDeleteOffsets = offsets
             }
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
         .refreshable {
             viewModel.loadGoals()
+        }
+        .confirmationDialog("Delete Goal", isPresented: .init(
+            get: { pendingDeleteOffsets != nil },
+            set: { if !$0 { pendingDeleteOffsets = nil } }
+        )) {
+            Button("Delete", role: .destructive) {
+                if let offsets = pendingDeleteOffsets {
+                    viewModel.deleteGoal(at: offsets)
+                    pendingDeleteOffsets = nil
+                }
+            }
+        } message: {
+            Text("Are you sure you want to delete this goal?")
         }
     }
 
@@ -74,6 +88,7 @@ struct GoalsView: View {
     private func goalCard(_ goal: Goal) -> some View {
         HStack(spacing: Spacing.sm) {
             Button {
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                 viewModel.toggleGoalStatus(goalId: goal.id)
             } label: {
                 Image(systemName: goal.status == .completed ? "checkmark.circle.fill" : "circle")
@@ -146,6 +161,7 @@ private struct AddGoalSheet: View {
                         TextField("Goal title", text: $title)
                             .font(.chloeBodyDefault)
                             .foregroundColor(.chloeTextPrimary)
+                            .submitLabel(.next)
                             .padding(.horizontal, Spacing.sm)
                             .padding(.vertical, Spacing.sm)
                             .background(Color.chloeSurface)
@@ -169,6 +185,7 @@ private struct AddGoalSheet: View {
                             .font(.chloeBodyDefault)
                             .foregroundColor(.chloeTextPrimary)
                             .lineLimit(1...4)
+                            .submitLabel(.done)
                             .padding(.horizontal, Spacing.sm)
                             .padding(.vertical, Spacing.sm)
                             .background(Color.chloeSurface)

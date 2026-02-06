@@ -93,6 +93,7 @@ struct JournalEntryEditorView: View {
         TextField("Entry title...", text: $title)
             .font(.chloeTitle)
             .foregroundColor(.chloeTextPrimary)
+            .submitLabel(.done)
             .focused($titleFocused)
             .onChange(of: title) {
                 if title.count > 200 {

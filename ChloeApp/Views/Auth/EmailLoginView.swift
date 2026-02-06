@@ -92,6 +92,7 @@ struct EmailLoginView: View {
                         .textContentType(.emailAddress)
                         .autocapitalization(.none)
                         .autocorrectionDisabled()
+                        .submitLabel(.next)
                         .focused($focusedField, equals: .email)
                         .padding(.horizontal, Spacing.xs)
                         .frame(height: 48)
@@ -121,6 +122,7 @@ struct EmailLoginView: View {
                     SecureField("Password", text: $password, prompt: Text("Password").font(.system(size: 17, weight: .light).italic()).foregroundColor(.chloeRosewood))
                         .font(.chloeBodyDefault)
                         .textContentType(authVM.isSignUpMode ? .newPassword : .password)
+                        .submitLabel(.go)
                         .focused($focusedField, equals: .password)
                         .padding(.horizontal, Spacing.xs)
                         .frame(height: 48)
@@ -265,7 +267,7 @@ struct EmailLoginView: View {
                             .fill(Color.chloeRosewood.opacity(0.3))
                             .frame(height: 0.5)
                         Text("or")
-                            .font(.system(size: 14, weight: .light))
+                            .font(.chloeCaptionLight)
                             .foregroundColor(.chloeRosewood)
                         Rectangle()
                             .fill(Color.chloeRosewood.opacity(0.3))
@@ -298,7 +300,7 @@ struct EmailLoginView: View {
                         AppEvents.onboardingDidComplete.send()
                     } label: {
                         Text("Skip (Dev)")
-                            .font(.system(size: 14, weight: .light))
+                            .font(.chloeCaptionLight)
                             .foregroundColor(.chloePrimary)
                     }
                     #endif

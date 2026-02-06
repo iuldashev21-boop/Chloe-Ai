@@ -97,17 +97,6 @@ struct PasswordResetView: View {
                 .scrollDismissesKeyboard(.interactively)
         }
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.chloePrimary)
-                }
-            }
-        }
         .onAppear {
             withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
                 appeared = true
@@ -135,6 +124,7 @@ struct PasswordResetView: View {
                 .textContentType(.emailAddress)
                 .autocapitalization(.none)
                 .autocorrectionDisabled()
+                .submitLabel(.send)
                 .focused($emailFocused)
                 .padding(.horizontal, Spacing.xs)
                 .frame(height: 48)
