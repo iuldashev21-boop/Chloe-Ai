@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		LS0000020000000000000001 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = LS0000010000000000000001 /* LaunchScreen.storyboard */; };
 		SC0000020000000000000001 /* ServiceContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = SC0000010000000000000001 /* ServiceContainer.swift */; };
 		SP0000020000000000000001 /* ServiceProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = SP0000010000000000000001 /* ServiceProtocols.swift */; };
 		DC0000010000000000000001 /* DataCollectionInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0000020000000000000001 /* DataCollectionInfoView.swift */; };
@@ -185,6 +186,7 @@
 		A20000020000000000000001 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		A20000030000000000000001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A20000040000000000000001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		LS0000010000000000000001 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		A20000050000000000000001 /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
 		A20000060000000000000001 /* Fonts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fonts.swift; sourceTree = "<group>"; };
 		A20000070000000000000001 /* Spacing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Spacing.swift; sourceTree = "<group>"; };
@@ -380,6 +382,7 @@
 			children = (
 				A20000010000000000000001 /* ChloeApp.swift */,
 				A20000040000000000000001 /* Info.plist */,
+				LS0000010000000000000001 /* LaunchScreen.storyboard */,
 				A20000650000000000000001 /* Config.xcconfig */,
 				A20000030000000000000001 /* Assets.xcassets */,
 				A50000040000000000000001 /* Models */,
@@ -757,6 +760,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				LS0000020000000000000001 /* LaunchScreen.storyboard in Resources */,
 				A10000030000000000000001 /* Assets.xcassets in Resources */,
 				F10000210000000000000001 /* TenorSans-Regular.ttf in Resources */,
 				F10000220000000000000001 /* Cinzel-Regular.ttf in Resources */,
@@ -1126,7 +1130,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Chloe;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1157,7 +1161,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Chloe;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
