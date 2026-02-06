@@ -632,13 +632,19 @@ final class BehavioralLoopsTests: XCTestCase {
     }
 
     func testBehavioralLoops_persistence() {
+        // Ensure a profile exists before adding loops
+        var profile = storageService.loadProfile() ?? Profile()
+        if storageService.loadProfile() == nil {
+            try? storageService.saveProfile(profile)
+        }
+
         // Add a unique loop
         let uniqueLoop = "TestLoop_\(UUID().uuidString)"
         storageService.addBehavioralLoops([uniqueLoop])
 
         // Load fresh and verify
-        let profile = storageService.loadProfile()
-        XCTAssertTrue(profile?.behavioralLoops?.contains(uniqueLoop) ?? false,
+        profile = storageService.loadProfile() ?? Profile()
+        XCTAssertTrue(profile.behavioralLoops?.contains(uniqueLoop) ?? false,
                       "Loop should persist across loads")
     }
 }
@@ -1471,8 +1477,13 @@ final class MemoryEdgeCaseTests: XCTestCase {
 
     // MARK: - 50+ Loops Tests
 
-    /// Verify system handles 50+ behavioral loops without crash
+    /// Verify system handles 50+ input loops without crash, capped at 20
     func testBehavioralLoops_50PlusLoops_noCrash() {
+        // Ensure profile exists
+        if storageService.loadProfile() == nil {
+            try? storageService.saveProfile(Profile())
+        }
+
         // Generate 60 unique loops
         let loops = (1...60).map { "Behavioral pattern \($0): User exhibits behavior \($0)" }
 
@@ -1481,13 +1492,16 @@ final class MemoryEdgeCaseTests: XCTestCase {
 
         let profile = storageService.loadProfile()
         XCTAssertNotNil(profile?.behavioralLoops)
-        XCTAssertGreaterThanOrEqual(profile?.behavioralLoops?.count ?? 0, 50,
-            "Should store at least 50 loops")
+        // Capped at 20 to prevent unbounded growth
+        XCTAssertLessThanOrEqual(profile?.behavioralLoops?.count ?? 0, 20,
+            "Should be capped at 20 loops")
+        XCTAssertGreaterThan(profile?.behavioralLoops?.count ?? 0, 0,
+            "Should store some loops")
     }
 
-    /// Verify prompt injection handles large loop counts gracefully
-    func testBehavioralLoops_50PlusLoops_promptSizeReasonable() {
-        let loops = (1...60).map { "Pattern \($0): Seeks validation in scenario \($0)" }
+    /// Verify prompt injection handles max loop count (20) gracefully
+    func testBehavioralLoops_maxLoops_promptSizeReasonable() {
+        let loops = (1...20).map { "Pattern \($0): Seeks validation in scenario \($0)" }
 
         // Build XML block like ChatViewModel does
         let xml = """
@@ -1498,28 +1512,33 @@ final class MemoryEdgeCaseTests: XCTestCase {
         </known_patterns>
         """
 
-        // Verify it's not excessively large (< 10KB is reasonable for prompt injection)
+        // Verify it's not excessively large (< 5KB is reasonable for 20 loops)
         let sizeInBytes = xml.utf8.count
-        XCTAssertLessThan(sizeInBytes, 10_000,
-            "50+ loops XML should be under 10KB. Actual: \(sizeInBytes) bytes")
+        XCTAssertLessThan(sizeInBytes, 5_000,
+            "20 loops XML should be under 5KB. Actual: \(sizeInBytes) bytes")
 
         // Verify structure is intact
         XCTAssertTrue(xml.contains("<known_patterns>"))
         XCTAssertTrue(xml.contains("</known_patterns>"))
         XCTAssertTrue(xml.contains("Pattern 1:"))
-        XCTAssertTrue(xml.contains("Pattern 60:"))
+        XCTAssertTrue(xml.contains("Pattern 20:"))
     }
 
-    /// Verify adding loops beyond 50 still works (no hard limit crash)
-    func testBehavioralLoops_100Loops_noHardLimit() {
+    /// Verify adding 100 loops caps at 20 (no crash)
+    func testBehavioralLoops_100Loops_cappedAt20() {
+        // Ensure profile exists
+        if storageService.loadProfile() == nil {
+            try? storageService.saveProfile(Profile())
+        }
+
         let loops = (1...100).map { "Loop\($0)_\(UUID().uuidString.prefix(8))" }
         storageService.addBehavioralLoops(loops)
 
         let profile = storageService.loadProfile()
-        // System should either store all or implement a reasonable limit
         XCTAssertNotNil(profile?.behavioralLoops)
-        // If there's a limit, it should be documented; for now verify no crash
-        XCTAssertTrue(true, "100 loops added without crash")
+        // Capped at 20 — keeps most recent entries
+        XCTAssertEqual(profile?.behavioralLoops?.count, 20,
+            "Should cap at 20 loops, got \(profile?.behavioralLoops?.count ?? 0)")
     }
 
     // MARK: - Special Characters Tests
@@ -1893,6 +1912,11 @@ final class CrisisMemoryComboTests: XCTestCase {
 
     /// Integration: Full crisis flow with existing loops should prioritize support
     func testCrisis_fullFlow_supportOverPatterns() async throws {
+        // Ensure profile exists before adding loops
+        if storageService.loadProfile() == nil {
+            try? storageService.saveProfile(Profile())
+        }
+
         // Setup: User has existing behavioral loops
         storageService.addBehavioralLoops([
             "Spirals on Sunday nights",
