@@ -7,6 +7,7 @@ struct EmailLoginView: View {
     @State private var email = ""
     @State private var password = ""
     @State private var shimmerOffset: CGFloat = -200
+    @State private var shimmerTimer: Timer?
     @FocusState private var focusedField: Field?
     @State private var showOrb = false
     @State private var showText = false
@@ -283,6 +284,9 @@ struct EmailLoginView: View {
                 withAnimation { showFields = true }
             }
         }
+        .onDisappear {
+            stopShimmerLoop()
+        }
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
             keyboardVisible = true
         }
@@ -292,12 +296,18 @@ struct EmailLoginView: View {
     }
 
     private func startShimmerLoop() {
-        Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { _ in
+        shimmerTimer?.invalidate()
+        shimmerTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { _ in
             shimmerOffset = -200
             withAnimation(.easeInOut(duration: 0.8)) {
                 shimmerOffset = 200
             }
         }
+    }
+
+    private func stopShimmerLoop() {
+        shimmerTimer?.invalidate()
+        shimmerTimer = nil
     }
 
 }

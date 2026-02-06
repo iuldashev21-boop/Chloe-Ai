@@ -21,7 +21,8 @@ struct NewPasswordView: View {
             EtherealDustParticles()
                 .ignoresSafeArea()
 
-            VStack(spacing: Spacing.lg) {
+            ScrollView {
+                VStack(spacing: Spacing.lg) {
                 Spacer()
 
                 // MARK: - Icon
@@ -164,6 +165,9 @@ struct NewPasswordView: View {
                 Spacer()
                     .frame(height: Spacing.lg)
             }
+                .frame(minHeight: UIScreen.main.bounds.height)
+                }
+                .scrollDismissesKeyboard(.interactively)
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)

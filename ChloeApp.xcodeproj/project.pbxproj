@@ -67,6 +67,7 @@
 		A10000580000000000000001 /* DisclaimerText.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000580000000000000001 /* DisclaimerText.swift */; };
 		A10000590000000000000001 /* Prompts.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000590000000000000001 /* Prompts.swift */; };
 		A10000600000000000000001 /* CrisisResponses.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000600000000000000001 /* CrisisResponses.swift */; };
+		A10000610000000000000001 /* UIImage+Downsampling.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000610000000000000001 /* UIImage+Downsampling.swift */; };
 		AECA7DBBAEBBAA31B3AC2A3C /* RateLimitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5ED54293ECCDC6658CA097B /* RateLimitTests.swift */; };
 		B17CE75363D09820CF922A4E /* EdgeCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 124F9265E9406FE5C82DEA12 /* EdgeCaseTests.swift */; };
 		B1B0BC73FECF454521A45C59 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74CE56D38B6D47E52BFB444E /* NotificationService.swift */; };
@@ -214,6 +215,7 @@
 		A20000580000000000000001 /* DisclaimerText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisclaimerText.swift; sourceTree = "<group>"; };
 		A20000590000000000000001 /* Prompts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Prompts.swift; sourceTree = "<group>"; };
 		A20000600000000000000001 /* CrisisResponses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrisisResponses.swift; sourceTree = "<group>"; };
+		A20000610000000000000001 /* UIImage+Downsampling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Downsampling.swift"; sourceTree = "<group>"; };
 		A20000650000000000000001 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 		A30000010000000000000001 /* ChloeApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChloeApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AF08D9DC14B5BC2B0F70D79E /* TestHelpers.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TestHelpers.swift; sourceTree = "<group>"; };
@@ -557,6 +559,7 @@
 				A20000080000000000000001 /* Color+Theme.swift */,
 				A20000090000000000000001 /* Date+Formatting.swift */,
 				A20000100000000000000001 /* String+Utils.swift */,
+				A20000610000000000000001 /* UIImage+Downsampling.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -760,6 +763,7 @@
 				A10000080000000000000001 /* Color+Theme.swift in Sources */,
 				A10000090000000000000001 /* Date+Formatting.swift in Sources */,
 				A10000100000000000000001 /* String+Utils.swift in Sources */,
+				A10000610000000000000001 /* UIImage+Downsampling.swift in Sources */,
 				A10000110000000000000001 /* Profile.swift in Sources */,
 				A10000120000000000000001 /* Conversation.swift in Sources */,
 				A10000130000000000000001 /* Message.swift in Sources */,

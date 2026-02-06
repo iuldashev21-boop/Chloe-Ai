@@ -34,7 +34,8 @@ class StorageService {
     // MARK: - Chat Images
 
     func saveChatImage(_ image: UIImage) -> String? {
-        guard let data = image.jpegData(compressionQuality: 0.7) else { return nil }
+        let resized = image.downsampledIfNeeded()
+        guard let data = resized.jpegData(compressionQuality: 0.7) else { return nil }
         let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         let filename = "chat_\(UUID().uuidString).jpg"
         let url = dir.appendingPathComponent(filename)

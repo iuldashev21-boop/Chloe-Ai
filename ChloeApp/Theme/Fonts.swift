@@ -23,25 +23,30 @@ extension Font {
         .system(size: size, weight: .medium)
     }
 
-    static let chloeLargeTitle = Font.system(size: 28, weight: .medium)
-    static let chloeTitle = Font.system(size: 22, weight: .medium)
-    static let chloeTitle2 = Font.system(size: 20, weight: .regular)
-    static let chloeHeadline = Font.system(size: 17, weight: .medium)
-    static let chloeSubheadline = Font.system(size: 15, weight: .medium)
-    static let chloeBodyDefault = Font.system(size: 17, weight: .regular)
-    static let chloeBodyLight = Font.system(size: 17, weight: .light)
-    static let chloeCaption = Font.system(size: 14, weight: .regular)
-    static let chloeCaptionLight = Font.system(size: 14, weight: .light)
-    static let chloeButton = Font.custom(ChloeFont.headerDisplay, size: 15)
-    static let chloeGreeting = Font.custom(ChloeFont.heroBoldItalic, size: 38)
-    static let chloeStatus = Font.custom(ChloeFont.headerDisplay, size: 11)
-    static let chloeProgressLabel = Font.system(size: 11, weight: .light)
-    static let chloeSidebarAppName = Font.custom(ChloeFont.heroBoldItalic, size: 24)
-    static let chloeSidebarSectionHeader = Font.custom(ChloeFont.headerDisplay, size: 11)
-    static let chloeSidebarMenuItem = Font.custom(ChloeFont.headerDisplay, size: 14)
-    static let chloeSidebarChatItem = Font.system(size: 14, weight: .regular)
+    // MARK: - Dynamic Type–aware semantic fonts
+    // Each maps to the nearest Apple text style so the system scales them with accessibility settings.
 
-    static let chloeOnboardingQuestion = Font.custom(ChloeFont.heroBoldItalic, size: 40)
+    static let chloeLargeTitle = Font.system(.largeTitle, weight: .medium)
+    static let chloeTitle = Font.system(.title, weight: .medium)
+    static let chloeTitle2 = Font.system(.title2)
+    static let chloeHeadline = Font.system(.headline, weight: .medium)
+    static let chloeSubheadline = Font.system(.subheadline, weight: .medium)
+    static let chloeBodyDefault = Font.system(.body)
+    static let chloeBodyLight = Font.system(.body, weight: .light)
+    static let chloeCaption = Font.system(.footnote)
+    static let chloeCaptionLight = Font.system(.footnote, weight: .light)
+    static let chloeProgressLabel = Font.system(.caption2, weight: .light)
+
+    // Custom fonts with relativeTo: scales with Dynamic Type while keeping the custom typeface
+    static let chloeButton = Font.custom(ChloeFont.headerDisplay, size: 15, relativeTo: .subheadline)
+    static let chloeGreeting = Font.custom(ChloeFont.heroBoldItalic, size: 38, relativeTo: .largeTitle)
+    static let chloeStatus = Font.custom(ChloeFont.headerDisplay, size: 11, relativeTo: .caption2)
+    static let chloeSidebarAppName = Font.custom(ChloeFont.heroBoldItalic, size: 24, relativeTo: .title)
+    static let chloeSidebarSectionHeader = Font.custom(ChloeFont.headerDisplay, size: 11, relativeTo: .caption2)
+    static let chloeSidebarMenuItem = Font.custom(ChloeFont.headerDisplay, size: 14, relativeTo: .footnote)
+    static let chloeSidebarChatItem = Font.system(.footnote)
+
+    static let chloeOnboardingQuestion = Font.custom(ChloeFont.heroBoldItalic, size: 40, relativeTo: .largeTitle)
 
     static func chloeInputPlaceholder(_ size: CGFloat) -> Font {
         .system(size: size, weight: .regular)
@@ -51,18 +56,27 @@ extension Font {
 // MARK: - Typography Style Modifiers
 
 struct ChloeEditorialHeadingStyle: ViewModifier {
+    @Environment(\.colorScheme) private var colorScheme
+
     func body(content: Content) -> some View {
         content
             .font(.chloeOnboardingQuestion)
             .tracking(1)
             .foregroundStyle(
                 LinearGradient(
-                    colors: [Color(hex: "#2D2324"), Color(hex: "#8E5A5E")],
+                    colors: colorScheme == .dark
+                        ? [Color(hex: "#D4A0A8"), Color(hex: "#8E5A5E")]
+                        : [Color(hex: "#2D2324"), Color(hex: "#8E5A5E")],
                     startPoint: .top,
                     endPoint: .bottom
                 )
             )
-            .shadow(color: Color(hex: "#2D2324").opacity(0.15), radius: 4, y: 2)
+            .shadow(
+                color: colorScheme == .dark
+                    ? Color(hex: "#8E5A5E").opacity(0.3)
+                    : Color(hex: "#2D2324").opacity(0.15),
+                radius: 4, y: 2
+            )
     }
 }
 
