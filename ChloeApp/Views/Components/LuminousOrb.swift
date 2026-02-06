@@ -5,8 +5,10 @@ struct LuminousOrb: View {
     var isFieldFocused: Bool = false
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.scenePhase) private var scenePhase
     @State private var sparkleGlow = false
     @State private var sparkleRotation: Double = 0
+    @State private var isAnimating = false
 
     private var breathDuration: Double { isFieldFocused ? 1.5 : 4.0 }
 
@@ -14,7 +16,7 @@ struct LuminousOrb: View {
         ZStack {
             // MARK: - Fluid Nebula (Canvas swirl)
             if !reduceMotion {
-                FluidNebula()
+                FluidNebula(isAnimating: isAnimating)
                     .frame(width: 80, height: 80)
                     .clipShape(Circle())
             } else {
@@ -53,12 +55,18 @@ struct LuminousOrb: View {
         }
         .frame(width: 80, height: 80)
         .onAppear {
-            guard !reduceMotion else { return }
-            withAnimation(.easeInOut(duration: 4).repeatForever(autoreverses: true)) {
-                sparkleGlow = true
-            }
-            withAnimation(.linear(duration: 30).repeatForever(autoreverses: false)) {
-                sparkleRotation = 360
+            isAnimating = true
+            startSparkleAnimations()
+        }
+        .onDisappear {
+            isAnimating = false
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active {
+                isAnimating = true
+                startSparkleAnimations()
+            } else {
+                isAnimating = false
             }
         }
         .onChange(of: isFieldFocused) { _, focused in
@@ -71,11 +79,23 @@ struct LuminousOrb: View {
         }
         .allowsHitTesting(false)
     }
+
+    private func startSparkleAnimations() {
+        guard !reduceMotion else { return }
+        withAnimation(.easeInOut(duration: 4).repeatForever(autoreverses: true)) {
+            sparkleGlow = true
+        }
+        withAnimation(.linear(duration: 30).repeatForever(autoreverses: false)) {
+            sparkleRotation = 360
+        }
+    }
 }
 
 // MARK: - Fluid Nebula (Canvas-based swirling gradient)
 
 private struct FluidNebula: View {
+    var isAnimating: Bool
+
     private let colors: [Color] = [
         Color(hex: "#FFF8F0"),
         Color(hex: "#FFE5D9"),
@@ -83,7 +103,7 @@ private struct FluidNebula: View {
     ]
 
     var body: some View {
-        TimelineView(.animation) { timeline in
+        TimelineView(isAnimating ? .animation : .animation(minimumInterval: 31_536_000)) { timeline in
             Canvas { context, size in
                 let t = timeline.date.timeIntervalSinceReferenceDate
                 let cx = size.width / 2

@@ -207,9 +207,19 @@ class SyncDataService: ObservableObject {
 
         // Sync profile (server wins if newer)
         do {
-            if let remoteProfile = try await remote.fetchProfile() {
+            if var remoteProfile = try await remote.fetchProfile() {
                 let localProfile = local.loadProfile()
                 if localProfile == nil || remoteProfile.updatedAt > (localProfile?.updatedAt ?? .distantPast) {
+                    // Re-download profile image if local file is missing (e.g. after reinstall)
+                    if let imageUri = remoteProfile.profileImageUri,
+                       !FileManager.default.fileExists(atPath: imageUri),
+                       let userId = remote.currentUserId {
+                        let storagePath = "\(userId)/profile/profile_image.jpg"
+                        if let data = try? await remote.downloadImage(path: storagePath),
+                           let localPath = try? local.saveProfileImage(data) {
+                            remoteProfile.profileImageUri = localPath
+                        }
+                    }
                     try local.saveProfile(remoteProfile)
                 }
             }
@@ -250,6 +260,47 @@ class SyncDataService: ObservableObject {
                     }
                     mergedMessages.sort { $0.createdAt < $1.createdAt }
                     if mergedMessages.count > localMessages.count {
+                        try local.saveMessages(mergedMessages, forConversation: remoteConvo.id)
+                    }
+
+                    // Re-download missing chat images (handles reinstall / new device)
+                    var imageUpdated = false
+                    for i in mergedMessages.indices {
+                        guard let imageUri = mergedMessages[i].imageUri, !imageUri.isEmpty else { continue }
+
+                        // Determine the storage path and local filename
+                        let storagePath: String
+                        let localFilename: String
+                        if imageUri.hasPrefix("/") {
+                            // Old-style local path stored in cloud — reconstruct storage path
+                            guard !FileManager.default.fileExists(atPath: imageUri) else { continue }
+                            localFilename = URL(fileURLWithPath: imageUri).lastPathComponent
+                            guard let userId = remote.currentUserId else { continue }
+                            storagePath = "\(userId)/chat/\(localFilename)"
+                        } else {
+                            // Already a storage path (e.g. "userId/chat/file.jpg")
+                            localFilename = URL(string: imageUri)?.lastPathComponent ?? imageUri.components(separatedBy: "/").last ?? imageUri
+                            let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+                            let localPath = dir.appendingPathComponent(localFilename).path
+                            guard !FileManager.default.fileExists(atPath: localPath) else {
+                                // File exists locally — just fix the path reference
+                                if mergedMessages[i].imageUri != localPath {
+                                    mergedMessages[i].imageUri = localPath
+                                    imageUpdated = true
+                                }
+                                continue
+                            }
+                            storagePath = imageUri
+                        }
+
+                        // Download from Supabase Storage
+                        if let data = try? await remote.downloadImage(path: storagePath),
+                           let localPath = local.saveChatImageData(data, filename: localFilename) {
+                            mergedMessages[i].imageUri = localPath
+                            imageUpdated = true
+                        }
+                    }
+                    if imageUpdated {
                         try local.saveMessages(mergedMessages, forConversation: remoteConvo.id)
                     }
                 } catch {

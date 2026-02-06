@@ -534,11 +534,14 @@ Chloe: "Stop. That is the old narrative. Look at your Vision Board. Does the wom
 
   <classification_categories>
     1. CATEGORY (Select ONE):
+       - CASUAL (General conversation, small talk, greetings, casual chat that doesn't fit other categories — e.g. "hey", "how are you", "what's up", "tell me about yourself", "I'm bored", chit-chat)
        - CRISIS_BREAKUP (Active breakup, no contact, blocking)
        - DATING_EARLY (Talking stage, first dates, uncertainty, "ghosting")
        - RELATIONSHIP_ESTABLISHED (Boyfriend, conflict, stagnation)
        - SELF_IMPROVEMENT (Glow up, career, general anxiety)
        - SAFETY_RISK (Self-harm, abuse - triggers immediate override)
+
+    IMPORTANT: Use CASUAL as the DEFAULT when the message is general chit-chat, greetings, or doesn't clearly fit the other categories. Only use DATING_EARLY, SELF_IMPROVEMENT, etc. when the user is explicitly discussing those topics.
 
     2. URGENCY (Select ONE):
        - LOW (Casual chat, updates)

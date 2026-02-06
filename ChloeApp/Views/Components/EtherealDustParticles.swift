@@ -12,14 +12,16 @@ struct EtherealDustParticles: View {
     }
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.scenePhase) private var scenePhase
     @State private var particles: [Particle] = []
+    @State private var isAnimating = false
 
     var body: some View {
         if reduceMotion {
             // Show a static subtle overlay instead of animated particles
             Color.clear
         } else {
-        TimelineView(.animation) { timeline in
+        TimelineView(isAnimating ? .animation : .animation(minimumInterval: 31_536_000)) { timeline in
             Canvas { context, size in
                 let t = CGFloat(timeline.date.timeIntervalSinceReferenceDate)
 
@@ -50,6 +52,8 @@ struct EtherealDustParticles: View {
         }
         .allowsHitTesting(false)
         .onAppear {
+            isAnimating = true
+
             // Original ambient dust (large, very faint)
             let dust: [Particle] = (0..<8).map { _ in
                 Particle(
@@ -77,6 +81,12 @@ struct EtherealDustParticles: View {
             }
 
             particles = dust + bokeh
+        }
+        .onDisappear {
+            isAnimating = false
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            isAnimating = (newPhase == .active)
         }
         } // end else (reduceMotion)
     }

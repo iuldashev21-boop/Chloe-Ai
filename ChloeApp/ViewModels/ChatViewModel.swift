@@ -188,6 +188,9 @@ class ChatViewModel: ObservableObject {
             // Phase 2: Strategy (Strategist Response)
             loadingState = .generating
 
+            // Casual mode — light touch, no heavy frameworks
+            let isCasualChat = classification.category == .casual
+
             // Soft spiral override — per-message, not per-session
             let isSoftSpiral = safetyService.checkSoftSpiral(message: text)
 
@@ -219,6 +222,21 @@ class ChatViewModel: ObservableObject {
               End with ONE gentle micro-task ("Can you get a glass of water?" / "Can you take one deep breath for me?").
               Set strategy_selection to "Gentle Support" in internal_thought.
             </soft_spiral_override>
+            """
+            }
+
+            // Casual mode: drop frameworks, just be a natural conversationalist
+            if isCasualChat && !isSoftSpiral {
+                strategistPrompt += """
+
+            <casual_mode_override>
+              OVERRIDE: This is CASUAL conversation (greeting, small talk, chit-chat).
+              DROP all dating frameworks, game theory, Biology/Efficiency, Chloe-isms, and strategic analysis.
+              Just be a warm, fun, relatable older sister having a normal conversation.
+              Be yourself — friendly, witty, natural. No coaching unless she asks.
+              Set man_behavior_analysis to "N/A" and strategy_selection to "Casual Chat" in internal_thought.
+              Do NOT return options.
+            </casual_mode_override>
             """
             }
 

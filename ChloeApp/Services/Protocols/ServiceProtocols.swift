@@ -12,6 +12,7 @@ protocol StorageServiceProtocol: AnyObject {
 
     // Chat Images
     func saveChatImage(_ image: UIImage) -> String?
+    func saveChatImageData(_ data: Data, filename: String) -> String?
 
     // Profile Image
     func saveProfileImage(_ imageData: Data) throws -> String
@@ -261,23 +262,6 @@ protocol SyncDataServiceProtocol: AnyObject {
 /// Protocol abstracting ArchetypeService's public API for dependency injection and testing.
 protocol ArchetypeServiceProtocol: AnyObject {
     func classify(answers: ArchetypeAnswers) -> UserArchetype
-}
-
-// MARK: - PortkeyServiceProtocol
-
-/// Protocol abstracting PortkeyService's public API for dependency injection and testing.
-protocol PortkeyServiceProtocol: AnyObject {
-    var lastTraceId: String? { get }
-    var isConfigured: Bool { get }
-
-    func chat(
-        messages: [PortkeyMessage],
-        systemPrompt: String,
-        metadata: [String: String],
-        temperature: Double
-    ) async throws -> String
-
-    func sendFeedback(traceId: String, rating: String) async throws
 }
 
 // MARK: - AuthServiceProtocol

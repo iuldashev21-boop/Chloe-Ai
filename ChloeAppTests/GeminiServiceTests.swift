@@ -327,7 +327,7 @@ final class GeminiServiceTests: XCTestCase {
     func testClassifyMessage_noAPIKey_throwsError() async {
         do {
             _ = try await sut.classifyMessage(message: "Hello")
-            // If Portkey is configured, this might succeed
+            // Without an API key this should throw
         } catch let error as GeminiError {
             XCTAssertEqual(error, .noAPIKey,
                            "classifyMessage should throw noAPIKey without a configured key")

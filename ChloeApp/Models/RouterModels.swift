@@ -9,6 +9,7 @@ enum RouterCategory: String, Codable {
     case relationshipEstablished = "RELATIONSHIP_ESTABLISHED"
     case selfImprovement = "SELF_IMPROVEMENT"
     case safetyRisk = "SAFETY_RISK"
+    case casual = "CASUAL"
 }
 
 /// The urgency level from the Context Router

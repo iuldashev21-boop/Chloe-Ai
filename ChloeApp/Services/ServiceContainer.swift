@@ -9,7 +9,6 @@ class ServiceContainer: ObservableObject {
     let safety: SafetyServiceProtocol
     let sync: SyncDataServiceProtocol
     let archetype: ArchetypeServiceProtocol
-    let portkey: PortkeyServiceProtocol
     let auth: AuthServiceProtocol
 
     init(
@@ -18,7 +17,6 @@ class ServiceContainer: ObservableObject {
         safety: SafetyServiceProtocol = SafetyService.shared,
         sync: SyncDataServiceProtocol = SyncDataService.shared,
         archetype: ArchetypeServiceProtocol = ArchetypeService.shared,
-        portkey: PortkeyServiceProtocol = PortkeyService.shared,
         auth: AuthServiceProtocol = AuthService.shared
     ) {
         self.storage = storage
@@ -26,7 +24,6 @@ class ServiceContainer: ObservableObject {
         self.safety = safety
         self.sync = sync
         self.archetype = archetype
-        self.portkey = portkey
         self.auth = auth
     }
 }

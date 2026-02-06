@@ -282,12 +282,21 @@ class SupabaseDataService {
         guard !messages.isEmpty else { return }
 
         let dtos = messages.map { msg in
-            SupabaseMessageDTO(
+            // Convert local file path to Supabase storage path so other devices can resolve it
+            var cloudImageUrl = msg.imageUri
+            if let localPath = msg.imageUri, localPath.hasPrefix("/") {
+                let filename = URL(fileURLWithPath: localPath).lastPathComponent
+                if let userId = currentUserId {
+                    cloudImageUrl = "\(userId)/chat/\(filename)"
+                }
+            }
+
+            return SupabaseMessageDTO(
                 id: msg.id,
                 conversationId: conversationId,
                 role: msg.role.rawValue,
                 content: msg.text,
-                imageUrl: msg.imageUri,
+                imageUrl: cloudImageUrl,
                 createdAt: msg.createdAt,
                 routerMetadata: msg.routerMetadata,
                 contentType: msg.contentType?.rawValue

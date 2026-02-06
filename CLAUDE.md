@@ -16,7 +16,7 @@ This is strictly an iOS app. No web app work until explicitly requested.
 - **Keyboard:** Native SwiftUI handling (no IQKeyboardManager)
 - **Animations:** Native SwiftUI + Lottie (SPM)
 - **Image Loading:** Kingfisher (SPM)
-- **Chat UI:** ExyteChat (SPM)
+- **Chat UI:** Custom-built (SwiftUI)
 - **Celebrations:** ConfettiSwiftUI (SPM)
 - **Markdown:** MarkdownUI (SPM)
 - **Analytics:** TelemetryDeck (SPM)
@@ -56,7 +56,6 @@ This is strictly an iOS app. No web app work until explicitly requested.
 ## SPM Dependencies (already added)
 - Lottie 4.6.0
 - Kingfisher 8.6.2
-- ExyteChat 2.7.6
 - ConfettiSwiftUI 1.1.0
 - MarkdownUI 2.4.1
 - TelemetryDeck 2.11.0

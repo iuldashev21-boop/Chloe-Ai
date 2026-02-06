@@ -72,6 +72,18 @@ class StorageService {
         }
     }
 
+    /// Save downloaded chat image data and return local path (used for cloud sync re-download)
+    func saveChatImageData(_ data: Data, filename: String) -> String? {
+        let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let url = dir.appendingPathComponent(filename)
+        do {
+            try data.write(to: url)
+            return url.path
+        } catch {
+            return nil
+        }
+    }
+
     // MARK: - Profile Image
 
     func saveProfileImage(_ imageData: Data) throws -> String {

@@ -80,7 +80,6 @@
 		C0457D63F55A6FE260BAA7AD /* SidebarTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 177002C5E96240F457D7325D /* SidebarTests.swift */; };
 		C10000010000000000000001 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = C20000010000000000000001 /* Lottie */; };
 		C10000020000000000000001 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = C20000020000000000000001 /* Kingfisher */; };
-		C10000030000000000000001 /* ExyteChat in Frameworks */ = {isa = PBXBuildFile; productRef = C20000030000000000000001 /* ExyteChat */; };
 		C10000040000000000000001 /* ConfettiSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = C20000040000000000000001 /* ConfettiSwiftUI */; };
 		C10000050000000000000001 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = C20000050000000000000001 /* MarkdownUI */; };
 		C10000060000000000000001 /* TelemetryDeck in Frameworks */ = {isa = PBXBuildFile; productRef = C20000060000000000000001 /* TelemetryDeck */; };
@@ -124,7 +123,6 @@
 		FB0000020000000000000001 /* Feedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0000010000000000000001 /* Feedback.swift */; };
 		FB0000040000000000000001 /* FeedbackService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0000030000000000000001 /* FeedbackService.swift */; };
 		LS0000020000000000000001 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = LS0000010000000000000001 /* LaunchScreen.storyboard */; };
-		PK0000020000000000000001 /* PortkeyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = PK0000010000000000000001 /* PortkeyService.swift */; };
 		RS0000020000000000000001 /* ReportSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = RS0000010000000000000001 /* ReportSheet.swift */; };
 		SB0000010000000000000001 /* SyncStatusBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = SB0000020000000000000001 /* SyncStatusBadge.swift */; };
 		SC0000020000000000000001 /* ServiceContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = SC0000010000000000000001 /* ServiceContainer.swift */; };
@@ -279,7 +277,6 @@
 		FE802F7583970BBCFC8559DB /* UITestSupport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UITestSupport.swift; sourceTree = "<group>"; };
 		FF899EC08EB9BF6F2427726E /* PasswordResetView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PasswordResetView.swift; sourceTree = "<group>"; };
 		LS0000010000000000000001 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
-		PK0000010000000000000001 /* PortkeyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortkeyService.swift; sourceTree = "<group>"; };
 		RS0000010000000000000001 /* ReportSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportSheet.swift; sourceTree = "<group>"; };
 		SB0000020000000000000001 /* SyncStatusBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncStatusBadge.swift; sourceTree = "<group>"; };
 		SC0000010000000000000001 /* ServiceContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceContainer.swift; sourceTree = "<group>"; };
@@ -317,7 +314,6 @@
 			files = (
 				C10000010000000000000001 /* Lottie in Frameworks */,
 				C10000020000000000000001 /* Kingfisher in Frameworks */,
-				C10000030000000000000001 /* ExyteChat in Frameworks */,
 				C10000040000000000000001 /* ConfettiSwiftUI in Frameworks */,
 				C10000050000000000000001 /* MarkdownUI in Frameworks */,
 				C10000060000000000000001 /* TelemetryDeck in Frameworks */,
@@ -556,7 +552,6 @@
 				D30000040000000000000001 /* SyncDataService.swift */,
 				FE802F7583970BBCFC8559DB /* UITestSupport.swift */,
 				FB0000030000000000000001 /* FeedbackService.swift */,
-				PK0000010000000000000001 /* PortkeyService.swift */,
 				SC0000010000000000000001 /* ServiceContainer.swift */,
 			);
 			path = Services;
@@ -682,7 +677,6 @@
 			packageProductDependencies = (
 				C20000010000000000000001 /* Lottie */,
 				C20000020000000000000001 /* Kingfisher */,
-				C20000030000000000000001 /* ExyteChat */,
 				C20000040000000000000001 /* ConfettiSwiftUI */,
 				C20000050000000000000001 /* MarkdownUI */,
 				C20000060000000000000001 /* TelemetryDeck */,
@@ -741,7 +735,6 @@
 			packageReferences = (
 				D10000010000000000000001 /* XCRemoteSwiftPackageReference "lottie-spm" */,
 				D10000020000000000000001 /* XCRemoteSwiftPackageReference "Kingfisher" */,
-				D10000030000000000000001 /* XCRemoteSwiftPackageReference "Chat" */,
 				D10000040000000000000001 /* XCRemoteSwiftPackageReference "ConfettiSwiftUI" */,
 				D10000050000000000000001 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */,
 				D10000060000000000000001 /* XCRemoteSwiftPackageReference "SwiftClient" */,
@@ -900,7 +893,6 @@
 				D6ABB5378B84FB53F4E76EBA /* UITestSupport.swift in Sources */,
 				FB0000020000000000000001 /* Feedback.swift in Sources */,
 				FB0000040000000000000001 /* FeedbackService.swift in Sources */,
-				PK0000020000000000000001 /* PortkeyService.swift in Sources */,
 				SC0000020000000000000001 /* ServiceContainer.swift in Sources */,
 				SP0000020000000000000001 /* ServiceProtocols.swift in Sources */,
 				RS0000020000000000000001 /* ReportSheet.swift in Sources */,
@@ -1276,14 +1268,6 @@
 				minimumVersion = 8.0.0;
 			};
 		};
-		D10000030000000000000001 /* XCRemoteSwiftPackageReference "Chat" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/exyte/Chat.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.0.0;
-			};
-		};
 		D10000040000000000000001 /* XCRemoteSwiftPackageReference "ConfettiSwiftUI" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/simibac/ConfettiSwiftUI.git";
@@ -1328,11 +1312,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D10000020000000000000001 /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
-		};
-		C20000030000000000000001 /* ExyteChat */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D10000030000000000000001 /* XCRemoteSwiftPackageReference "Chat" */;
-			productName = ExyteChat;
 		};
 		C20000040000000000000001 /* ConfettiSwiftUI */ = {
 			isa = XCSwiftPackageProductDependency;
