@@ -640,14 +640,19 @@ class SyncDataService: ObservableObject {
 
     private func pushProfileImageToCloud(_ data: Data) {
         guard network.isConnected else { hasPendingChanges = true; return }
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
+            await MainActor.run { self.syncStatus = .syncing }
             do {
-                _ = try await remote.uploadProfileImage(data)
+                _ = try await self.remote.uploadProfileImage(data)
+                await MainActor.run {
+                    if self.hasPendingChanges != true { self.syncStatus = .idle }
+                }
             } catch {
                 #if DEBUG
                 print("[SyncDataService] Profile image upload failed: \(error.localizedDescription)")
                 #endif
-                hasPendingChanges = true
+                self.hasPendingChanges = true
             }
         }
     }
@@ -939,21 +944,33 @@ class SyncDataService: ObservableObject {
         guard network.isConnected else { hasPendingChanges = true; return }
         Task { [weak self] in
             guard let self else { return }
-            do { try await self.remote.upsertVisionItems(items) }
-            catch { self.hasPendingChanges = true }
+            await MainActor.run { self.syncStatus = .syncing }
+            do {
+                try await self.remote.upsertVisionItems(items)
+                await MainActor.run {
+                    if self.hasPendingChanges != true { self.syncStatus = .idle }
+                }
+            } catch {
+                self.hasPendingChanges = true
+            }
         }
     }
 
     private func pushVisionImageToCloud(_ data: Data, itemId: String) {
         guard network.isConnected else { hasPendingChanges = true; return }
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
+            await MainActor.run { self.syncStatus = .syncing }
             do {
-                _ = try await remote.uploadVisionImage(data, itemId: itemId)
+                _ = try await self.remote.uploadVisionImage(data, itemId: itemId)
+                await MainActor.run {
+                    if self.hasPendingChanges != true { self.syncStatus = .idle }
+                }
             } catch {
                 #if DEBUG
                 print("[SyncDataService] Vision image upload failed for \(itemId): \(error.localizedDescription)")
                 #endif
-                hasPendingChanges = true
+                self.hasPendingChanges = true
             }
         }
     }
