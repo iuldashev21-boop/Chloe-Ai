@@ -11,6 +11,9 @@ struct EtherealDustParticles: View {
         var opacity: Double
     }
 
+    /// When true, pauses the 120fps TimelineView while keeping the last frame visible.
+    var isPaused: Bool = false
+
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.scenePhase) private var scenePhase
     @State private var particles: [Particle] = []
@@ -52,7 +55,7 @@ struct EtherealDustParticles: View {
         }
         .allowsHitTesting(false)
         .onAppear {
-            isAnimating = true
+            isAnimating = !isPaused
 
             // Original ambient dust (large, very faint)
             let dust: [Particle] = (0..<8).map { _ in
@@ -86,7 +89,10 @@ struct EtherealDustParticles: View {
             isAnimating = false
         }
         .onChange(of: scenePhase) { _, newPhase in
-            isAnimating = (newPhase == .active)
+            isAnimating = (newPhase == .active) && !isPaused
+        }
+        .onChange(of: isPaused) { _, paused in
+            isAnimating = !paused && (scenePhase == .active)
         }
         } // end else (reduceMotion)
     }

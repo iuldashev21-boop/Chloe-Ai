@@ -153,6 +153,36 @@ struct SyncStatusSettingsRow: View {
     }
 }
 
+// MARK: - Observation Wrappers
+
+/// Isolates SyncDataService observation so parent views don't re-render on every syncStatus change.
+struct SyncStatusBadgeWrapper: View {
+    @ObservedObject private var syncService = SyncDataService.shared
+
+    var body: some View {
+        SyncStatusBadge(
+            status: syncService.syncStatus,
+            onRetry: {
+                Task { await syncService.retryPendingSync() }
+            }
+        )
+    }
+}
+
+/// Isolates SyncDataService observation for the Settings row variant.
+struct SyncStatusSettingsRowWrapper: View {
+    @ObservedObject private var syncService = SyncDataService.shared
+
+    var body: some View {
+        SyncStatusSettingsRow(
+            status: syncService.syncStatus,
+            onRetry: {
+                Task { await syncService.retryPendingSync() }
+            }
+        )
+    }
+}
+
 #Preview("Badge - Syncing") {
     SyncStatusBadge(status: .syncing)
         .padding()

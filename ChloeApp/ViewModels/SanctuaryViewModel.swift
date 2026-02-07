@@ -7,7 +7,7 @@ class SanctuaryViewModel: ObservableObject {
     // MARK: - Published Properties
 
     @Published var displayName: String = "babe"
-    @Published var profileImageData: Data?
+    @Published var profileImage: UIImage?
     @Published var ghostMessages: [Message] = []
     @Published var conversations: [Conversation] = []
     @Published var latestVibe: VibeScore?
@@ -39,7 +39,11 @@ class SanctuaryViewModel: ObservableObject {
         if let profile = SyncDataService.shared.loadProfile() {
             displayName = profile.displayName.isEmpty ? "babe" : profile.displayName
         }
-        profileImageData = SyncDataService.shared.loadProfileImage()
+        if let data = SyncDataService.shared.loadProfileImage() {
+            profileImage = UIImage(data: data)
+        } else {
+            profileImage = nil
+        }
     }
 
     // MARK: - Ghost Messages
@@ -118,6 +122,10 @@ class SanctuaryViewModel: ObservableObject {
     // MARK: - Profile Image Reload
 
     func reloadProfileImage() {
-        profileImageData = SyncDataService.shared.loadProfileImage()
+        if let data = SyncDataService.shared.loadProfileImage() {
+            profileImage = UIImage(data: data)
+        } else {
+            profileImage = nil
+        }
     }
 }

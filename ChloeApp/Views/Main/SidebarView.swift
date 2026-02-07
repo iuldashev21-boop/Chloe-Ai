@@ -11,7 +11,7 @@ struct SidebarView: View {
     var streak: GlowUpStreak?
     var currentConversationId: String?
     var displayName: String = "babe"
-    var profileImageData: Data? = nil
+    var profileImage: UIImage? = nil
     var onNewChat: () -> Void
     var onSelectConversation: (Conversation) -> Void
     var onNavigate: (SidebarDestination) -> Void
@@ -187,8 +187,8 @@ struct SidebarView: View {
         Button { onNavigate(.settings) } label: {
             HStack(spacing: Spacing.xs) {
                 // Profile image or initial circle
-                if let profileImageData, let uiImage = UIImage(data: profileImageData) {
-                    Image(uiImage: uiImage)
+                if let profileImage {
+                    Image(uiImage: profileImage)
                         .resizable()
                         .scaledToFill()
                         .frame(width: 30, height: 30)

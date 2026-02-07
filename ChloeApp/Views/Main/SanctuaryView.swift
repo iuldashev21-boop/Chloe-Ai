@@ -19,7 +19,6 @@ struct SanctuaryView: View {
     @Environment(\.scenePhase) private var scenePhase
     @StateObject private var viewModel = SanctuaryViewModel()
     @StateObject private var chatVM = ChatViewModel()
-    @ObservedObject private var syncService = SyncDataService.shared
     @State private var chatActive = false
     @State private var appeared = false
 
@@ -59,7 +58,7 @@ struct SanctuaryView: View {
                 endPoint: .bottom
             )
             .ignoresSafeArea()
-            EtherealDustParticles()
+            EtherealDustParticles(isPaused: chatActive)
                 .ignoresSafeArea()
                 .accessibilityHidden(true)
 
@@ -71,7 +70,7 @@ struct SanctuaryView: View {
                 streak: viewModel.streak,
                 currentConversationId: chatVM.conversationId,
                 displayName: viewModel.displayName,
-                profileImageData: viewModel.profileImageData,
+                profileImage: viewModel.profileImage,
                 onNewChat: {
                     chatVM.startNewChat()
                     viewModel.ghostMessages = []
@@ -235,11 +234,9 @@ struct SanctuaryView: View {
                 reopenSidebarIfNeeded()
             }
         }
-        .onChange(of: chatVM.messages.count) {
-            viewModel.loadConversations()
-        }
         .onChange(of: chatActive) {
             if !chatActive && !chatVM.messages.isEmpty {
+                viewModel.loadConversations()
                 viewModel.loadGhostMessages(conversationId: chatVM.conversationId)
             }
         }
@@ -296,12 +293,7 @@ struct SanctuaryView: View {
                     .accessibilityLabel("Open sidebar")
                     .accessibilityIdentifier("sidebar-button")
 
-                    SyncStatusBadge(
-                        status: syncService.syncStatus,
-                        onRetry: {
-                            Task { await syncService.retryPendingSync() }
-                        }
-                    )
+                    SyncStatusBadgeWrapper()
 
                     Spacer()
 
