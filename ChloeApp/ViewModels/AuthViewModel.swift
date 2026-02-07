@@ -128,7 +128,14 @@ class AuthViewModel: ObservableObject {
 
     // MARK: - Init
 
-    init(authService: AuthServiceProtocol = AuthService.shared) {
+    /// Convenience init using the production AuthService singleton.
+    /// Avoids referencing @MainActor-isolated `AuthService.shared` in a default parameter
+    /// expression (which is evaluated in the caller's nonisolated context in Swift 6).
+    convenience init() {
+        self.init(authService: AuthService.shared)
+    }
+
+    init(authService: AuthServiceProtocol) {
         self.authService = authService
 
         // Observe AuthService's published properties and forward to our own @Published
