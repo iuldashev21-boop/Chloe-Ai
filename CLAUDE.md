@@ -14,8 +14,7 @@ This is strictly an iOS app. No web app work until explicitly requested.
 - **Package Manager:** Swift Package Manager (SPM primary)
 - **Haptics:** Native `.sensoryFeedback()` (no pods)
 - **Keyboard:** Native SwiftUI handling (no IQKeyboardManager)
-- **Animations:** Native SwiftUI + Lottie (SPM)
-- **Image Loading:** Kingfisher (SPM)
+- **Animations:** Native SwiftUI (Canvas, TimelineView)
 - **Chat UI:** Custom-built (SwiftUI)
 - **Celebrations:** ConfettiSwiftUI (SPM)
 - **Markdown:** MarkdownUI (SPM)
@@ -54,8 +53,6 @@ This is strictly an iOS app. No web app work until explicitly requested.
 ```
 
 ## SPM Dependencies (already added)
-- Lottie 4.6.0
-- Kingfisher 8.6.2
 - ConfettiSwiftUI 1.1.0
 - MarkdownUI 2.4.1
 - TelemetryDeck 2.11.0

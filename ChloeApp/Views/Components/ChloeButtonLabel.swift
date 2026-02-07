@@ -6,6 +6,7 @@ struct ChloeButtonLabel: View {
 
     @State private var pulseOpacity: Double = 1.0
     @State private var shimmerOffset: CGFloat = -200
+    @State private var shimmerTask: Task<Void, Never>?
 
     var body: some View {
         Text(title.uppercased())
@@ -52,6 +53,10 @@ struct ChloeButtonLabel: View {
                 }
                 startShimmerLoop()
             }
+            .onDisappear {
+                shimmerTask?.cancel()
+                shimmerTask = nil
+            }
             .onChange(of: isEnabled) { _, newValue in
                 if newValue {
                     pulseOpacity = 1.0
@@ -62,10 +67,14 @@ struct ChloeButtonLabel: View {
     }
 
     private func startShimmerLoop() {
-        Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { _ in
-            shimmerOffset = -200
-            withAnimation(.easeInOut(duration: 0.8)) {
-                shimmerOffset = 200
+        shimmerTask = Task { @MainActor in
+            while !Task.isCancelled {
+                try? await Task.sleep(nanoseconds: 3_000_000_000)
+                guard !Task.isCancelled else { break }
+                shimmerOffset = -200
+                withAnimation(.easeInOut(duration: 0.8)) {
+                    shimmerOffset = 200
+                }
             }
         }
     }

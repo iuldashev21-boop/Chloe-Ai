@@ -47,13 +47,13 @@ struct LuminousOrb: View {
                     .foregroundStyle(.white)
             }
             .shadow(color: .white.opacity(0.9), radius: 4)
-            .shadow(color: Color(hex: "#B76E79").opacity(0.7), radius: 10)
-            .shadow(color: Color(hex: "#B76E79").opacity(0.3), radius: 25)
+            .shadow(color: Color(hex: "#B76E79").opacity(0.5), radius: 18)
             .rotationEffect(.degrees(reduceMotion ? 0 : sparkleRotation))
             .scaleEffect(reduceMotion ? 1.0 : (sparkleGlow ? 1.1 : 0.9))
             .opacity(reduceMotion ? 1.0 : (sparkleGlow ? 1.0 : 0.7))
         }
         .frame(width: 80, height: 80)
+        .drawingGroup()
         .onAppear {
             isAnimating = true
             startSparkleAnimations()

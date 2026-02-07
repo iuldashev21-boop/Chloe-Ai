@@ -53,6 +53,7 @@ struct EtherealDustParticles: View {
             }
             .blur(radius: 1)
         }
+        .drawingGroup()
         .allowsHitTesting(false)
         .onAppear {
             isAnimating = !isPaused

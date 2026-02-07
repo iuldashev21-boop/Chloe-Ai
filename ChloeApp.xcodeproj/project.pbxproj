@@ -78,8 +78,6 @@
 		B3C097B384F28B7455735585 /* VisionBoardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9802012D4326DE50975347EA /* VisionBoardTests.swift */; };
 		B95D54A9FAB2885D920CBFD0 /* GlowUpStreak.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E0D67819E2FDC56855D65EC /* GlowUpStreak.swift */; };
 		C0457D63F55A6FE260BAA7AD /* SidebarTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 177002C5E96240F457D7325D /* SidebarTests.swift */; };
-		C10000010000000000000001 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = C20000010000000000000001 /* Lottie */; };
-		C10000020000000000000001 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = C20000020000000000000001 /* Kingfisher */; };
 		C10000040000000000000001 /* ConfettiSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = C20000040000000000000001 /* ConfettiSwiftUI */; };
 		C10000050000000000000001 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = C20000050000000000000001 /* MarkdownUI */; };
 		C10000060000000000000001 /* TelemetryDeck in Frameworks */ = {isa = PBXBuildFile; productRef = C20000060000000000000001 /* TelemetryDeck */; };
@@ -312,8 +310,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C10000010000000000000001 /* Lottie in Frameworks */,
-				C10000020000000000000001 /* Kingfisher in Frameworks */,
 				C10000040000000000000001 /* ConfettiSwiftUI in Frameworks */,
 				C10000050000000000000001 /* MarkdownUI in Frameworks */,
 				C10000060000000000000001 /* TelemetryDeck in Frameworks */,
@@ -675,8 +671,6 @@
 			);
 			name = ChloeApp;
 			packageProductDependencies = (
-				C20000010000000000000001 /* Lottie */,
-				C20000020000000000000001 /* Kingfisher */,
 				C20000040000000000000001 /* ConfettiSwiftUI */,
 				C20000050000000000000001 /* MarkdownUI */,
 				C20000060000000000000001 /* TelemetryDeck */,
@@ -733,8 +727,6 @@
 			);
 			mainGroup = A50000010000000000000001;
 			packageReferences = (
-				D10000010000000000000001 /* XCRemoteSwiftPackageReference "lottie-spm" */,
-				D10000020000000000000001 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				D10000040000000000000001 /* XCRemoteSwiftPackageReference "ConfettiSwiftUI" */,
 				D10000050000000000000001 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */,
 				D10000060000000000000001 /* XCRemoteSwiftPackageReference "SwiftClient" */,
@@ -1252,22 +1244,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		D10000010000000000000001 /* XCRemoteSwiftPackageReference "lottie-spm" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/airbnb/lottie-spm.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 4.5.0;
-			};
-		};
-		D10000020000000000000001 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 8.0.0;
-			};
-		};
 		D10000040000000000000001 /* XCRemoteSwiftPackageReference "ConfettiSwiftUI" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/simibac/ConfettiSwiftUI.git";
@@ -1303,16 +1279,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		C20000010000000000000001 /* Lottie */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D10000010000000000000001 /* XCRemoteSwiftPackageReference "lottie-spm" */;
-			productName = Lottie;
-		};
-		C20000020000000000000001 /* Kingfisher */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D10000020000000000000001 /* XCRemoteSwiftPackageReference "Kingfisher" */;
-			productName = Kingfisher;
-		};
 		C20000040000000000000001 /* ConfettiSwiftUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = D10000040000000000000001 /* XCRemoteSwiftPackageReference "ConfettiSwiftUI" */;
