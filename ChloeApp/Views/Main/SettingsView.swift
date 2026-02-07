@@ -318,7 +318,11 @@ struct SettingsView: View {
                         try SyncDataService.shared.saveProfile(updated)
                         profile = updated
                         profileImage = uiImage
-                    } catch {}
+                    } catch {
+                        #if DEBUG
+                        print("[SettingsView] Failed to save profile image: \(error.localizedDescription)")
+                        #endif
+                    }
                 }
                 selectedPhotoItem = nil
             }

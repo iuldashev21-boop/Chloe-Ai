@@ -38,6 +38,6 @@ enum CrisisResponses {
     ]
 
     static func response(for type: CrisisType) -> String {
-        return responses[type] ?? responses[.selfHarm]!
+        return responses[type] ?? responses[.selfHarm] ?? "Please reach out to the 988 Suicide & Crisis Lifeline: call or text 988. You are not alone."
     }
 }
