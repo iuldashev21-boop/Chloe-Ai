@@ -29,14 +29,6 @@ struct SidebarView: View {
             .first?.screen.bounds.width ?? UIScreen.main.bounds.width) * 0.8
     }
 
-    /// Starred first, then sorted by most recent
-    private var sortedConversations: [Conversation] {
-        conversations.sorted { a, b in
-            if a.starred != b.starred { return a.starred }
-            return a.updatedAt > b.updatedAt
-        }
-    }
-
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // Header
@@ -82,7 +74,7 @@ struct SidebarView: View {
 
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: Spacing.xxxs) {
-                    ForEach(sortedConversations.prefix(10)) { convo in
+                    ForEach(conversations) { convo in
                         conversationRow(convo)
                     }
                 }

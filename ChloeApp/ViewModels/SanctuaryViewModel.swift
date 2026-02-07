@@ -62,6 +62,15 @@ class SanctuaryViewModel: ObservableObject {
 
     // MARK: - Conversations & Sidebar Data
 
+    /// Top 10 conversations for the sidebar: starred first, then by most recent.
+    /// Pre-sorted here so SidebarView doesn't re-sort on every body evaluation.
+    var recentConversations: [Conversation] {
+        conversations.sorted { a, b in
+            if a.starred != b.starred { return a.starred }
+            return a.updatedAt > b.updatedAt
+        }.prefix(10).map { $0 }
+    }
+
     func loadConversations() {
         conversations = SyncDataService.shared.loadConversations()
             .sorted(by: { $0.updatedAt > $1.updatedAt })
@@ -95,13 +104,20 @@ class SanctuaryViewModel: ObservableObject {
 
     // MARK: - Feedback
 
-    func findPreviousUserMessage(beforeIndex index: Int, in messages: [Message]) -> String? {
-        for i in stride(from: index - 1, through: 0, by: -1) {
-            if messages[i].role == .user {
-                return messages[i].text
+    /// Pre-compute previous user message for each message index.
+    /// Returns a dictionary mapping message ID to the previous user message text.
+    func buildPreviousUserMessageMap(for messages: [Message]) -> [String: String] {
+        var map: [String: String] = [:]
+        var lastUserText: String? = nil
+        for message in messages {
+            if message.role != .user, let text = lastUserText {
+                map[message.id] = text
+            }
+            if message.role == .user {
+                lastUserText = message.text
             }
         }
-        return nil
+        return map
     }
 
     func handleFeedback(for message: Message, conversationId: String?, previousUserMessage: String?, rating: FeedbackRating) {

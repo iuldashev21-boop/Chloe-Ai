@@ -65,7 +65,7 @@ struct SanctuaryView: View {
             // Layer 1: Sidebar
             SidebarView(
                 isOpen: $sidebarOpen,
-                conversations: viewModel.conversations,
+                conversations: viewModel.recentConversations,
                 latestVibe: viewModel.latestVibe,
                 streak: viewModel.streak,
                 currentConversationId: chatVM.conversationId,
@@ -400,8 +400,10 @@ struct SanctuaryView: View {
                         }
                     }
 
+                    let previousUserMessages = viewModel.buildPreviousUserMessageMap(for: chatVM.messages)
+
                     ForEach(Array(chatVM.messages.enumerated()), id: \.element.id) { index, message in
-                        let previousUserMessage = viewModel.findPreviousUserMessage(beforeIndex: index, in: chatVM.messages)
+                        let previousUserMessage = previousUserMessages[message.id]
                         ChatBubble(
                             message: message,
                             conversationId: chatVM.conversationId ?? "",

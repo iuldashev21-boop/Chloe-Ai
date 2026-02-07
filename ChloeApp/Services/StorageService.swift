@@ -30,6 +30,7 @@ class StorageService {
     private var affirmationsCache: [Affirmation]?
     private var visionItemsCache: [VisionItem]?
     private var userFactsCache: [UserFact]?
+    private var messagesCache: [String: [Message]] = [:]  // keyed by conversationId
 
     private init() {
         encoder.dateEncodingStrategy = .iso8601
@@ -51,6 +52,7 @@ class StorageService {
         affirmationsCache = nil
         visionItemsCache = nil
         userFactsCache = nil
+        messagesCache.removeAll()
     }
 
     // MARK: - Profile
@@ -219,6 +221,7 @@ class StorageService {
         lock.lock()
         defer { lock.unlock() }
         defaults.removeObject(forKey: "messages_\(id)")
+        messagesCache.removeValue(forKey: id)
         var conversations = _loadConversations()
         conversations.removeAll { $0.id == id }
         try? _saveConversations(conversations)
@@ -247,6 +250,7 @@ class StorageService {
         defer { lock.unlock() }
         let data = try encoder.encode(messages)
         defaults.set(data, forKey: "messages_\(conversationId)")
+        messagesCache[conversationId] = messages
     }
 
     func loadMessages(forConversation conversationId: String) -> [Message] {
@@ -274,8 +278,11 @@ class StorageService {
 
     /// Unlocked load — caller must hold `lock`.
     private func _loadMessages(forConversation conversationId: String) -> [Message] {
+        if let cached = messagesCache[conversationId] { return cached }
         guard let data = defaults.data(forKey: "messages_\(conversationId)") else { return [] }
-        return (try? decoder.decode([Message].self, from: data)) ?? []
+        let messages = (try? decoder.decode([Message].self, from: data)) ?? []
+        messagesCache[conversationId] = messages
+        return messages
     }
 
     // MARK: - Journal

@@ -14,8 +14,14 @@ class ChatViewModel: ObservableObject {
     @Published var messages: [Message] = []
     @Published var inputText = ""
     @Published var pendingImage: UIImage? = nil
-    @Published var isTyping = false
     @Published var loadingState: LoadingState = .idle  // v2 multi-phase loading
+
+    /// Derived from `loadingState` — true whenever the pipeline is active.
+    /// By computing this from `loadingState` instead of storing it separately,
+    /// we eliminate one @Published property and reduce SwiftUI re-renders.
+    var isTyping: Bool {
+        loadingState != .idle
+    }
     @Published var errorMessage: String?
     @Published var conversationTitle: String = "New Conversation"
     @Published var isLimitReached = false
@@ -145,7 +151,8 @@ class ChatViewModel: ObservableObject {
         // Cancel engagement notifications on re-engagement
         NotificationService.shared.cancelEngagementNotifications()
 
-        isTyping = true
+        // Phase 1: Triage — set loading state early so isTyping becomes true immediately
+        loadingState = .routing
 
         do {
             let archetype: UserArchetype? = {
@@ -161,9 +168,6 @@ class ChatViewModel: ObservableObject {
             let lastSummary = isNewConversation ? storageService.loadLatestSummary() : nil
             let insight = !isNewConversation ? storageService.popInsight() : nil
 
-            // Phase 1: Triage (Router Classification)
-            loadingState = .routing
-
             let classification = try await geminiService.classifyMessage(
                 message: text,
                 systemPrompt: Prompts.router,
@@ -177,7 +181,6 @@ class ChatViewModel: ObservableObject {
             // Safety override: If router detects SAFETY_RISK, use crisis response
             if classification.category == .safetyRisk {
                 loadingState = .idle
-                isTyping = false
                 let crisisResponse = safetyService.getCrisisResponse(for: .selfHarm)
                 let chloeMsg = Message(conversationId: conversationId, role: .chloe, text: crisisResponse)
                 messages.append(chloeMsg)
@@ -337,7 +340,6 @@ class ChatViewModel: ObservableObject {
             trackSignal("chat.error.unknown")
         }
 
-        isTyping = false
         loadingState = .idle
     }
 
@@ -376,7 +378,6 @@ class ChatViewModel: ObservableObject {
         inputText = ""
         errorMessage = nil
         errorDismissTask?.cancel()
-        isTyping = false
         isLimitReached = false
         hasOlderMessages = false
         conversationTitle = "New Conversation"
