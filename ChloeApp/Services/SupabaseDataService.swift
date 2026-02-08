@@ -471,11 +471,11 @@ class SupabaseDataService {
 
         let dtos = items.map { item in
             // Convert local file path to Supabase storage path so other devices can resolve it
+            // Must use item.id to match the path used by uploadVisionImage()
             var cloudImageUrl = item.imageUri
             if let localPath = item.imageUri, localPath.hasPrefix("/") {
-                let filename = URL(fileURLWithPath: localPath).lastPathComponent
                 if let uid = currentUserId {
-                    cloudImageUrl = "\(uid)/vision/\(filename)"
+                    cloudImageUrl = "\(uid)/vision/\(item.id).jpg"
                 }
             }
 

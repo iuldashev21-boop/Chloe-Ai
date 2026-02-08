@@ -211,17 +211,22 @@ class SyncDataService: ObservableObject {
         do {
             if var remoteProfile = try await remote.fetchProfile() {
                 let localProfile = local.loadProfile()
-                if localProfile == nil || remoteProfile.updatedAt > (localProfile?.updatedAt ?? .distantPast) {
-                    // Re-download profile image if local file is missing (e.g. after reinstall)
-                    if let imageUri = remoteProfile.profileImageUri,
-                       !FileManager.default.fileExists(atPath: imageUri),
-                       let userId = remote.currentUserId {
-                        let storagePath = "\(userId)/profile/profile_image.jpg"
-                        if let data = try? await remote.downloadImage(path: storagePath),
-                           let localPath = try? local.saveProfileImage(data) {
-                            remoteProfile.profileImageUri = localPath
-                        }
+
+                // Re-download profile image if local file is missing (e.g. after reinstall)
+                // This runs unconditionally — even when timestamps match — because AuthService
+                // saves the profile before syncFromCloud, making timestamps equal on first login.
+                if let imageUri = remoteProfile.profileImageUri,
+                   !FileManager.default.fileExists(atPath: imageUri),
+                   let userId = remote.currentUserId {
+                    let storagePath = "\(userId)/profile/profile_image.jpg"
+                    if let data = try? await remote.downloadImage(path: storagePath),
+                       let localPath = try? local.saveProfileImage(data) {
+                        remoteProfile.profileImageUri = localPath
                     }
+                }
+
+                if localProfile == nil || remoteProfile.updatedAt > (localProfile?.updatedAt ?? .distantPast)
+                    || remoteProfile.profileImageUri != localProfile?.profileImageUri {
                     try local.saveProfile(remoteProfile)
                 }
             }
@@ -445,17 +450,28 @@ class SyncDataService: ObservableObject {
             var hasChanges = false
 
             for var item in remoteItems where !localIds.contains(item.id) {
-                // Download image if it's a remote storage path (not a local file path)
-                if let imageUrl = item.imageUri,
-                   imageUrl.contains("/") && !imageUrl.hasPrefix("/") && !FileManager.default.fileExists(atPath: imageUrl) {
-                    // It's a Supabase storage path, download it
-                    if let data = try? await remote.downloadImage(path: imageUrl),
+                // Download image for new items from cloud
+                if let imageUrl = item.imageUri, !imageUrl.isEmpty {
+                    if let data = await downloadVisionImage(imageUrl: imageUrl, itemId: item.id),
                        let localPath = local.saveVisionImage(data, itemId: item.id) {
                         item.imageUri = localPath
                     }
                 }
                 merged.append(item)
                 hasChanges = true
+            }
+
+            // Re-download images for existing items with missing local files (e.g. after reinstall)
+            for i in merged.indices {
+                guard let imageUri = merged[i].imageUri, !imageUri.isEmpty else { continue }
+                // Skip items whose local file already exists
+                if imageUri.hasPrefix("/") && FileManager.default.fileExists(atPath: imageUri) { continue }
+                // Local path missing or storage path — try downloading
+                if let data = await downloadVisionImage(imageUrl: imageUri, itemId: merged[i].id),
+                   let localPath = local.saveVisionImage(data, itemId: merged[i].id) {
+                    merged[i].imageUri = localPath
+                    hasChanges = true
+                }
             }
 
             if hasChanges {
@@ -890,6 +906,25 @@ class SyncDataService: ObservableObject {
             do { try await self.remote.upsertAffirmations(affirmations) }
             catch { self.hasPendingChanges = true }
         }
+    }
+
+    /// Download a vision image, trying the given URL first and falling back to the canonical
+    /// `{userId}/vision/{itemId}.jpg` storage path (handles legacy data with mismatched paths).
+    private func downloadVisionImage(imageUrl: String, itemId: String) async -> Data? {
+        // If it's a storage-style path, try it directly
+        if !imageUrl.hasPrefix("/") {
+            if let data = try? await remote.downloadImage(path: imageUrl) {
+                return data
+            }
+        }
+        // Fallback: canonical path by item ID
+        if let userId = remote.currentUserId {
+            let canonicalPath = "\(userId)/vision/\(itemId).jpg"
+            if canonicalPath != imageUrl, let data = try? await remote.downloadImage(path: canonicalPath) {
+                return data
+            }
+        }
+        return nil
     }
 
     // MARK: - Vision Board (+ cloud sync)
