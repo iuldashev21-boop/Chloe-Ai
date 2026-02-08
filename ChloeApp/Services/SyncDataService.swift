@@ -404,14 +404,11 @@ class SyncDataService: ObservableObject {
         do {
             let remoteEntries = try await remote.fetchJournalEntries()
             let localEntries = local.loadJournalEntries()
-            let localIds = Set(localEntries.map { $0.id })
-            var merged = localEntries
-            for entry in remoteEntries where !localIds.contains(entry.id) {
-                merged.append(entry)
-            }
+            let merged = mergeByID(local: localEntries, remote: remoteEntries)
             if merged.count > localEntries.count {
-                merged.sort { $0.createdAt > $1.createdAt }
-                try local.saveJournalEntries(merged)
+                var sorted = merged
+                sorted.sort { $0.createdAt > $1.createdAt }
+                try local.saveJournalEntries(sorted)
             }
         } catch {
             #if DEBUG
@@ -459,14 +456,11 @@ class SyncDataService: ObservableObject {
         do {
             let remoteAffirmations = try await remote.fetchAffirmations()
             let localAffirmations = local.loadAffirmations()
-            let localIds = Set(localAffirmations.map { $0.id })
-            var merged = localAffirmations
-            for affirmation in remoteAffirmations where !localIds.contains(affirmation.id) {
-                merged.append(affirmation)
-            }
+            let merged = mergeByID(local: localAffirmations, remote: remoteAffirmations)
             if merged.count > localAffirmations.count {
-                merged.sort { $0.createdAt > $1.createdAt }
-                try local.saveAffirmations(merged)
+                var sorted = merged
+                sorted.sort { $0.createdAt > $1.createdAt }
+                try local.saveAffirmations(sorted)
             }
         } catch {
             #if DEBUG
@@ -522,11 +516,7 @@ class SyncDataService: ObservableObject {
         do {
             let remoteFacts = try await remote.fetchUserFacts()
             let localFacts = local.loadUserFacts()
-            let localIds = Set(localFacts.map { $0.id })
-            var merged = localFacts
-            for fact in remoteFacts where !localIds.contains(fact.id) {
-                merged.append(fact)
-            }
+            let merged = mergeByID(local: localFacts, remote: remoteFacts)
             if merged.count > localFacts.count {
                 try local.saveUserFacts(merged)
             }
@@ -547,6 +537,38 @@ class SyncDataService: ObservableObject {
     }
 
     // MARK: - Async Supabase Push (fire-and-forget)
+
+    /// Generic fire-and-forget push to cloud with status tracking.
+    /// Handles offline detection, sync status updates, and pending change tracking.
+    private func pushToCloud(_ operation: @escaping () async throws -> Void) {
+        guard network.isConnected else { hasPendingChanges = true; return }
+        Task { [weak self] in
+            guard let self else { return }
+            await MainActor.run { self.syncStatus = .syncing }
+            do {
+                try await operation()
+                await MainActor.run {
+                    if self.hasPendingChanges != true { self.syncStatus = .idle }
+                }
+            } catch {
+                self.hasPendingChanges = true
+            }
+        }
+    }
+
+    /// Merge remote items into local by ID (union merge - keeps all unique items).
+    /// Returns the merged array containing all local items plus any remote items not in local.
+    private func mergeByID<T: Identifiable>(
+        local localItems: [T],
+        remote remoteItems: [T]
+    ) -> [T] where T.ID == String {
+        let localIds = Set(localItems.map { $0.id })
+        var merged = localItems
+        for item in remoteItems where !localIds.contains(item.id) {
+            merged.append(item)
+        }
+        return merged
+    }
 
     private func pushUserStateToCloud() {
         guard network.isConnected else { hasPendingChanges = true; return }
@@ -577,20 +599,8 @@ class SyncDataService: ObservableObject {
     }
 
     private func pushProfileToCloud() {
-        guard network.isConnected else { hasPendingChanges = true; return }
         guard let profile = local.loadProfile() else { return }
-        Task { [weak self] in
-            guard let self else { return }
-            await MainActor.run { self.syncStatus = .syncing }
-            do {
-                try await self.remote.upsertProfile(profile)
-                await MainActor.run {
-                    if self.hasPendingChanges != true { self.syncStatus = .idle }
-                }
-            } catch {
-                self.hasPendingChanges = true
-            }
-        }
+        pushToCloud { [remote] in try await remote.upsertProfile(profile) }
     }
 
     // MARK: - Profile
@@ -692,22 +702,7 @@ class SyncDataService: ObservableObject {
     }
 
     private func pushProfileImageToCloud(_ data: Data) {
-        guard network.isConnected else { hasPendingChanges = true; return }
-        Task { [weak self] in
-            guard let self else { return }
-            await MainActor.run { self.syncStatus = .syncing }
-            do {
-                _ = try await self.remote.uploadProfileImage(data)
-                await MainActor.run {
-                    if self.hasPendingChanges != true { self.syncStatus = .idle }
-                }
-            } catch {
-                #if DEBUG
-                print("[SyncDataService] Profile image upload failed: \(error.localizedDescription)")
-                #endif
-                self.hasPendingChanges = true
-            }
-        }
+        pushToCloud { [remote] in _ = try await remote.uploadProfileImage(data) }
     }
 
     // MARK: - Conversations (+ cloud sync)
@@ -763,19 +758,7 @@ class SyncDataService: ObservableObject {
     }
 
     private func pushConversationToCloud(_ conversation: Conversation) {
-        guard network.isConnected else { hasPendingChanges = true; return }
-        Task { [weak self] in
-            guard let self else { return }
-            await MainActor.run { self.syncStatus = .syncing }
-            do {
-                try await self.remote.upsertConversation(conversation)
-                await MainActor.run {
-                    if self.hasPendingChanges != true { self.syncStatus = .idle }
-                }
-            } catch {
-                self.hasPendingChanges = true
-            }
-        }
+        pushToCloud { [remote] in try await remote.upsertConversation(conversation) }
     }
 
     // MARK: - Messages (+ cloud sync)
@@ -798,19 +781,7 @@ class SyncDataService: ObservableObject {
     }
 
     private func pushMessagesToCloud(_ messages: [Message], forConversation conversationId: String) {
-        guard network.isConnected else { hasPendingChanges = true; return }
-        Task { [weak self] in
-            guard let self else { return }
-            await MainActor.run { self.syncStatus = .syncing }
-            do {
-                try await self.remote.upsertMessages(messages, forConversation: conversationId)
-                await MainActor.run {
-                    if self.hasPendingChanges != true { self.syncStatus = .idle }
-                }
-            } catch {
-                self.hasPendingChanges = true
-            }
-        }
+        pushToCloud { [remote] in try await remote.upsertMessages(messages, forConversation: conversationId) }
     }
 
     // MARK: - Journal (+ cloud sync)
@@ -847,19 +818,7 @@ class SyncDataService: ObservableObject {
     }
 
     private func pushJournalEntriesToCloud(_ entries: [JournalEntry]) {
-        guard network.isConnected else { hasPendingChanges = true; return }
-        Task { [weak self] in
-            guard let self else { return }
-            await MainActor.run { self.syncStatus = .syncing }
-            do {
-                try await self.remote.upsertJournalEntries(entries)
-                await MainActor.run {
-                    if self.hasPendingChanges != true { self.syncStatus = .idle }
-                }
-            } catch {
-                self.hasPendingChanges = true
-            }
-        }
+        pushToCloud { [remote] in try await remote.upsertJournalEntries(entries) }
     }
 
     // MARK: - Goals (+ cloud sync)
@@ -896,19 +855,7 @@ class SyncDataService: ObservableObject {
     }
 
     private func pushGoalsToCloud(_ goals: [Goal]) {
-        guard network.isConnected else { hasPendingChanges = true; return }
-        Task { [weak self] in
-            guard let self else { return }
-            await MainActor.run { self.syncStatus = .syncing }
-            do {
-                try await self.remote.upsertGoals(goals)
-                await MainActor.run {
-                    if self.hasPendingChanges != true { self.syncStatus = .idle }
-                }
-            } catch {
-                self.hasPendingChanges = true
-            }
-        }
+        pushToCloud { [remote] in try await remote.upsertGoals(goals) }
     }
 
     // MARK: - Affirmations (+ cloud sync)
@@ -945,12 +892,7 @@ class SyncDataService: ObservableObject {
     }
 
     private func pushAffirmationsToCloud(_ affirmations: [Affirmation]) {
-        guard network.isConnected else { hasPendingChanges = true; return }
-        Task { [weak self] in
-            guard let self else { return }
-            do { try await self.remote.upsertAffirmations(affirmations) }
-            catch { self.hasPendingChanges = true }
-        }
+        pushToCloud { [remote] in try await remote.upsertAffirmations(affirmations) }
     }
 
     /// Download a vision image, trying the given URL first and falling back to the canonical
@@ -1025,38 +967,11 @@ class SyncDataService: ObservableObject {
     }
 
     private func pushVisionItemsToCloud(_ items: [VisionItem]) {
-        guard network.isConnected else { hasPendingChanges = true; return }
-        Task { [weak self] in
-            guard let self else { return }
-            await MainActor.run { self.syncStatus = .syncing }
-            do {
-                try await self.remote.upsertVisionItems(items)
-                await MainActor.run {
-                    if self.hasPendingChanges != true { self.syncStatus = .idle }
-                }
-            } catch {
-                self.hasPendingChanges = true
-            }
-        }
+        pushToCloud { [remote] in try await remote.upsertVisionItems(items) }
     }
 
     private func pushVisionImageToCloud(_ data: Data, itemId: String) {
-        guard network.isConnected else { hasPendingChanges = true; return }
-        Task { [weak self] in
-            guard let self else { return }
-            await MainActor.run { self.syncStatus = .syncing }
-            do {
-                _ = try await self.remote.uploadVisionImage(data, itemId: itemId)
-                await MainActor.run {
-                    if self.hasPendingChanges != true { self.syncStatus = .idle }
-                }
-            } catch {
-                #if DEBUG
-                print("[SyncDataService] Vision image upload failed for \(itemId): \(error.localizedDescription)")
-                #endif
-                self.hasPendingChanges = true
-            }
-        }
+        pushToCloud { [remote] in _ = try await remote.uploadVisionImage(data, itemId: itemId) }
     }
 
     // MARK: - User Facts (+ cloud sync)
@@ -1071,12 +986,7 @@ class SyncDataService: ObservableObject {
     }
 
     private func pushUserFactsToCloud(_ facts: [UserFact]) {
-        guard network.isConnected else { hasPendingChanges = true; return }
-        Task { [weak self] in
-            guard let self else { return }
-            do { try await self.remote.upsertUserFacts(facts) }
-            catch { self.hasPendingChanges = true }
-        }
+        pushToCloud { [remote] in try await remote.upsertUserFacts(facts) }
     }
 
     // MARK: - Latest Vibe (+ cloud sync)
