@@ -14,6 +14,10 @@ class SanctuaryViewModel: ObservableObject {
     @Published var streak: GlowUpStreak?
     @Published var feedbackStates: [String: MessageFeedbackState] = [:]
 
+    /// Cached sorted list of recent conversations for the sidebar.
+    /// Updated only when `conversations` changes via `loadConversations()`.
+    @Published private(set) var recentConversations: [Conversation] = []
+
     // MARK: - Status Text
 
     var statusText: String {
@@ -62,18 +66,14 @@ class SanctuaryViewModel: ObservableObject {
 
     // MARK: - Conversations & Sidebar Data
 
-    /// Top 10 conversations for the sidebar: starred first, then by most recent.
-    /// Pre-sorted here so SidebarView doesn't re-sort on every body evaluation.
-    var recentConversations: [Conversation] {
-        conversations.sorted { a, b in
-            if a.starred != b.starred { return a.starred }
-            return a.updatedAt > b.updatedAt
-        }.prefix(10).map { $0 }
-    }
-
     func loadConversations() {
         conversations = SyncDataService.shared.loadConversations()
             .sorted(by: { $0.updatedAt > $1.updatedAt })
+        // Update cached recentConversations: starred first, then by most recent, top 10
+        recentConversations = conversations.sorted { a, b in
+            if a.starred != b.starred { return a.starred }
+            return a.updatedAt > b.updatedAt
+        }.prefix(10).map { $0 }
         latestVibe = SyncDataService.shared.loadLatestVibe()
         let loadedStreak = SyncDataService.shared.loadStreak()
         streak = loadedStreak.currentStreak > 0 ? loadedStreak : nil

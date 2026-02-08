@@ -43,11 +43,8 @@ struct SanctuaryView: View {
     @State private var reportingMessage: Message?
     @State private var reportingPreviousUserMessage: String = ""
 
-    private var screenWidth: CGFloat {
-        UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .first?.screen.bounds.width ?? 390
-    }
+    // Cached screen width to avoid querying UIApplication on every body evaluation
+    @State private var screenWidth: CGFloat = UIScreen.main.bounds.width
 
     var body: some View {
         ZStack(alignment: .leading) {
@@ -242,7 +239,7 @@ struct SanctuaryView: View {
         }
         .onAppear {
             viewModel.loadData()
-            viewModel.loadGhostMessages(conversationId: chatVM.conversationId)
+            // Note: loadData() already calls loadGhostMessages internally
             if !appeared {
                 chatVM.startNewChat()
             }

@@ -51,11 +51,15 @@ class StreakService {
 
     // MARK: - Helpers
 
-    private func daysBetween(_ dateString1: String, and dateString2: String) -> Int {
+    private static let dayFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
-        guard let date1 = formatter.date(from: dateString1),
-              let date2 = formatter.date(from: dateString2) else {
+        return formatter
+    }()
+
+    private func daysBetween(_ dateString1: String, and dateString2: String) -> Int {
+        guard let date1 = Self.dayFormatter.date(from: dateString1),
+              let date2 = Self.dayFormatter.date(from: dateString2) else {
             return Int.max  // If no previous date, treat as streak broken
         }
         let components = Calendar.current.dateComponents([.day], from: date1, to: date2)

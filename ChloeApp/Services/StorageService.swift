@@ -95,17 +95,32 @@ class StorageService {
     // MARK: - Chat Images
 
     func saveChatImage(_ image: UIImage) -> String? {
-        let resized = image.downsampledIfNeeded()
-        guard let data = resized.jpegData(compressionQuality: 0.7) else { return nil }
-        let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        // Pre-generate filename on calling thread to ensure immediate return value
         let filename = "chat_\(UUID().uuidString).jpg"
+        let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         let url = dir.appendingPathComponent(filename)
-        do {
-            try data.write(to: url)
-            return url.path
-        } catch {
-            return nil
+
+        // Perform CPU-intensive compression off main thread
+        let semaphore = DispatchSemaphore(value: 0)
+        var resultPath: String? = nil
+
+        DispatchQueue.global(qos: .userInitiated).async {
+            let resized = image.downsampledIfNeeded()
+            guard let data = resized.jpegData(compressionQuality: 0.7) else {
+                semaphore.signal()
+                return
+            }
+            do {
+                try data.write(to: url)
+                resultPath = url.path
+            } catch {
+                // Write failed, resultPath stays nil
+            }
+            semaphore.signal()
         }
+
+        semaphore.wait()
+        return resultPath
     }
 
     /// Save downloaded chat image data and return local path (used for cloud sync re-download)

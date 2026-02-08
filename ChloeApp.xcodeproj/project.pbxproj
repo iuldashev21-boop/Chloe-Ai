@@ -108,12 +108,10 @@
 		F10000160000000000000001 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000160000000000000001 /* SidebarView.swift */; };
 		F10000170000000000000001 /* WelcomeIntroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000170000000000000001 /* WelcomeIntroView.swift */; };
 		F10000180000000000000001 /* OnboardingCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000180000000000000001 /* OnboardingCard.swift */; };
-		F10000210000000000000001 /* TenorSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F20000210000000000000001 /* TenorSans-Regular.ttf */; };
 		F10000220000000000000001 /* Cinzel-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F20000220000000000000001 /* Cinzel-Regular.ttf */; };
 		F10000230000000000000001 /* CormorantGaramond-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F20000230000000000000001 /* CormorantGaramond-BoldItalic.ttf */; };
 		F10000240000000000000001 /* EtherealDustParticles.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000240000000000000001 /* EtherealDustParticles.swift */; };
 		F10000260000000000000001 /* FlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000260000000000000001 /* FlowLayout.swift */; };
-		F10000280000000000000001 /* PlayfairDisplay-Italic-VF.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F20000280000000000000001 /* PlayfairDisplay-Italic-VF.ttf */; };
 		F10000290000000000000001 /* NotificationPrimingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000290000000000000001 /* NotificationPrimingView.swift */; };
 		F10000300000000000000001 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000300000000000000001 /* AuthService.swift */; };
 		FB0000020000000000000001 /* Feedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0000010000000000000001 /* Feedback.swift */; };
@@ -258,12 +256,10 @@
 		F20000160000000000000001 /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
 		F20000170000000000000001 /* WelcomeIntroView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeIntroView.swift; sourceTree = "<group>"; };
 		F20000180000000000000001 /* OnboardingCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCard.swift; sourceTree = "<group>"; };
-		F20000210000000000000001 /* TenorSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "TenorSans-Regular.ttf"; sourceTree = "<group>"; };
 		F20000220000000000000001 /* Cinzel-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Cinzel-Regular.ttf"; sourceTree = "<group>"; };
 		F20000230000000000000001 /* CormorantGaramond-BoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "CormorantGaramond-BoldItalic.ttf"; sourceTree = "<group>"; };
 		F20000240000000000000001 /* EtherealDustParticles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EtherealDustParticles.swift; sourceTree = "<group>"; };
 		F20000260000000000000001 /* FlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowLayout.swift; sourceTree = "<group>"; };
-		F20000280000000000000001 /* PlayfairDisplay-Italic-VF.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlayfairDisplay-Italic-VF.ttf"; sourceTree = "<group>"; };
 		F20000290000000000000001 /* NotificationPrimingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPrimingView.swift; sourceTree = "<group>"; };
 		F20000300000000000000001 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		F955E1ED52B5C3637CD25E60 /* SanctuaryTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SanctuaryTests.swift; sourceTree = "<group>"; };
@@ -579,10 +575,8 @@
 		A50000160000000000000001 /* Fonts */ = {
 			isa = PBXGroup;
 			children = (
-				F20000210000000000000001 /* TenorSans-Regular.ttf */,
 				F20000220000000000000001 /* Cinzel-Regular.ttf */,
 				F20000230000000000000001 /* CormorantGaramond-BoldItalic.ttf */,
-				F20000280000000000000001 /* PlayfairDisplay-Italic-VF.ttf */,
 			);
 			path = Fonts;
 			sourceTree = "<group>";
@@ -743,10 +737,8 @@
 			files = (
 				LS0000020000000000000001 /* LaunchScreen.storyboard in Resources */,
 				A10000030000000000000001 /* Assets.xcassets in Resources */,
-				F10000210000000000000001 /* TenorSans-Regular.ttf in Resources */,
 				F10000220000000000000001 /* Cinzel-Regular.ttf in Resources */,
 				F10000230000000000000001 /* CormorantGaramond-BoldItalic.ttf in Resources */,
-				F10000280000000000000001 /* PlayfairDisplay-Italic-VF.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

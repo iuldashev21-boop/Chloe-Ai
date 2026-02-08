@@ -634,10 +634,14 @@ struct SettingsView: View {
         )
     }
 
-    private var formattedExportDate: String {
+    private static let exportDateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.string(from: Date())
+        return formatter
+    }()
+
+    private var formattedExportDate: String {
+        Self.exportDateFormatter.string(from: Date())
     }
 
     // MARK: - Send Feedback
