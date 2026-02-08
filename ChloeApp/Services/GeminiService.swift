@@ -49,7 +49,11 @@ class GeminiService {
         guard !apiKey.isEmpty else { throw GeminiError.noAPIKey }
 
         let conversationText = messages
-            .map { "\($0.role == .user ? "User" : "Chloe"): \($0.text)" }
+            .suffix(MAX_CONVERSATION_HISTORY)
+            .map { msg -> String in
+                let text = msg.text.count > 4000 ? String(msg.text.prefix(4000)) + " [truncated]" : msg.text
+                return "\(msg.role == .user ? "User" : "Chloe"): \(text)"
+            }
             .joined(separator: "\n\n")
 
         // Build structured context dossier
@@ -95,6 +99,27 @@ class GeminiService {
         return try JSONDecoder().decode(AnalystResult.self, from: jsonData)
     }
 
+    // MARK: - Prompt Sanitization
+
+    /// Sanitize a string for safe prompt injection - strip XML-like tags and cap length
+    private func sanitizeForPrompt(_ text: String, maxLength: Int = 200) -> String {
+        var cleaned = text
+        // Strip anything that looks like XML/instruction tags
+        cleaned = cleaned.replacingOccurrences(
+            of: #"</?[a-zA-Z_][a-zA-Z0-9_]*>"#,
+            with: "",
+            options: .regularExpression
+        )
+        // Remove any attempt to close system instruction blocks
+        cleaned = cleaned.replacingOccurrences(of: "</system_instruction>", with: "")
+        cleaned = cleaned.replacingOccurrences(of: "<system_instruction>", with: "")
+        // Truncate
+        if cleaned.count > maxLength {
+            cleaned = String(cleaned.prefix(maxLength)) + "..."
+        }
+        return cleaned.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     // MARK: - Agentic Response (v2)
 
     /// Send a message to the Strategist expecting a structured JSON response (v2.2 - Stability Fix)
@@ -111,16 +136,17 @@ class GeminiService {
     ) async throws -> StrategistResponse {
         guard !apiKey.isEmpty else { throw GeminiError.noAPIKey }
 
-        // Build system instruction with facts
+        // Build system instruction with facts (sanitized to prevent prompt injection)
         var systemInstruction = systemPrompt
         if !userFacts.isEmpty {
-            systemInstruction += "\n\n<user_facts>\n" + userFacts.joined(separator: "\n") + "\n</user_facts>"
+            let sanitizedFacts = userFacts.map { sanitizeForPrompt($0) }
+            systemInstruction += "\n\n<user_facts>\n" + sanitizedFacts.joined(separator: "\n") + "\n</user_facts>"
         }
         if let summary = lastSummary {
-            systemInstruction += "\n\n<last_session_summary>\n\(summary)\n</last_session_summary>"
+            systemInstruction += "\n\n<last_session_summary>\n\(sanitizeForPrompt(summary, maxLength: 500))\n</last_session_summary>"
         }
         if let insight = insight {
-            systemInstruction += "\n\n<insight_to_mention>\n\(insight)\n</insight_to_mention>"
+            systemInstruction += "\n\n<insight_to_mention>\n\(sanitizeForPrompt(insight, maxLength: 300))\n</insight_to_mention>"
         }
 
         let recentMessages = Array(messages.suffix(MAX_CONVERSATION_HISTORY))
@@ -145,7 +171,9 @@ class GeminiService {
             }
 
             if !msg.text.isEmpty {
-                parts.append(["text": msg.text])
+                // Truncate individual messages to prevent token overflow (Gemini has ~1M token context but we want to stay well under)
+                let truncatedText = msg.text.count > 4000 ? String(msg.text.prefix(4000)) + "\n[Message truncated]" : msg.text
+                parts.append(["text": truncatedText])
             }
 
             // Ensure at least one part exists

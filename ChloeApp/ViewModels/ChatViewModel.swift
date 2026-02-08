@@ -244,15 +244,25 @@ class ChatViewModel: ObservableObject {
             }
 
             // Inject behavioral loops (permanent patterns) for long-term strategy
+            // Sanitize to prevent prompt injection from LLM-generated patterns
             if let loops = profile?.behavioralLoops, !loops.isEmpty {
-                strategistPrompt += """
+                let sanitizedLoops = loops.map { loop -> String in
+                    var cleaned = loop
+                        .replacingOccurrences(of: #"</?[a-zA-Z_][a-zA-Z0-9_]*>"#, with: "", options: .regularExpression)
+                    if cleaned.count > 200 { cleaned = String(cleaned.prefix(200)) + "..." }
+                    return cleaned.trimmingCharacters(in: .whitespacesAndNewlines)
+                }.filter { !$0.isEmpty }
+
+                if !sanitizedLoops.isEmpty {
+                    strategistPrompt += """
 
             <known_patterns>
               These are behavioral patterns detected across previous sessions.
               Use them to call out recurring behaviors when relevant:
-              \(loops.map { "- \($0)" }.joined(separator: "\n  "))
+              \(sanitizedLoops.map { "- \($0)" }.joined(separator: "\n  "))
             </known_patterns>
             """
+                }
             }
 
             let strategistResponse = try await geminiService.sendStrategistMessage(
@@ -278,10 +288,30 @@ class ChatViewModel: ObservableObject {
                 selectedOption: nil
             )
 
+            // Strip any leaked internal instruction labels from the response
+            var responseText = strategistResponse.response.text
+            let leakedLabels = ["<output_rules>", "<mode_instruction>", "<vocabulary_control>",
+                                "<engagement_hooks>", "<contextual_application_logic>",
+                                "</output_rules>", "</mode_instruction>", "</vocabulary_control>",
+                                "</engagement_hooks>", "</contextual_application_logic>",
+                                "<router_context>", "</router_context>",
+                                "<casual_mode_override>", "</casual_mode_override>",
+                                "<soft_spiral_override>", "</soft_spiral_override>"]
+            for label in leakedLabels {
+                responseText = responseText.replacingOccurrences(of: label, with: "")
+            }
+            responseText = responseText.trimmingCharacters(in: .whitespacesAndNewlines)
+            if responseText.isEmpty { responseText = "I'm here for you." }
+
+            // Cap response length to prevent UI issues from extremely long LLM output
+            if responseText.count > 5000 {
+                responseText = String(responseText.prefix(5000))
+            }
+
             let chloeMsg = Message(
                 conversationId: conversationId,
                 role: .chloe,
-                text: strategistResponse.response.text,
+                text: responseText,
                 routerMetadata: routerMetadata,
                 contentType: strategistResponse.response.options != nil ? .optionPair : .text,
                 options: strategistResponse.response.options
@@ -466,8 +496,9 @@ class ChatViewModel: ObservableObject {
                 // Update vibe
                 storageService.saveLatestVibe(result.vibeScore)
 
-                // Save session summary for fallback notifications
-                storageService.saveLatestSummary(result.summary)
+                // Save session summary for fallback notifications (capped to prevent token bloat)
+                let cappedSummary = result.summary.count > 500 ? String(result.summary.prefix(500)) + "..." : result.summary
+                storageService.saveLatestSummary(cappedSummary)
 
                 // Merge facts
                 let lastMessageId = messages.last?.id
@@ -484,7 +515,11 @@ class ChatViewModel: ObservableObject {
                    opportunity.triggerNotification,
                    let text = opportunity.notificationText {
                     let name = profile?.displayName ?? "babe"
-                    let processedText = text.replacingOccurrences(of: "[Name]", with: name)
+                    var processedText = text.replacingOccurrences(of: "[Name]", with: name)
+                    // Cap notification text length (iOS truncates at ~178 chars anyway)
+                    if processedText.count > 200 {
+                        processedText = String(processedText.prefix(197)) + "..."
+                    }
                     NotificationService.shared.scheduleEngagementNotification(text: processedText)
                 }
 
@@ -493,14 +528,16 @@ class ChatViewModel: ObservableObject {
                     storageService.pushInsight(pattern)
                 }
 
-                // Push behavioral loops to insight queue for Chloe to call out (short-term)
-                for loop in result.behavioralLoops {
-                    storageService.pushInsight("Behavioral pattern: \(loop)")
+                // Cap behavioral loops to prevent unbounded growth from LLM overproduction
+                let cappedLoops = Array(result.behavioralLoops.prefix(5))
+                for loop in cappedLoops {
+                    let cappedLoop = loop.count > 200 ? String(loop.prefix(200)) + "..." : loop
+                    storageService.pushInsight("Behavioral pattern: \(cappedLoop)")
                 }
 
                 // Persist behavioral loops permanently for long-term strategy
-                if !result.behavioralLoops.isEmpty {
-                    storageService.addBehavioralLoops(result.behavioralLoops)
+                if !cappedLoops.isEmpty {
+                    storageService.addBehavioralLoops(cappedLoops)
                 }
             }
         } catch {

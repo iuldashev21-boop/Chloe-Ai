@@ -31,7 +31,9 @@ class AnalystService {
         var updated = existing
         let maxFacts = 50
 
-        for extractedFact in result.facts {
+        // Cap facts per extraction to prevent LLM from flooding with low-quality facts
+        let cappedNewFacts = Array(result.facts.prefix(10))
+        for extractedFact in cappedNewFacts {
             let normalizedNew = extractedFact.fact.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
             let alreadyExists = updated.contains { existing in
                 guard existing.isActive else { return false }
