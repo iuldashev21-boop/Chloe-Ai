@@ -10,19 +10,12 @@ struct PasswordResetView: View {
     @State private var appeared = false
     @FocusState private var emailFocused: Bool
 
-    private var isEmailFormatValid: Bool {
-        let trimmed = email.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard let atIndex = trimmed.firstIndex(of: "@") else { return false }
-        let afterAt = trimmed[trimmed.index(after: atIndex)...]
-        return afterAt.contains(".")
-    }
-
     private var showEmailHint: Bool {
-        !email.isBlank && !isEmailFormatValid
+        !email.isBlank && !email.isValidEmail
     }
 
     private var canSubmit: Bool {
-        isEmailFormatValid
+        email.isValidEmail
     }
 
     var body: some View {
@@ -68,7 +61,7 @@ struct PasswordResetView: View {
                         )
 
                     Text("WE'LL SEND YOU A LINK")
-                        .font(.custom(ChloeFont.headerDisplay, size: 13))
+                        .font(.chloeAuthSubheading)
                         .tracking(3)
                         .foregroundColor(.chloeRosewood)
                 }
@@ -131,9 +124,9 @@ struct PasswordResetView: View {
                 .background(Color.clear)
                 .overlay(alignment: .bottom) {
                     Rectangle()
-                        .fill(Color(hex: "#B76E79").opacity(emailFocused ? 0.9 : 0.4))
+                        .fill(Color.chloePrimary.opacity(emailFocused ? 0.9 : 0.4))
                         .frame(height: emailFocused ? 1 : 0.5)
-                        .shadow(color: Color(hex: "#B76E79").opacity(emailFocused ? 0.5 : 0), radius: 4)
+                        .shadow(color: Color.chloePrimary.opacity(emailFocused ? 0.5 : 0), radius: 4)
                         .animation(.easeInOut(duration: 0.3), value: emailFocused)
                 }
                 .padding(.horizontal, Spacing.screenHorizontal)
@@ -196,12 +189,12 @@ struct PasswordResetView: View {
         VStack(spacing: Spacing.md) {
             ZStack {
                 Circle()
-                    .fill(Color(hex: "#4A7C59").opacity(0.15))
+                    .fill(Color.chloeSuccess.opacity(0.15))
                     .frame(width: 80, height: 80)
 
                 Image(systemName: "checkmark.circle.fill")
                     .font(.system(size: 40))
-                    .foregroundColor(Color(hex: "#4A7C59"))
+                    .foregroundColor(.chloeSuccess)
             }
 
             Text("Check your email")

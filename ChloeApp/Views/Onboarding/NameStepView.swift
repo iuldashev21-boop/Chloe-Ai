@@ -49,9 +49,9 @@ struct NameStepView: View {
                     .background(Color.clear)
                     .overlay(alignment: .bottom) {
                         Rectangle()
-                            .fill(Color(hex: "#B76E79").opacity(nameFieldFocused ? 0.9 : 0.3))
+                            .fill(Color.chloePrimary.opacity(nameFieldFocused ? 0.9 : 0.3))
                             .frame(height: nameFieldFocused ? 1 : 0.5)
-                            .shadow(color: Color(hex: "#B76E79").opacity(nameFieldFocused ? 0.5 : 0), radius: 6)
+                            .shadow(color: Color.chloePrimary.opacity(nameFieldFocused ? 0.5 : 0), radius: 6)
                             .animation(.easeInOut(duration: 0.3), value: nameFieldFocused)
                     }
                     .padding(.horizontal, Spacing.screenHorizontal)

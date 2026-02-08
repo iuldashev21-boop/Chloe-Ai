@@ -24,7 +24,7 @@ struct EtherealDustParticles: View {
             // Show a static subtle overlay instead of animated particles
             Color.clear
         } else {
-        TimelineView(isAnimating ? .animation : .animation(minimumInterval: 31_536_000)) { timeline in
+        TimelineView(isAnimating ? .animation(minimumInterval: 1.0/60.0) : .animation(minimumInterval: 31_536_000)) { timeline in
             Canvas { context, size in
                 let t = CGFloat(timeline.date.timeIntervalSinceReferenceDate)
 

@@ -43,6 +43,6 @@ extension View {
 
 extension Animation {
     /// Standard spring animation used for sanctuary transitions and chat activation.
-    /// Response: 0.5, Damping Fraction: 0.85
-    static let chloeSpring = Animation.spring(response: 0.5, dampingFraction: 0.85)
+    /// Canonical definition lives in Spacing.chloeSpring
+    static let chloeSpring = Spacing.chloeSpring
 }

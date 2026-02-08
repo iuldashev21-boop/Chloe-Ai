@@ -64,7 +64,7 @@ struct OnboardingContainerView: View {
                 ChloeAvatar(size: 80)
                     .scaleEffect((orbAppeared ? 0.8 : 0.5) * orbNamePulse)
                     .opacity(orbAppeared ? 1 : 0)
-                    .shadow(color: Color(hex: "#B76E79").opacity(0.4), radius: orbGlowRadius)
+                    .shadow(color: Color.chloePrimary.opacity(0.4), radius: orbGlowRadius)
                     .position(
                         x: geo.size.width / 2,
                         y: topY

@@ -634,7 +634,11 @@ class SupabaseDataService {
     /// Download image data from a storage path
     func downloadImage(path: String) async throws -> Data {
         let url = try await getSignedURL(path: path)
-        let (data, _) = try await URLSession.shared.data(from: url)
+        let (data, response) = try await URLSession.shared.data(from: url)
+        if let httpResponse = response as? HTTPURLResponse,
+           !(200...299).contains(httpResponse.statusCode) {
+            throw StorageError.downloadFailed(httpResponse.statusCode)
+        }
         return data
     }
 
@@ -680,11 +684,14 @@ class SupabaseDataService {
 
 enum StorageError: LocalizedError {
     case notAuthenticated
+    case downloadFailed(Int)
 
     var errorDescription: String? {
         switch self {
         case .notAuthenticated:
             return "Not authenticated — cannot access storage"
+        case .downloadFailed(let code):
+            return "Image download failed (HTTP \(code))"
         }
     }
 }

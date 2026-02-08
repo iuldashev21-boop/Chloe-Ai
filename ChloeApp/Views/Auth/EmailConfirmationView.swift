@@ -52,7 +52,7 @@ struct EmailConfirmationView: View {
                         )
 
                     Text("ONE MORE STEP")
-                        .font(.custom(ChloeFont.headerDisplay, size: 13))
+                        .font(.chloeAuthSubheading)
                         .tracking(3)
                         .foregroundColor(.chloeRosewood)
                 }
@@ -86,10 +86,10 @@ struct EmailConfirmationView: View {
                     if resendSuccess {
                         HStack(spacing: Spacing.xxs) {
                             Image(systemName: "checkmark.circle.fill")
-                                .foregroundColor(Color(hex: "#4A7C59"))
+                                .foregroundColor(.chloeSuccess)
                             Text("Email sent!")
                                 .font(.chloeCaption)
-                                .foregroundColor(Color(hex: "#4A7C59"))
+                                .foregroundColor(.chloeSuccess)
                         }
                         .transition(.opacity.combined(with: .scale))
                     } else {

@@ -58,7 +58,7 @@ struct NewPasswordView: View {
                         )
 
                     Text("CHOOSE A STRONG PASSWORD")
-                        .font(.custom(ChloeFont.headerDisplay, size: 13))
+                        .font(.chloeAuthSubheading)
                         .tracking(3)
                         .foregroundColor(.chloeRosewood)
                 }
@@ -78,9 +78,9 @@ struct NewPasswordView: View {
                         .background(Color.clear)
                         .overlay(alignment: .bottom) {
                             Rectangle()
-                                .fill(Color(hex: "#B76E79").opacity(focusedField == .password ? 0.9 : 0.4))
+                                .fill(Color.chloePrimary.opacity(focusedField == .password ? 0.9 : 0.4))
                                 .frame(height: focusedField == .password ? 1 : 0.5)
-                                .shadow(color: Color(hex: "#B76E79").opacity(focusedField == .password ? 0.5 : 0), radius: 4)
+                                .shadow(color: Color.chloePrimary.opacity(focusedField == .password ? 0.5 : 0), radius: 4)
                                 .animation(.easeInOut(duration: 0.3), value: focusedField)
                         }
                         .padding(.horizontal, Spacing.screenHorizontal)
@@ -96,9 +96,9 @@ struct NewPasswordView: View {
                         .background(Color.clear)
                         .overlay(alignment: .bottom) {
                             Rectangle()
-                                .fill(Color(hex: "#B76E79").opacity(focusedField == .confirm ? 0.9 : 0.4))
+                                .fill(Color.chloePrimary.opacity(focusedField == .confirm ? 0.9 : 0.4))
                                 .frame(height: focusedField == .confirm ? 1 : 0.5)
-                                .shadow(color: Color(hex: "#B76E79").opacity(focusedField == .confirm ? 0.5 : 0), radius: 4)
+                                .shadow(color: Color.chloePrimary.opacity(focusedField == .confirm ? 0.5 : 0), radius: 4)
                                 .animation(.easeInOut(duration: 0.3), value: focusedField)
                         }
                         .padding(.horizontal, Spacing.screenHorizontal)
@@ -109,22 +109,22 @@ struct NewPasswordView: View {
                             HStack(spacing: Spacing.xxxs) {
                                 Image(systemName: password.count >= 6 ? "checkmark.circle.fill" : "circle")
                                     .font(.system(size: 12))
-                                    .foregroundColor(password.count >= 6 ? Color(hex: "#4A7C59") : .chloeTextTertiary)
+                                    .foregroundColor(password.count >= 6 ? .chloeSuccess : .chloeTextTertiary)
 
                                 Text("At least 6 characters")
                                     .font(.chloeCaption)
-                                    .foregroundColor(password.count >= 6 ? Color(hex: "#4A7C59") : .chloeTextTertiary)
+                                    .foregroundColor(password.count >= 6 ? .chloeSuccess : .chloeTextTertiary)
                             }
 
                             if !confirmPassword.isEmpty {
                                 HStack(spacing: Spacing.xxxs) {
                                     Image(systemName: password == confirmPassword ? "checkmark.circle.fill" : "xmark.circle.fill")
                                         .font(.system(size: 12))
-                                        .foregroundColor(password == confirmPassword ? Color(hex: "#4A7C59") : .red.opacity(0.8))
+                                        .foregroundColor(password == confirmPassword ? .chloeSuccess : .red.opacity(0.8))
 
                                     Text("Passwords match")
                                         .font(.chloeCaption)
-                                        .foregroundColor(password == confirmPassword ? Color(hex: "#4A7C59") : .red.opacity(0.8))
+                                        .foregroundColor(password == confirmPassword ? .chloeSuccess : .red.opacity(0.8))
                                 }
                             }
                         }

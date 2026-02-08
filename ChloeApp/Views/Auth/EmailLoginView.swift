@@ -21,16 +21,9 @@ struct EmailLoginView: View {
 
     // MARK: - Validation Helpers
 
-    private var isEmailFormatValid: Bool {
-        let trimmed = email.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard let atIndex = trimmed.firstIndex(of: "@") else { return false }
-        let afterAt = trimmed[trimmed.index(after: atIndex)...]
-        return afterAt.contains(".")
-    }
-
     /// Show email hint only after user has typed enough to warrant feedback
     private var showEmailHint: Bool {
-        !email.isBlank && !isEmailFormatValid
+        !email.isBlank && !email.isValidEmail
     }
 
     private var isPasswordLongEnough: Bool {
@@ -77,7 +70,7 @@ struct EmailLoginView: View {
                         )
 
                     Text(authVM.isSignUpMode ? "CREATE YOUR SANCTUARY" : "ENTER YOUR SANCTUARY")
-                        .font(.custom(ChloeFont.headerDisplay, size: 13))
+                        .font(.chloeAuthSubheading)
                         .tracking(3)
                         .foregroundColor(.chloeRosewood)
                 }
@@ -101,9 +94,9 @@ struct EmailLoginView: View {
                         .background(Color.clear)
                         .overlay(alignment: .bottom) {
                             Rectangle()
-                                .fill(Color(hex: "#B76E79").opacity(focusedField == .email ? 0.9 : 0.4))
+                                .fill(Color.chloePrimary.opacity(focusedField == .email ? 0.9 : 0.4))
                                 .frame(height: focusedField == .email ? 1 : 0.5)
-                                .shadow(color: Color(hex: "#B76E79").opacity(focusedField == .email ? 0.5 : 0), radius: 4)
+                                .shadow(color: Color.chloePrimary.opacity(focusedField == .email ? 0.5 : 0), radius: 4)
                                 .animation(.easeInOut(duration: 0.3), value: focusedField)
                         }
                         .padding(.horizontal, Spacing.screenHorizontal)
@@ -131,9 +124,9 @@ struct EmailLoginView: View {
                         .background(Color.clear)
                         .overlay(alignment: .bottom) {
                             Rectangle()
-                                .fill(Color(hex: "#B76E79").opacity(focusedField == .password ? 0.9 : 0.4))
+                                .fill(Color.chloePrimary.opacity(focusedField == .password ? 0.9 : 0.4))
                                 .frame(height: focusedField == .password ? 1 : 0.5)
-                                .shadow(color: Color(hex: "#B76E79").opacity(focusedField == .password ? 0.5 : 0), radius: 4)
+                                .shadow(color: Color.chloePrimary.opacity(focusedField == .password ? 0.5 : 0), radius: 4)
                                 .animation(.easeInOut(duration: 0.3), value: focusedField)
                         }
                         .padding(.horizontal, Spacing.screenHorizontal)
@@ -145,11 +138,11 @@ struct EmailLoginView: View {
                         HStack(spacing: Spacing.xxxs) {
                             Image(systemName: isPasswordLongEnough ? "checkmark.circle.fill" : "circle")
                                 .font(.system(size: 12))
-                                .foregroundColor(isPasswordLongEnough ? Color(hex: "#4A7C59") : .chloeTextTertiary)
+                                .foregroundColor(isPasswordLongEnough ? .chloeSuccess : .chloeTextTertiary)
 
                             Text("At least 6 characters")
                                 .font(.chloeCaption)
-                                .foregroundColor(isPasswordLongEnough ? Color(hex: "#4A7C59") : .chloeTextTertiary)
+                                .foregroundColor(isPasswordLongEnough ? .chloeSuccess : .chloeTextTertiary)
                         }
                         .padding(.horizontal, Spacing.screenHorizontal)
                         .transition(.opacity)
@@ -228,7 +221,7 @@ struct EmailLoginView: View {
                                 }
                             )
                             .clipShape(Capsule())
-                            .shadow(color: Color(hex: "#B76E79").opacity(0.2), radius: 15, y: 8)
+                            .shadow(color: Color.chloePrimary.opacity(0.2), radius: 15, y: 8)
                     }
                     .disabled(!canSubmit || authVM.isLoading)
                     .buttonStyle(PressableButtonStyle())
@@ -419,7 +412,10 @@ struct EmailLoginView: View {
         var randomBytes = [UInt8](repeating: 0, count: length)
         let errorCode = SecRandomCopyBytes(kSecRandomDefault, randomBytes.count, &randomBytes)
         if errorCode != errSecSuccess {
-            fatalError("Unable to generate nonce. SecRandomCopyBytes failed with OSStatus \(errorCode)")
+            // Fallback: use UUID-based randomness instead of crashing
+            let uuid1 = UUID().uuidString.replacingOccurrences(of: "-", with: "")
+            let uuid2 = UUID().uuidString.replacingOccurrences(of: "-", with: "")
+            return String((uuid1 + uuid2).prefix(length))
         }
         let charset: [Character] = Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
         let nonce = randomBytes.map { byte in

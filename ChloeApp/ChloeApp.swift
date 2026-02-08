@@ -141,7 +141,6 @@ struct ChloeApp: App {
             // Transfer the flag to pendingPasswordRecovery for AuthViewModel to pick up
             UserDefaults.standard.set(true, forKey: "pendingPasswordRecovery")
             UserDefaults.standard.removeObject(forKey: "awaitingPasswordReset")
-            UserDefaults.standard.synchronize()
             #if DEBUG
             print("[DeepLink] Password recovery flag SET (from awaitingReset)")
             #endif

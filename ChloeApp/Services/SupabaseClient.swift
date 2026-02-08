@@ -18,7 +18,7 @@ struct SupabaseConfig {
               !urlString.isEmpty,
               urlString != "YOUR_SUPABASE_URL_HERE",
               let url = URL(string: urlString) else {
-            fatalError("SUPABASE_URL not configured in Config.xcconfig")
+            preconditionFailure("SUPABASE_URL not configured in Config.xcconfig")
         }
         return url
     }
@@ -27,7 +27,7 @@ struct SupabaseConfig {
         guard let key = Bundle.main.infoDictionary?["SUPABASE_ANON_KEY"] as? String,
               !key.isEmpty,
               key != "YOUR_SUPABASE_ANON_KEY_HERE" else {
-            fatalError("SUPABASE_ANON_KEY not configured in Config.xcconfig")
+            preconditionFailure("SUPABASE_ANON_KEY not configured in Config.xcconfig")
         }
         return key
     }

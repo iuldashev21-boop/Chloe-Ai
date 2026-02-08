@@ -122,10 +122,14 @@ struct AboutChloeView: View {
         .padding(.vertical, Spacing.xs)
     }
 
-    private var copyrightYear: String {
+    private static let yearFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy"
-        return formatter.string(from: Date())
+        return formatter
+    }()
+
+    private var copyrightYear: String {
+        Self.yearFormatter.string(from: Date())
     }
 }
 

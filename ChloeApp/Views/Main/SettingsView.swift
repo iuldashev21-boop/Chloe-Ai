@@ -22,6 +22,7 @@ struct SettingsView: View {
     @State private var deleteConfirmText = ""
     @State private var isDeleting = false
     @State private var showDeleteSuccess = false
+    @State private var deleteSuccessMessage = ""
     @State private var showExportSheet = false
     @State private var exportFileURL: URL?
     @State private var isExporting = false
@@ -330,7 +331,13 @@ struct SettingsView: View {
         .sheet(isPresented: $showDataCollectionInfo) {
             DataCollectionInfoView()
         }
-        .sheet(isPresented: $showExportSheet) {
+        .sheet(isPresented: $showExportSheet, onDismiss: {
+            // Clean up temp export file after share sheet is dismissed
+            if let url = exportFileURL {
+                try? FileManager.default.removeItem(at: url)
+                exportFileURL = nil
+            }
+        }) {
             if let url = exportFileURL {
                 ShareSheetView(activityItems: [url])
             }
@@ -369,7 +376,7 @@ struct SettingsView: View {
                 authVM.signOut()
             }
         } message: {
-            Text("All your data has been deleted. You will now be signed out.")
+            Text(deleteSuccessMessage)
         }
     }
 
@@ -545,14 +552,21 @@ struct SettingsView: View {
                 try await SyncDataService.shared.deleteAccount()
                 await MainActor.run {
                     isDeleting = false
+                    deleteSuccessMessage = "All your data has been deleted. You will now be signed out."
                     showDeleteSuccess = true
                 }
             } catch {
                 await MainActor.run {
                     isDeleting = false
-                    // Fall back to local clear + sign out even if cloud delete fails
-                    SyncDataService.shared.clearAll()
-                    authVM.signOut()
+                    if error is SyncError {
+                        // Local data cleared but cloud deletion failed (offline)
+                        // Show success but warn about cloud data
+                        deleteSuccessMessage = "Your local data has been cleared. Cloud data will be removed when you sign in with internet access."
+                        showDeleteSuccess = true
+                    } else {
+                        // Unexpected error — still sign out since local data was already cleared
+                        authVM.signOut()
+                    }
                 }
             }
         }
@@ -620,10 +634,14 @@ struct SettingsView: View {
         )
     }
 
-    private var formattedExportDate: String {
+    private static let exportDateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.string(from: Date())
+        return formatter
+    }()
+
+    private var formattedExportDate: String {
+        Self.exportDateFormatter.string(from: Date())
     }
 
     // MARK: - Send Feedback

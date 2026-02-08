@@ -42,7 +42,6 @@ final class ChatViewModelTests: XCTestCase {
         sut.messages = [Message(role: .user, text: "old message")]
         sut.inputText = "leftover text"
         sut.errorMessage = "some error"
-        sut.isTyping = true
         sut.isLimitReached = true
         sut.conversationTitle = "Old Title"
 
@@ -51,7 +50,6 @@ final class ChatViewModelTests: XCTestCase {
         XCTAssertTrue(sut.messages.isEmpty, "Messages should be empty after startNewChat")
         XCTAssertEqual(sut.inputText, "", "inputText should be empty")
         XCTAssertNil(sut.errorMessage, "errorMessage should be nil")
-        XCTAssertFalse(sut.isTyping, "isTyping should be false")
         XCTAssertFalse(sut.isLimitReached, "isLimitReached should be false")
         XCTAssertEqual(sut.conversationTitle, "New Conversation")
     }

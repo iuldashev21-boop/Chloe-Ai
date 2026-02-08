@@ -24,7 +24,7 @@ struct OnboardingCompleteView: View {
             if let archetype {
                 VStack(spacing: Spacing.sm) {
                     Text("YOUR ARCHETYPE")
-                        .font(.custom(ChloeFont.headerDisplay, size: 13))
+                        .font(.chloeAuthSubheading)
                         .tracking(3)
                         .foregroundColor(.chloeTextSecondary.opacity(0.8))
 
@@ -35,7 +35,7 @@ struct OnboardingCompleteView: View {
             }
 
             Text("I can't wait to get to know you better.\nLet's start your journey together.".uppercased())
-                .font(.custom(ChloeFont.headerDisplay, size: 13))
+                .font(.chloeAuthSubheading)
                 .tracking(3)
                 .foregroundColor(.chloeTextSecondary.opacity(0.8))
                 .multilineTextAlignment(.center)

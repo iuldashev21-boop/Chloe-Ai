@@ -278,7 +278,6 @@ class AuthService: ObservableObject {
         // Set flag BEFORE sending reset email - we'll check this when auth callback arrives
         // This is needed because Supabase PKCE flow doesn't include type=recovery in URL
         UserDefaults.standard.set(true, forKey: "awaitingPasswordReset")
-        UserDefaults.standard.synchronize()
         AuthLogger.flag("awaitingPasswordReset", value: true)
 
         try await supabase.auth.resetPasswordForEmail(

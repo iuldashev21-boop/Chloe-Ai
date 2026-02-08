@@ -79,39 +79,23 @@ class ChatViewModel: ObservableObject {
 
     @Published private(set) var isSending = false
 
+    // MARK: - Send Message (Orchestrator)
+
     func sendMessage() async {
         guard !isSending else { return }
         isSending = true
         defer { isSending = false }
 
-        let text = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
-        let image = pendingImage
-        guard !text.isEmpty || image != nil else { return }
+        // Step 1: Validate and prepare input
+        guard let (text, image) = validateAndPrepareInput() else { return }
 
-        // Offline guard — fail fast with clear feedback
-        if isOffline {
-            showError("No internet connection. Please check your network and try again.", autoDismiss: false)
-            return
-        }
-
-        // Input length guard — Gemini has per-request token limits; reject obviously oversized input
-        if text.count > 10_000 {
-            showError("Message is too long. Please shorten it and try again.")
-            return
-        }
-
-        inputText = ""
-        pendingImage = nil
-        errorMessage = nil
-        errorDismissTask?.cancel()
-
-        // Save image to disk if present
+        // Step 2: Save image to disk if present
         var imageUri: String? = nil
         if let image {
             imageUri = storageService.saveChatImage(image)
         }
 
-        // Safety check
+        // Step 3: Safety check
         let safetyResult = safetyService.checkSafety(message: text)
         if safetyResult.blocked, let crisisType = safetyResult.crisisType {
             let userMsg = Message(conversationId: conversationId, role: .user, text: text, imageUri: imageUri)
@@ -124,34 +108,22 @@ class ChatViewModel: ObservableObject {
             return
         }
 
-        // Rate limiting — block at 6th message (after goodbye on 5th)
-        // V1_PREMIUM_FOR_ALL bypasses rate limits for all users
-        var usage = storageService.loadDailyUsage()
-        let profile = storageService.loadProfile()
-        if !V1_PREMIUM_FOR_ALL && profile?.subscriptionTier != .premium && usage.messageCount >= FREE_DAILY_MESSAGE_LIMIT {
-            isLimitReached = true
-            return
-        }
-        let isLastFreeMessage = !V1_PREMIUM_FOR_ALL
-            && profile?.subscriptionTier != .premium
-            && usage.messageCount == FREE_DAILY_MESSAGE_LIMIT - 1
+        // Step 4: Check rate limits
+        guard let (usage, profile, isLastFreeMessage) = checkRateLimits() else { return }
 
-        // Add user message
+        // Step 5: Add user message and update usage
         let userMsg = Message(conversationId: conversationId, role: .user, text: text, imageUri: imageUri)
         messages.append(userMsg)
         trackSignal("chat.messageSent")
 
-        // Increment daily usage
-        usage.messageCount += 1
-        try? storageService.saveDailyUsage(usage)
+        var mutableUsage = usage
+        mutableUsage.messageCount += 1
+        try? storageService.saveDailyUsage(mutableUsage)
 
-        // Record streak activity
         StreakService.shared.recordActivity(source: .chat)
-
-        // Cancel engagement notifications on re-engagement
         NotificationService.shared.cancelEngagementNotifications()
 
-        // Phase 1: Triage — set loading state early so isTyping becomes true immediately
+        // Phase 1: Triage
         loadingState = .routing
 
         do {
@@ -191,69 +163,17 @@ class ChatViewModel: ObservableObject {
             // Phase 2: Strategy (Strategist Response)
             loadingState = .generating
 
-            // Casual mode — light touch, no heavy frameworks
             let isCasualChat = classification.category == .casual
-
-            // Soft spiral override — per-message, not per-session
             let isSoftSpiral = safetyService.checkSoftSpiral(message: text)
 
-            // Build strategist prompt with context injection
-            var strategistPrompt = Prompts.strategist
-                .replacingOccurrences(of: "{{user_name}}", with: profile?.displayName ?? "babe")
-                .replacingOccurrences(of: "{{archetype_label}}", with: archetype?.label ?? "Not determined")
-                .replacingOccurrences(of: "{{relationship_status}}", with: "Not shared yet")
-                .replacingOccurrences(of: "{{current_vibe}}", with: currentVibe?.rawValue ?? "MEDIUM")
-
-            // Inject router context
-            strategistPrompt += """
-
-            <router_context>
-              Category: \(classification.category.rawValue)
-              Urgency: \(classification.urgency.rawValue)
-              Reasoning: \(classification.reasoning)
-            </router_context>
-            """
-
-            // Soft spiral: override strategy to gentle support mode
-            if isSoftSpiral {
-                strategistPrompt += """
-
-            <soft_spiral_override>
-              OVERRIDE: The user is in a soft spiral (emotional numbness, shutdown, dissociation).
-              DROP all frameworks, tough love, and Chloe-isms.
-              Be "The Anchor." Validate without fixing. Short, grounding sentences.
-              End with ONE gentle micro-task ("Can you get a glass of water?" / "Can you take one deep breath for me?").
-              Set strategy_selection to "Gentle Support" in internal_thought.
-            </soft_spiral_override>
-            """
-            }
-
-            // Casual mode: drop frameworks, just be a natural conversationalist
-            if isCasualChat && !isSoftSpiral {
-                strategistPrompt += """
-
-            <casual_mode_override>
-              OVERRIDE: This is CASUAL conversation (greeting, small talk, chit-chat).
-              DROP all dating frameworks, game theory, Biology/Efficiency, Chloe-isms, and strategic analysis.
-              Just be a warm, fun, relatable older sister having a normal conversation.
-              Be yourself — friendly, witty, natural. No coaching unless she asks.
-              Set man_behavior_analysis to "N/A" and strategy_selection to "Casual Chat" in internal_thought.
-              Do NOT return options.
-            </casual_mode_override>
-            """
-            }
-
-            // Inject behavioral loops (permanent patterns) for long-term strategy
-            if let loops = profile?.behavioralLoops, !loops.isEmpty {
-                strategistPrompt += """
-
-            <known_patterns>
-              These are behavioral patterns detected across previous sessions.
-              Use them to call out recurring behaviors when relevant:
-              \(loops.map { "- \($0)" }.joined(separator: "\n  "))
-            </known_patterns>
-            """
-            }
+            let strategistPrompt = buildStrategistPrompt(
+                profile: profile,
+                archetype: archetype,
+                currentVibe: currentVibe,
+                classification: classification,
+                isCasualChat: isCasualChat,
+                isSoftSpiral: isSoftSpiral
+            )
 
             let strategistResponse = try await geminiService.sendStrategistMessage(
                 messages: messages,
@@ -278,10 +198,12 @@ class ChatViewModel: ObservableObject {
                 selectedOption: nil
             )
 
+            let responseText = sanitizeResponseText(strategistResponse.response.text)
+
             let chloeMsg = Message(
                 conversationId: conversationId,
                 role: .chloe,
-                text: strategistResponse.response.text,
+                text: responseText,
                 routerMetadata: routerMetadata,
                 contentType: strategistResponse.response.options != nil ? .optionPair : .text,
                 options: strategistResponse.response.options
@@ -291,27 +213,15 @@ class ChatViewModel: ObservableObject {
 
             loadingState = .idle
 
-            // Append warm goodbye after last free message
+            // Handle last free message goodbye
             if isLastFreeMessage {
-                try? await Task.sleep(nanoseconds: 1_500_000_000)
-                let goodbye = goodbyeTemplates.randomElement() ?? goodbyeTemplates[0]
-                let goodbyeMsg = Message(conversationId: conversationId, role: .chloe, text: goodbye)
-                messages.append(goodbyeMsg)
-                saveMessages()
-                isLimitReached = true
+                await handleLastFreeMessage()
             }
 
             // Background analysis trigger (every 3 messages)
-            let msgsSinceAnalysis = storageService.loadMessagesSinceAnalysis() + 1
-            storageService.saveMessagesSinceAnalysis(msgsSinceAnalysis)
-            if msgsSinceAnalysis >= 3 {
-                storageService.saveMessagesSinceAnalysis(0)
-                Task { [weak self] in
-                    await self?.triggerBackgroundAnalysis()
-                }
-            }
+            triggerBackgroundAnalysisIfNeeded()
+
         } catch is CancellationError {
-            // Task was cancelled (e.g., app backgrounded). Save what we have and allow retry.
             lastFailedText = text
             loadingState = .idle
             saveMessages()
@@ -319,20 +229,7 @@ class ChatViewModel: ObservableObject {
         } catch let geminiError as GeminiError {
             lastFailedText = text
             loadingState = .idle
-            switch geminiError {
-            case .rateLimited:
-                showError("Chloe needs a moment to recharge. Try again in a minute.")
-                trackSignal("chat.error.rateLimited")
-            case .noConnection:
-                showError("No internet connection. Please check your network and try again.", autoDismiss: false)
-                trackSignal("chat.error.noConnection")
-            case .timeout:
-                showError("Chloe is taking too long to respond. Tap to retry.")
-                trackSignal("chat.error.timeout")
-            default:
-                showError("Message failed to send. Tap to retry.")
-                trackSignal("chat.error.other")
-            }
+            handleGeminiError(geminiError)
         } catch {
             lastFailedText = text
             loadingState = .idle
@@ -341,6 +238,203 @@ class ChatViewModel: ObservableObject {
         }
 
         loadingState = .idle
+    }
+
+    // MARK: - Send Message Helpers
+
+    /// Validates input and prepares it for sending.
+    /// Returns nil if validation fails (shows appropriate error).
+    /// Clears inputText, pendingImage, and errorMessage on success.
+    private func validateAndPrepareInput() -> (text: String, image: UIImage?)? {
+        let text = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
+        let image = pendingImage
+
+        guard !text.isEmpty || image != nil else { return nil }
+
+        // Offline guard
+        if isOffline {
+            showError("No internet connection. Please check your network and try again.", autoDismiss: false)
+            return nil
+        }
+
+        // Input length guard
+        if text.count > 10_000 {
+            showError("Message is too long. Please shorten it and try again.")
+            return nil
+        }
+
+        // Clear input state
+        inputText = ""
+        pendingImage = nil
+        errorMessage = nil
+        errorDismissTask?.cancel()
+
+        return (text, image)
+    }
+
+    /// Checks rate limits and returns usage info if allowed.
+    /// Returns nil and sets isLimitReached if rate limited.
+    private func checkRateLimits() -> (usage: DailyUsage, profile: Profile?, isLastFreeMessage: Bool)? {
+        let usage = storageService.loadDailyUsage()
+        let profile = storageService.loadProfile()
+
+        // V1_PREMIUM_FOR_ALL bypasses rate limits for all users
+        if !V1_PREMIUM_FOR_ALL && profile?.subscriptionTier != .premium && usage.messageCount >= FREE_DAILY_MESSAGE_LIMIT {
+            isLimitReached = true
+            return nil
+        }
+
+        let isLastFreeMessage = !V1_PREMIUM_FOR_ALL
+            && profile?.subscriptionTier != .premium
+            && usage.messageCount == FREE_DAILY_MESSAGE_LIMIT - 1
+
+        return (usage, profile, isLastFreeMessage)
+    }
+
+    /// Builds the strategist prompt with all context injection.
+    private func buildStrategistPrompt(
+        profile: Profile?,
+        archetype: UserArchetype?,
+        currentVibe: VibeScore?,
+        classification: RouterClassification,
+        isCasualChat: Bool,
+        isSoftSpiral: Bool
+    ) -> String {
+        var prompt = Prompts.strategist
+            .replacingOccurrences(of: "{{user_name}}", with: profile?.displayName ?? "babe")
+            .replacingOccurrences(of: "{{archetype_label}}", with: archetype?.label ?? "Not determined")
+            .replacingOccurrences(of: "{{relationship_status}}", with: "Not shared yet")
+            .replacingOccurrences(of: "{{current_vibe}}", with: currentVibe?.rawValue ?? "MEDIUM")
+
+        // Inject router context
+        prompt += """
+
+            <router_context>
+              Category: \(classification.category.rawValue)
+              Urgency: \(classification.urgency.rawValue)
+              Reasoning: \(classification.reasoning)
+            </router_context>
+            """
+
+        // Soft spiral: override strategy to gentle support mode
+        if isSoftSpiral {
+            prompt += """
+
+            <soft_spiral_override>
+              OVERRIDE: The user is in a soft spiral (emotional numbness, shutdown, dissociation).
+              DROP all frameworks, tough love, and Chloe-isms.
+              Be "The Anchor." Validate without fixing. Short, grounding sentences.
+              End with ONE gentle micro-task ("Can you get a glass of water?" / "Can you take one deep breath for me?").
+              Set strategy_selection to "Gentle Support" in internal_thought.
+            </soft_spiral_override>
+            """
+        }
+
+        // Casual mode: drop frameworks, just be a natural conversationalist
+        if isCasualChat && !isSoftSpiral {
+            prompt += """
+
+            <casual_mode_override>
+              OVERRIDE: This is CASUAL conversation (greeting, small talk, chit-chat).
+              DROP all dating frameworks, game theory, Biology/Efficiency, Chloe-isms, and strategic analysis.
+              Just be a warm, fun, relatable older sister having a normal conversation.
+              Be yourself — friendly, witty, natural. No coaching unless she asks.
+              Set man_behavior_analysis to "N/A" and strategy_selection to "Casual Chat" in internal_thought.
+              Do NOT return options.
+            </casual_mode_override>
+            """
+        }
+
+        // Inject behavioral loops (permanent patterns) for long-term strategy
+        // Sanitize to prevent prompt injection from LLM-generated patterns
+        if let loops = profile?.behavioralLoops, !loops.isEmpty {
+            let sanitizedLoops = loops.map { loop -> String in
+                var cleaned = loop
+                    .replacingOccurrences(of: #"</?[a-zA-Z_][a-zA-Z0-9_]*>"#, with: "", options: .regularExpression)
+                if cleaned.count > 200 { cleaned = String(cleaned.prefix(200)) + "..." }
+                return cleaned.trimmingCharacters(in: .whitespacesAndNewlines)
+            }.filter { !$0.isEmpty }
+
+            if !sanitizedLoops.isEmpty {
+                prompt += """
+
+            <known_patterns>
+              These are behavioral patterns detected across previous sessions.
+              Use them to call out recurring behaviors when relevant:
+              \(sanitizedLoops.map { "- \($0)" }.joined(separator: "\n  "))
+            </known_patterns>
+            """
+            }
+        }
+
+        return prompt
+    }
+
+    /// Sanitizes the response text by stripping leaked labels and capping length.
+    private func sanitizeResponseText(_ text: String) -> String {
+        var responseText = text
+
+        // Strip any leaked internal instruction labels from the response
+        let leakedLabels = ["<output_rules>", "<mode_instruction>", "<vocabulary_control>",
+                            "<engagement_hooks>", "<contextual_application_logic>",
+                            "</output_rules>", "</mode_instruction>", "</vocabulary_control>",
+                            "</engagement_hooks>", "</contextual_application_logic>",
+                            "<router_context>", "</router_context>",
+                            "<casual_mode_override>", "</casual_mode_override>",
+                            "<soft_spiral_override>", "</soft_spiral_override>"]
+        for label in leakedLabels {
+            responseText = responseText.replacingOccurrences(of: label, with: "")
+        }
+
+        responseText = responseText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if responseText.isEmpty { responseText = "I'm here for you." }
+
+        // Cap response length to prevent UI issues from extremely long LLM output
+        if responseText.count > 5000 {
+            responseText = String(responseText.prefix(5000))
+        }
+
+        return responseText
+    }
+
+    /// Handles the warm goodbye message after the last free message.
+    private func handleLastFreeMessage() async {
+        try? await Task.sleep(nanoseconds: 1_500_000_000)
+        let goodbye = goodbyeTemplates.randomElement() ?? goodbyeTemplates[0]
+        let goodbyeMsg = Message(conversationId: conversationId, role: .chloe, text: goodbye)
+        messages.append(goodbyeMsg)
+        saveMessages()
+        isLimitReached = true
+    }
+
+    /// Triggers background analysis if the threshold is reached.
+    private func triggerBackgroundAnalysisIfNeeded() {
+        let msgsSinceAnalysis = storageService.loadMessagesSinceAnalysis() + 1
+        storageService.saveMessagesSinceAnalysis(msgsSinceAnalysis)
+        if msgsSinceAnalysis >= 3 {
+            storageService.saveMessagesSinceAnalysis(0)
+            Task { [weak self] in
+                await self?.triggerBackgroundAnalysis()
+            }
+        }
+    }
+
+    /// Handles Gemini-specific errors with appropriate user feedback.
+    private func handleGeminiError(_ error: GeminiError) {
+        switch error {
+        case .rateLimited:
+            showError("Chloe needs a moment to recharge. Try again in a minute.")
+            trackSignal("chat.error.rateLimited")
+        case .noConnection:
+            showError("No internet connection. Please check your network and try again.", autoDismiss: false)
+            trackSignal("chat.error.noConnection")
+        case .timeout:
+            showError("Chloe is taking too long to respond. Tap to retry.")
+            trackSignal("chat.error.timeout")
+        default:
+            showError("Message failed to send. Tap to retry.")
+            trackSignal("chat.error.other")
+        }
     }
 
     var lastFailedText: String?
@@ -466,8 +560,9 @@ class ChatViewModel: ObservableObject {
                 // Update vibe
                 storageService.saveLatestVibe(result.vibeScore)
 
-                // Save session summary for fallback notifications
-                storageService.saveLatestSummary(result.summary)
+                // Save session summary for fallback notifications (capped to prevent token bloat)
+                let cappedSummary = result.summary.count > 500 ? String(result.summary.prefix(500)) + "..." : result.summary
+                storageService.saveLatestSummary(cappedSummary)
 
                 // Merge facts
                 let lastMessageId = messages.last?.id
@@ -484,7 +579,11 @@ class ChatViewModel: ObservableObject {
                    opportunity.triggerNotification,
                    let text = opportunity.notificationText {
                     let name = profile?.displayName ?? "babe"
-                    let processedText = text.replacingOccurrences(of: "[Name]", with: name)
+                    var processedText = text.replacingOccurrences(of: "[Name]", with: name)
+                    // Cap notification text length (iOS truncates at ~178 chars anyway)
+                    if processedText.count > 200 {
+                        processedText = String(processedText.prefix(197)) + "..."
+                    }
                     NotificationService.shared.scheduleEngagementNotification(text: processedText)
                 }
 
@@ -493,14 +592,16 @@ class ChatViewModel: ObservableObject {
                     storageService.pushInsight(pattern)
                 }
 
-                // Push behavioral loops to insight queue for Chloe to call out (short-term)
-                for loop in result.behavioralLoops {
-                    storageService.pushInsight("Behavioral pattern: \(loop)")
+                // Cap behavioral loops to prevent unbounded growth from LLM overproduction
+                let cappedLoops = Array(result.behavioralLoops.prefix(5))
+                for loop in cappedLoops {
+                    let cappedLoop = loop.count > 200 ? String(loop.prefix(200)) + "..." : loop
+                    storageService.pushInsight("Behavioral pattern: \(cappedLoop)")
                 }
 
                 // Persist behavioral loops permanently for long-term strategy
-                if !result.behavioralLoops.isEmpty {
-                    storageService.addBehavioralLoops(result.behavioralLoops)
+                if !cappedLoops.isEmpty {
+                    storageService.addBehavioralLoops(cappedLoops)
                 }
             }
         } catch {
