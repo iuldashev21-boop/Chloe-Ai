@@ -7,6 +7,83 @@
 
 ---
 
+## Remediation Status (February 7, 2026)
+
+**Branch:** `audit-remediation` (from `main` at `1593aab`)
+**Pre-change tag:** `pre-audit-v1.0`
+
+All phases completed. 0 build errors, 0 warnings across all 8 phases.
+
+### Phase 1: Critical Security Hardening — DONE
+- Replaced 3 `fatalError()` calls with `preconditionFailure()` / graceful fallback
+- Added offline account deletion queue (GDPR-safe: throws when offline instead of silently failing)
+- Fixed StorageService decode safety: `try?` → `do/catch` with logging, failed decodes not cached
+- Capped user facts at 50 with oldest-first eviction
+- Capped insight queue at 50 entries
+- Cleaned up export temp files and removed deprecated `.synchronize()` calls
+
+### Phase 2: Network Resilience & Error Handling — DONE
+- Added server error retry (HTTP 500/503) with exponential backoff (1s/2s/4s) in GeminiService
+- Added HTTP status validation on `downloadImage()` (non-2xx throws `StorageError.downloadFailed`)
+- Added `PushLock` actor to prevent concurrent `pushAllToCloud()` executions
+- Added 0.5s debounce for `pushUserStateToCloud()`
+- Added retry-once-after-2s for all 5 cloud delete operations
+- Added offline guard to FeedbackService
+
+### Phase 3: AI Memory & Prompt Safety — DONE
+- Added `sanitizeForPrompt()` — strips XML-like injection tags, caps text length
+- All user facts, session summaries, and insights sanitized before prompt injection
+- Messages truncated to 4000 chars each in API calls
+- Behavioral loops sanitized (XML stripped, 200-char cap) before prompt injection
+- Leaked internal instruction labels stripped from strategist output (16 labels)
+- Response text capped at 5000 chars
+- Session summary capped at 500 chars, notification text at 200 chars
+- Behavioral loops capped at 5 per analysis extraction
+- Per-extraction fact cap at 10
+
+### Phase 4: Quick Wins — Dead Code, Dependencies, Constants — DONE
+- Deleted unused `ChloeEmptyState.swift`
+- Removed unused `showRetryButton` property from SyncStatusBadge
+- Removed 79 lines of unused font utilities (4 functions, 2 properties, 5 ViewModifiers)
+- Fixed BUG-1: duplicate `chloeSpring` definition now references `Spacing.chloeSpring`
+- Added `.chloeSuccess` color constant, replaced 25+ hardcoded hex colors across 10 files
+- Removed MarkdownUI SPM dependency (0 imports found, ~1MB binary savings)
+- Removed deprecated `.synchronize()` call from app entry point
+
+### Phase 5: SyncDataService Decomposition — DONE
+- Extracted `pushToCloud(_:)` generic helper replacing 10 duplicated push methods
+- Extracted `mergeByID<T: Identifiable>()` generic helper replacing 3 merge patterns
+- File reduced from 1246 to 1155 lines (-91 lines, -7.3%)
+
+### Phase 6: ViewModel & View Cleanup — DONE
+- Broke `ChatViewModel.sendMessage()` from 260-line monolith into 7 focused helpers
+- Extracted shared `String.isValidEmail` property, removed 2 duplicate implementations
+- Added `chloeAuthSubheading` font constant, replaced 7 inline font declarations
+
+### Phase 7: Performance Optimization — DONE
+- Cached 3 `DateFormatter` instances as static properties (StreakService, AboutChloe, Settings)
+- Reduced particle animation from 120fps to 60fps
+- Deleted 2 unused font files (-401KB)
+- Moved image compression off main thread (background `DispatchQueue`)
+- Cached `screenWidth` as `@State` instead of re-querying `UIApplication` per render
+- Removed duplicate `loadGhostMessages()` call in `onAppear`
+- Changed `recentConversations` from computed O(n log n) to stored `@Published` property
+
+### Phase 8: Testing & Documentation — DONE
+- Fixed 5 test files missing from Xcode project (ChatViewModelTests, GeminiServiceTests, MessageModelTests, SyncDataServiceTests + new StringUtilsTests)
+- Added 20+ new unit tests covering: `String.isValidEmail`, `sanitizeForPrompt`, `sanitizeResponseText`, fact merge caps (10/extraction, 50/total), case-insensitive/substring dedup
+- Fixed `ChatViewModelTests` compilation (adapted to `isTyping` computed property change)
+- All existing tests pass
+
+### Items NOT Addressed (Require Infrastructure Changes)
+- **SEC-1:** Gemini API key in client binary — requires server-side proxy (infrastructure)
+- **SEC-2:** Unencrypted UserDefaults — requires migration to encrypted storage (breaking change)
+- **SEC-3:** User PII sent to Gemini — requires privacy policy update + data minimization
+- **SEC-4:** System prompts in client binary — requires server-side prompt management
+- **ARCH-3:** SettingsView 743 lines — functional, lower priority than addressed items
+
+---
+
 ## Executive Summary
 
 **Overall Health Score: 6.5 / 10**

@@ -131,6 +131,11 @@
 		T10000080000000000000001 /* DailyUsageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T20000080000000000000001 /* DailyUsageTests.swift */; };
 		T10000090000000000000001 /* V2AgenticTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T20000090000000000000001 /* V2AgenticTests.swift */; };
 		T10000100000000000000001 /* AuthViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T20000100000000000000001 /* AuthViewModelTests.swift */; };
+		T10000110000000000000001 /* ChatViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T20000110000000000000001 /* ChatViewModelTests.swift */; };
+		T10000120000000000000001 /* GeminiServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T20000120000000000000001 /* GeminiServiceTests.swift */; };
+		T10000130000000000000001 /* MessageModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T20000130000000000000001 /* MessageModelTests.swift */; };
+		T10000140000000000000001 /* SyncDataServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T20000140000000000000001 /* SyncDataServiceTests.swift */; };
+		T10000150000000000000001 /* StringUtilsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T20000150000000000000001 /* StringUtilsTests.swift */; };
 		UI00000100000000000000A1 /* AffirmationsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = UI00000200000000000000A1 /* AffirmationsTests.swift */; };
 		UI00000100000000000000B1 /* ConversationHistoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = UI00000200000000000000B1 /* ConversationHistoryTests.swift */; };
 		UI00000100000000000000C1 /* DynamicTypeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = UI00000200000000000000C1 /* DynamicTypeTests.swift */; };
@@ -282,6 +287,11 @@
 		T20000080000000000000001 /* DailyUsageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyUsageTests.swift; sourceTree = "<group>"; };
 		T20000090000000000000001 /* V2AgenticTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = V2AgenticTests.swift; sourceTree = "<group>"; };
 		T20000100000000000000001 /* AuthViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModelTests.swift; sourceTree = "<group>"; };
+		T20000110000000000000001 /* ChatViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewModelTests.swift; sourceTree = "<group>"; };
+		T20000120000000000000001 /* GeminiServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeminiServiceTests.swift; sourceTree = "<group>"; };
+		T20000130000000000000001 /* MessageModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageModelTests.swift; sourceTree = "<group>"; };
+		T20000140000000000000001 /* SyncDataServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncDataServiceTests.swift; sourceTree = "<group>"; };
+		T20000150000000000000001 /* StringUtilsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringUtilsTests.swift; sourceTree = "<group>"; };
 		T30000010000000000000001 /* ChloeAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ChloeAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		UI00000200000000000000A1 /* AffirmationsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AffirmationsTests.swift; sourceTree = "<group>"; };
 		UI00000200000000000000B1 /* ConversationHistoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationHistoryTests.swift; sourceTree = "<group>"; };
@@ -621,6 +631,11 @@
 				T20000070000000000000001 /* CrisisResponseTests.swift */,
 				T20000080000000000000001 /* DailyUsageTests.swift */,
 				T20000090000000000000001 /* V2AgenticTests.swift */,
+				T20000110000000000000001 /* ChatViewModelTests.swift */,
+				T20000120000000000000001 /* GeminiServiceTests.swift */,
+				T20000130000000000000001 /* MessageModelTests.swift */,
+				T20000140000000000000001 /* SyncDataServiceTests.swift */,
+				T20000150000000000000001 /* StringUtilsTests.swift */,
 			);
 			path = ChloeAppTests;
 			sourceTree = "<group>";
@@ -898,6 +913,11 @@
 				T10000070000000000000001 /* CrisisResponseTests.swift in Sources */,
 				T10000080000000000000001 /* DailyUsageTests.swift in Sources */,
 				T10000090000000000000001 /* V2AgenticTests.swift in Sources */,
+				T10000110000000000000001 /* ChatViewModelTests.swift in Sources */,
+				T10000120000000000000001 /* GeminiServiceTests.swift in Sources */,
+				T10000130000000000000001 /* MessageModelTests.swift in Sources */,
+				T10000140000000000000001 /* SyncDataServiceTests.swift in Sources */,
+				T10000150000000000000001 /* StringUtilsTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
