@@ -80,9 +80,16 @@ class StorageService {
     private func _loadProfile() -> Profile? {
         if let cached = profileCache { return cached }
         guard let data = defaults.data(forKey: "profile") else { return nil }
-        let profile = try? decoder.decode(Profile.self, from: data)
-        profileCache = profile
-        return profile
+        do {
+            let profile = try decoder.decode(Profile.self, from: data)
+            profileCache = profile
+            return profile
+        } catch {
+            #if DEBUG
+            print("[StorageService] DECODE ERROR (profile): \(error.localizedDescription)")
+            #endif
+            return nil
+        }
     }
 
     // MARK: - Chat Images
@@ -238,9 +245,16 @@ class StorageService {
     private func _loadConversations() -> [Conversation] {
         if let cached = conversationsCache { return cached }
         guard let data = defaults.data(forKey: "conversations") else { return [] }
-        let conversations = (try? decoder.decode([Conversation].self, from: data)) ?? []
-        conversationsCache = conversations
-        return conversations
+        do {
+            let conversations = try decoder.decode([Conversation].self, from: data)
+            conversationsCache = conversations
+            return conversations
+        } catch {
+            #if DEBUG
+            print("[StorageService] DECODE ERROR (conversations): \(error.localizedDescription)")
+            #endif
+            return []  // Return empty but do NOT cache — next save won't overwrite good data
+        }
     }
 
     // MARK: - Messages (stored per conversation)
@@ -280,9 +294,16 @@ class StorageService {
     private func _loadMessages(forConversation conversationId: String) -> [Message] {
         if let cached = messagesCache[conversationId] { return cached }
         guard let data = defaults.data(forKey: "messages_\(conversationId)") else { return [] }
-        let messages = (try? decoder.decode([Message].self, from: data)) ?? []
-        messagesCache[conversationId] = messages
-        return messages
+        do {
+            let messages = try decoder.decode([Message].self, from: data)
+            messagesCache[conversationId] = messages
+            return messages
+        } catch {
+            #if DEBUG
+            print("[StorageService] DECODE ERROR (messages_\(conversationId)): \(error.localizedDescription)")
+            #endif
+            return []
+        }
     }
 
     // MARK: - Journal
@@ -310,9 +331,16 @@ class StorageService {
     private func _loadJournalEntries() -> [JournalEntry] {
         if let cached = journalEntriesCache { return cached }
         guard let data = defaults.data(forKey: "journal_entries") else { return [] }
-        let entries = (try? decoder.decode([JournalEntry].self, from: data)) ?? []
-        journalEntriesCache = entries
-        return entries
+        do {
+            let entries = try decoder.decode([JournalEntry].self, from: data)
+            journalEntriesCache = entries
+            return entries
+        } catch {
+            #if DEBUG
+            print("[StorageService] DECODE ERROR (journal_entries): \(error.localizedDescription)")
+            #endif
+            return []
+        }
     }
 
     // MARK: - Goals
@@ -340,9 +368,16 @@ class StorageService {
     private func _loadGoals() -> [Goal] {
         if let cached = goalsCache { return cached }
         guard let data = defaults.data(forKey: "goals") else { return [] }
-        let goals = (try? decoder.decode([Goal].self, from: data)) ?? []
-        goalsCache = goals
-        return goals
+        do {
+            let goals = try decoder.decode([Goal].self, from: data)
+            goalsCache = goals
+            return goals
+        } catch {
+            #if DEBUG
+            print("[StorageService] DECODE ERROR (goals): \(error.localizedDescription)")
+            #endif
+            return []
+        }
     }
 
     // MARK: - Affirmations
@@ -370,9 +405,16 @@ class StorageService {
     private func _loadAffirmations() -> [Affirmation] {
         if let cached = affirmationsCache { return cached }
         guard let data = defaults.data(forKey: "affirmations") else { return [] }
-        let affirmations = (try? decoder.decode([Affirmation].self, from: data)) ?? []
-        affirmationsCache = affirmations
-        return affirmations
+        do {
+            let affirmations = try decoder.decode([Affirmation].self, from: data)
+            affirmationsCache = affirmations
+            return affirmations
+        } catch {
+            #if DEBUG
+            print("[StorageService] DECODE ERROR (affirmations): \(error.localizedDescription)")
+            #endif
+            return []
+        }
     }
 
     // MARK: - Vision Board
@@ -400,9 +442,16 @@ class StorageService {
     private func _loadVisionItems() -> [VisionItem] {
         if let cached = visionItemsCache { return cached }
         guard let data = defaults.data(forKey: "vision_items") else { return [] }
-        let items = (try? decoder.decode([VisionItem].self, from: data)) ?? []
-        visionItemsCache = items
-        return items
+        do {
+            let items = try decoder.decode([VisionItem].self, from: data)
+            visionItemsCache = items
+            return items
+        } catch {
+            #if DEBUG
+            print("[StorageService] DECODE ERROR (vision_items): \(error.localizedDescription)")
+            #endif
+            return []
+        }
     }
 
     // MARK: - User Facts (separate from Profile)
@@ -430,9 +479,16 @@ class StorageService {
     private func _loadUserFacts() -> [UserFact] {
         if let cached = userFactsCache { return cached }
         guard let data = defaults.data(forKey: "user_facts") else { return [] }
-        let facts = (try? decoder.decode([UserFact].self, from: data)) ?? []
-        userFactsCache = facts
-        return facts
+        do {
+            let facts = try decoder.decode([UserFact].self, from: data)
+            userFactsCache = facts
+            return facts
+        } catch {
+            #if DEBUG
+            print("[StorageService] DECODE ERROR (user_facts): \(error.localizedDescription)")
+            #endif
+            return []
+        }
     }
 
     // MARK: - Latest Vibe
@@ -527,11 +583,14 @@ class StorageService {
         lock.lock()
         defer { lock.unlock() }
         var queue = _loadInsightQueue()
-        // Dedup: skip if a similar insight already exists (case-insensitive substring)
         let lowered = insight.lowercased()
         let isDuplicate = queue.contains { lowered.contains($0.text.lowercased()) || $0.text.lowercased().contains(lowered) }
         guard !isDuplicate else { return }
         queue.append(InsightEntry(text: insight, createdAt: Date()))
+        // Cap at 50 entries — drop oldest
+        if queue.count > 50 {
+            queue = Array(queue.suffix(50))
+        }
         _saveInsightQueue(queue)
     }
 

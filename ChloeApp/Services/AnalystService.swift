@@ -29,9 +29,18 @@ class AnalystService {
 
     func mergeNewFacts(existing: [UserFact], from result: AnalystResult, userId: String?, sourceMessageId: String?) -> [UserFact] {
         var updated = existing
+        let maxFacts = 50
 
         for extractedFact in result.facts {
-            let alreadyExists = existing.contains { $0.fact == extractedFact.fact && $0.isActive }
+            let normalizedNew = extractedFact.fact.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+            let alreadyExists = updated.contains { existing in
+                guard existing.isActive else { return false }
+                let normalizedExisting = existing.fact.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+                // Exact match or substring containment (catches LLM rephrasing)
+                return normalizedExisting == normalizedNew
+                    || normalizedExisting.contains(normalizedNew)
+                    || normalizedNew.contains(normalizedExisting)
+            }
             if !alreadyExists {
                 let newFact = UserFact(
                     userId: userId,
@@ -42,6 +51,11 @@ class AnalystService {
                 )
                 updated.append(newFact)
             }
+        }
+
+        // Cap at maxFacts — drop oldest first
+        if updated.count > maxFacts {
+            updated = Array(updated.suffix(maxFacts))
         }
 
         return updated

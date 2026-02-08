@@ -419,7 +419,10 @@ struct EmailLoginView: View {
         var randomBytes = [UInt8](repeating: 0, count: length)
         let errorCode = SecRandomCopyBytes(kSecRandomDefault, randomBytes.count, &randomBytes)
         if errorCode != errSecSuccess {
-            fatalError("Unable to generate nonce. SecRandomCopyBytes failed with OSStatus \(errorCode)")
+            // Fallback: use UUID-based randomness instead of crashing
+            let uuid1 = UUID().uuidString.replacingOccurrences(of: "-", with: "")
+            let uuid2 = UUID().uuidString.replacingOccurrences(of: "-", with: "")
+            return String((uuid1 + uuid2).prefix(length))
         }
         let charset: [Character] = Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
         let nonce = randomBytes.map { byte in

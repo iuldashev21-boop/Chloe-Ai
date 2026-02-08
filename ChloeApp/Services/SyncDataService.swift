@@ -27,6 +27,17 @@ enum SyncStatus: Equatable {
     case error(String)  // Last sync failed with reason
 }
 
+enum SyncError: LocalizedError {
+    case offlineDeletionPending
+
+    var errorDescription: String? {
+        switch self {
+        case .offlineDeletionPending:
+            return "Your local data has been cleared, but cloud data could not be deleted because you're offline. Please reconnect and try deleting your account again to remove cloud data."
+        }
+    }
+}
+
 /// Thread-safe actor for sync state management (Bug 2 fix)
 private actor SyncLock {
     private var isSyncing = false
@@ -1140,6 +1151,7 @@ class SyncDataService: ObservableObject {
         retryTask?.cancel()
         retryTask = nil
         retryCount = 0
+        cleanDocumentsDirectory()
         local.clearAll()
         _pendingLock.lock()
         _hasPendingChanges = false
@@ -1167,11 +1179,26 @@ class SyncDataService: ObservableObject {
         retryTask = nil
         retryCount = 0
         local.clearAll()
+        cleanDocumentsDirectory()
         resetPendingChanges()
         await MainActor.run { syncStatus = .idle }
-        // Delete cloud data only on explicit account deletion
-        guard network.isConnected else { return }
+
+        guard network.isConnected else {
+            throw SyncError.offlineDeletionPending
+        }
         try await remote.deleteAllUserData()
+    }
+
+    /// Remove all app-generated files from Documents directory (chat images, vision images, profile image)
+    private func cleanDocumentsDirectory() {
+        let documentsDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        guard let files = try? FileManager.default.contentsOfDirectory(at: documentsDir, includingPropertiesForKeys: nil) else { return }
+        for file in files {
+            let name = file.lastPathComponent
+            if name.hasPrefix("chat_") || name.hasPrefix("vision_") || name == "profile_image.jpg" {
+                try? FileManager.default.removeItem(at: file)
+            }
+        }
     }
 }
 
