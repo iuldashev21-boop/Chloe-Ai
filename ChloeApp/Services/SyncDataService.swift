@@ -53,6 +53,21 @@ private actor SyncLock {
     }
 }
 
+/// Actor-based lock to prevent concurrent pushAllToCloud executions
+private actor PushLock {
+    private var isPushing = false
+
+    func tryStartPush() -> Bool {
+        if isPushing { return false }
+        isPushing = true
+        return true
+    }
+
+    func endPush() {
+        isPushing = false
+    }
+}
+
 /// Offline-first data service. Wraps local StorageService + remote SupabaseDataService.
 /// All reads come from local (instant). All writes go to local first, then async push to Supabase.
 /// On app launch, pulls from Supabase and merges (server wins for profile).
@@ -91,6 +106,9 @@ class SyncDataService: ObservableObject {
     private var retryCount = 0
     private let maxRetries = 3
 
+    /// Debounce timer for user state pushes
+    private var userStatePushTask: Task<Void, Never>?
+
     /// Track a fire-and-forget cloud task so it can be cancelled on sign-out
     private func trackTask(_ task: Task<Void, Never>) {
         _taskLock.lock()
@@ -109,6 +127,9 @@ class SyncDataService: ObservableObject {
 
     /// Thread-safe sync lock using actor (Bug 2 fix)
     private let syncLock = SyncLock()
+
+    /// Thread-safe push lock to prevent concurrent pushAllToCloud executions
+    private let pushLock = PushLock()
 
     private init() {
         // When connectivity restores, push all local state to cloud
@@ -178,6 +199,8 @@ class SyncDataService: ObservableObject {
     /// Push current local state to Supabase (idempotent — safe to call anytime)
     func pushAllToCloud() async {
         guard network.isConnected else { return }
+        guard await pushLock.tryStartPush() else { return }
+        defer { Task { await pushLock.endPush() } }
 
         pushProfileToCloud()
         pushUserStateToCloud()
@@ -527,7 +550,10 @@ class SyncDataService: ObservableObject {
 
     private func pushUserStateToCloud() {
         guard network.isConnected else { hasPendingChanges = true; return }
-        Task {
+        userStatePushTask?.cancel()
+        userStatePushTask = Task {
+            try? await Task.sleep(nanoseconds: 500_000_000) // 0.5s debounce
+            guard !Task.isCancelled else { return }
             do {
                 let usage = local.loadDailyUsage()
                 let streak = local.loadStreak()
@@ -727,8 +753,10 @@ class SyncDataService: ObservableObject {
                 try await remote.deleteConversation(id: id)
             } catch {
                 #if DEBUG
-                print("[SyncDataService] Cloud delete failed for conversation \(id): \(error.localizedDescription)")
+                print("[SyncDataService] Cloud delete failed for conversation \(id), retrying: \(error.localizedDescription)")
                 #endif
+                try? await Task.sleep(nanoseconds: 2_000_000_000)
+                try? await remote.deleteConversation(id: id)
             }
         }
         return true
@@ -808,8 +836,10 @@ class SyncDataService: ObservableObject {
                 try await remote.deleteJournalEntry(id: id)
             } catch {
                 #if DEBUG
-                print("[SyncDataService] Cloud delete failed for journal entry \(id): \(error.localizedDescription)")
+                print("[SyncDataService] Cloud delete failed for journal entry \(id), retrying: \(error.localizedDescription)")
                 #endif
+                try? await Task.sleep(nanoseconds: 2_000_000_000)
+                try? await remote.deleteJournalEntry(id: id)
             }
         }
         trackTask(task)
@@ -855,8 +885,10 @@ class SyncDataService: ObservableObject {
                 try await remote.deleteGoal(id: id)
             } catch {
                 #if DEBUG
-                print("[SyncDataService] Cloud delete failed for goal \(id): \(error.localizedDescription)")
+                print("[SyncDataService] Cloud delete failed for goal \(id), retrying: \(error.localizedDescription)")
                 #endif
+                try? await Task.sleep(nanoseconds: 2_000_000_000)
+                try? await remote.deleteGoal(id: id)
             }
         }
         trackTask(task)
@@ -902,8 +934,10 @@ class SyncDataService: ObservableObject {
                 try await remote.deleteAffirmation(id: id)
             } catch {
                 #if DEBUG
-                print("[SyncDataService] Cloud delete failed for affirmation \(id): \(error.localizedDescription)")
+                print("[SyncDataService] Cloud delete failed for affirmation \(id), retrying: \(error.localizedDescription)")
                 #endif
+                try? await Task.sleep(nanoseconds: 2_000_000_000)
+                try? await remote.deleteAffirmation(id: id)
             }
         }
         trackTask(task)
@@ -968,8 +1002,10 @@ class SyncDataService: ObservableObject {
                 try await remote.deleteVisionItem(id: id)
             } catch {
                 #if DEBUG
-                print("[SyncDataService] Cloud delete failed for vision item \(id): \(error.localizedDescription)")
+                print("[SyncDataService] Cloud delete failed for vision item \(id), retrying: \(error.localizedDescription)")
                 #endif
+                try? await Task.sleep(nanoseconds: 2_000_000_000)
+                try? await remote.deleteVisionItem(id: id)
             }
             if let userId = remote.currentUserId {
                 let path = "\(userId)/vision/\(id).jpg"
@@ -977,8 +1013,10 @@ class SyncDataService: ObservableObject {
                     try await remote.deleteStorageImage(path: path)
                 } catch {
                     #if DEBUG
-                    print("[SyncDataService] Vision image delete failed for \(id): \(error.localizedDescription)")
+                    print("[SyncDataService] Vision image delete failed for \(id), retrying: \(error.localizedDescription)")
                     #endif
+                    try? await Task.sleep(nanoseconds: 2_000_000_000)
+                    try? await remote.deleteStorageImage(path: path)
                 }
             }
         }

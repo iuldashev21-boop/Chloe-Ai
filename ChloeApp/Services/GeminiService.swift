@@ -382,6 +382,21 @@ class GeminiService {
                         }
                         throw GeminiError.rateLimited
                     }
+                    // Retry on 500/503 server errors with shorter delays
+                    if httpResponse.statusCode == 500 || httpResponse.statusCode == 503 {
+                        trackSignal("gemini.error.serverError", parameters: ["statusCode": "\(httpResponse.statusCode)", "attempt": "\(attempt + 1)"])
+                        #if DEBUG
+                        print("[GeminiService] Server error (\(httpResponse.statusCode)), attempt \(attempt + 1)/\(maxRateLimitRetries)")
+                        #endif
+                        // Shorter backoff for server errors: 1s, 2s, 4s
+                        if attempt < maxRateLimitRetries - 1 {
+                            let delay = UInt64(pow(2.0, Double(attempt))) * 1_000_000_000
+                            try await Task.sleep(nanoseconds: delay)
+                            continue
+                        }
+                        let errorText = String(data: data, encoding: .utf8) ?? "Unknown error"
+                        throw GeminiError.apiError(httpResponse.statusCode, errorText)
+                    }
                     let errorText = String(data: data, encoding: .utf8) ?? "Unknown error"
                     trackSignal("gemini.error.apiError", parameters: ["statusCode": "\(httpResponse.statusCode)"])
                     throw GeminiError.apiError(httpResponse.statusCode, errorText)

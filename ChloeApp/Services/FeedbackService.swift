@@ -36,6 +36,8 @@ enum FeedbackError: LocalizedError {
 class FeedbackService {
     static let shared = FeedbackService()
 
+    private let network = NetworkMonitor.shared
+
     private init() {}
 
     private var currentUserId: String? {
@@ -51,6 +53,9 @@ class FeedbackService {
         guard !feedback.messageId.isEmpty else {
             throw FeedbackError.emptyMessageId
         }
+
+        // Silently drop feedback when offline — non-critical data
+        guard network.isConnected else { return }
 
         let dto = SupabaseFeedbackDTO(
             id: feedback.id,
