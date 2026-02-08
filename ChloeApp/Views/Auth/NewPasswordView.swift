@@ -58,7 +58,7 @@ struct NewPasswordView: View {
                         )
 
                     Text("CHOOSE A STRONG PASSWORD")
-                        .font(.custom(ChloeFont.headerDisplay, size: 13))
+                        .font(.chloeAuthSubheading)
                         .tracking(3)
                         .foregroundColor(.chloeRosewood)
                 }

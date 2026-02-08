@@ -52,7 +52,7 @@ struct EmailConfirmationView: View {
                         )
 
                     Text("ONE MORE STEP")
-                        .font(.custom(ChloeFont.headerDisplay, size: 13))
+                        .font(.chloeAuthSubheading)
                         .tracking(3)
                         .foregroundColor(.chloeRosewood)
                 }

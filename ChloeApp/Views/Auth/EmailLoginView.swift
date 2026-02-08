@@ -21,16 +21,9 @@ struct EmailLoginView: View {
 
     // MARK: - Validation Helpers
 
-    private var isEmailFormatValid: Bool {
-        let trimmed = email.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard let atIndex = trimmed.firstIndex(of: "@") else { return false }
-        let afterAt = trimmed[trimmed.index(after: atIndex)...]
-        return afterAt.contains(".")
-    }
-
     /// Show email hint only after user has typed enough to warrant feedback
     private var showEmailHint: Bool {
-        !email.isBlank && !isEmailFormatValid
+        !email.isBlank && !email.isValidEmail
     }
 
     private var isPasswordLongEnough: Bool {
@@ -77,7 +70,7 @@ struct EmailLoginView: View {
                         )
 
                     Text(authVM.isSignUpMode ? "CREATE YOUR SANCTUARY" : "ENTER YOUR SANCTUARY")
-                        .font(.custom(ChloeFont.headerDisplay, size: 13))
+                        .font(.chloeAuthSubheading)
                         .tracking(3)
                         .foregroundColor(.chloeRosewood)
                 }

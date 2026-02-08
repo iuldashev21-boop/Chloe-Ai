@@ -19,7 +19,7 @@ struct NotificationPrimingView: View {
                     .foregroundColor(.chloePrimary)
 
                 Text("CHLOE WANTS TO CHECK IN ON YOU")
-                    .font(.custom(ChloeFont.headerDisplay, size: 13))
+                    .font(.chloeAuthSubheading)
                     .tracking(3)
                     .foregroundColor(.chloeTextSecondary.opacity(0.8))
 

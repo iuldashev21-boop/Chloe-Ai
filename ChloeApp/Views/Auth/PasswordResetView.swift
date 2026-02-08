@@ -10,19 +10,12 @@ struct PasswordResetView: View {
     @State private var appeared = false
     @FocusState private var emailFocused: Bool
 
-    private var isEmailFormatValid: Bool {
-        let trimmed = email.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard let atIndex = trimmed.firstIndex(of: "@") else { return false }
-        let afterAt = trimmed[trimmed.index(after: atIndex)...]
-        return afterAt.contains(".")
-    }
-
     private var showEmailHint: Bool {
-        !email.isBlank && !isEmailFormatValid
+        !email.isBlank && !email.isValidEmail
     }
 
     private var canSubmit: Bool {
-        isEmailFormatValid
+        email.isValidEmail
     }
 
     var body: some View {
@@ -68,7 +61,7 @@ struct PasswordResetView: View {
                         )
 
                     Text("WE'LL SEND YOU A LINK")
-                        .font(.custom(ChloeFont.headerDisplay, size: 13))
+                        .font(.chloeAuthSubheading)
                         .tracking(3)
                         .foregroundColor(.chloeRosewood)
                 }

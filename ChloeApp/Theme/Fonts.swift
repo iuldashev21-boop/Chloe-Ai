@@ -29,6 +29,9 @@ extension Font {
 
     static let chloeOnboardingQuestion = Font.custom(ChloeFont.heroBoldItalic, size: 40, relativeTo: .largeTitle)
 
+    /// Auth/onboarding subheading (13pt, tracked uppercase labels)
+    static let chloeAuthSubheading = Font.custom(ChloeFont.headerDisplay, size: 13, relativeTo: .caption2)
+
     static func chloeInputPlaceholder(_ size: CGFloat) -> Font {
         .system(size: size, weight: .regular)
     }
