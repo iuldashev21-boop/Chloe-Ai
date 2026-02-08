@@ -170,6 +170,7 @@ struct EmailLoginView: View {
 
                     // MARK: - Sign In / Sign Up button
                     Button {
+                        focusedField = nil
                         let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
                         Task {
                             if authVM.isSignUpMode {
@@ -179,12 +180,24 @@ struct EmailLoginView: View {
                             }
                         }
                     } label: {
-                        Text(authVM.isSignUpMode ? "CREATE ACCOUNT" : "SIGN IN")
-                            .font(.chloeButton)
-                            .tracking(3)
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 52)
+                        ZStack {
+                            // Button text — hidden during loading
+                            Text(authVM.isSignUpMode ? "CREATE ACCOUNT" : "SIGN IN")
+                                .font(.chloeButton)
+                                .tracking(3)
+                                .foregroundColor(.white)
+                                .opacity(authVM.isLoading ? 0 : 1)
+
+                            // Loading spinner — shown during auth
+                            if authVM.isLoading {
+                                ProgressView()
+                                    .tint(.white)
+                                    .scaleEffect(0.9)
+                                    .transition(.opacity)
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 52)
                             .background(
                                 ZStack {
                                     Capsule().fill(.ultraThinMaterial)
@@ -195,6 +208,7 @@ struct EmailLoginView: View {
                                         endPoint: .trailing
                                     )
                                     .offset(x: shimmerOffset)
+                                    .opacity(authVM.isLoading ? 0 : 1)
                                     .mask(Capsule())
                                     // Inner glow — top edge catch light
                                     VStack {
@@ -218,6 +232,7 @@ struct EmailLoginView: View {
                     }
                     .disabled(!canSubmit || authVM.isLoading)
                     .buttonStyle(PressableButtonStyle())
+                    .sensoryFeedback(.impact(weight: .medium), trigger: authVM.isLoading)
                     .padding(.horizontal, Spacing.screenHorizontal)
                     .onAppear { startShimmerLoop() }
 
