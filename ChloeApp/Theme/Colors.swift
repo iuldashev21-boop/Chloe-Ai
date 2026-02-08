@@ -129,6 +129,14 @@ extension Color {
                 : UIColor(hex: "#F3E5AB")
         })
     }
+
+    static var chloeSuccess: Color {
+        Color(uiColor: UIColor { traits in
+            traits.userInterfaceStyle == .dark
+                ? UIColor(hex: "#5A9C69")
+                : UIColor(hex: "#4A7C59")
+        })
+    }
 }
 
 extension LinearGradient {

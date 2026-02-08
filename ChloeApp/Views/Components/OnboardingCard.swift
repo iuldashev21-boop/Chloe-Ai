@@ -8,7 +8,7 @@ struct OnboardingCard: View {
     var action: () -> Void
 
     private static let cardShape = RoundedRectangle(cornerRadius: 20)
-    private static let accentColor = Color(hex: "#B76E79")
+    private static let accentColor = Color.chloePrimary
 
     var body: some View {
         Button(action: action) {

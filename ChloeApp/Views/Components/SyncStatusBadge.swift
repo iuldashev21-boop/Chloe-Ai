@@ -144,13 +144,6 @@ struct SyncStatusSettingsRow: View {
         case .error(let msg): return msg
         }
     }
-
-    private var showRetryButton: Bool {
-        switch status {
-        case .pending, .error: return true
-        default: return false
-        }
-    }
 }
 
 // MARK: - Observation Wrappers

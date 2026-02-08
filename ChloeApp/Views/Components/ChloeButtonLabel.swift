@@ -44,7 +44,7 @@ struct ChloeButtonLabel: View {
                 }
             )
             .clipShape(Capsule())
-            .shadow(color: Color(hex: "#B76E79").opacity(isEnabled ? 0.3 : 0.1), radius: 25, y: 12)
+            .shadow(color: Color.chloePrimary.opacity(isEnabled ? 0.3 : 0.1), radius: 25, y: 12)
             .opacity(isEnabled ? 1.0 : pulseOpacity)
             .animation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true), value: pulseOpacity)
             .onAppear {

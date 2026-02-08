@@ -24,7 +24,7 @@ struct LuminousOrb: View {
                 Circle()
                     .fill(
                         RadialGradient(
-                            colors: [Color(hex: "#FFF8F0"), Color(hex: "#FFE5D9"), Color(hex: "#B76E79")],
+                            colors: [Color.chloeGradientStart, Color(hex: "#FFE5D9"), Color.chloePrimary],
                             center: .center,
                             startRadius: 0,
                             endRadius: 40
@@ -47,7 +47,7 @@ struct LuminousOrb: View {
                     .foregroundStyle(.white)
             }
             .shadow(color: .white.opacity(0.9), radius: 4)
-            .shadow(color: Color(hex: "#B76E79").opacity(0.5), radius: 18)
+            .shadow(color: Color.chloePrimary.opacity(0.5), radius: 18)
             .rotationEffect(.degrees(reduceMotion ? 0 : sparkleRotation))
             .scaleEffect(reduceMotion ? 1.0 : (sparkleGlow ? 1.1 : 0.9))
             .opacity(reduceMotion ? 1.0 : (sparkleGlow ? 1.0 : 0.7))
@@ -97,9 +97,9 @@ private struct FluidNebula: View {
     var isAnimating: Bool
 
     private let colors: [Color] = [
-        Color(hex: "#FFF8F0"),
+        Color.chloeGradientStart,
         Color(hex: "#FFE5D9"),
-        Color(hex: "#B76E79")
+        Color.chloePrimary
     ]
 
     var body: some View {

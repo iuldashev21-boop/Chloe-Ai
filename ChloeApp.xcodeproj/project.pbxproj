@@ -19,7 +19,6 @@
 		7B5C6061C58C58644E1ADD3F /* TestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF08D9DC14B5BC2B0F70D79E /* TestHelpers.swift */; };
 		8E2FBEDE9E149919CA704D01 /* JournalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9E9EFD831A08021FF5E4BB /* JournalTests.swift */; };
 		8E3D83A5B652B8DED38B2FC3 /* ChloeApp/Views/Components/ChloeFloatingActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA5DAFF02E46B79A5EABE633 /* ChloeApp/Views/Components/ChloeFloatingActionButton.swift */; };
-		90C3CBE435FAA7DCD942145D /* ChloeApp/Views/Components/ChloeEmptyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = D43EE6EBAC2A490942E57A64 /* ChloeApp/Views/Components/ChloeEmptyState.swift */; };
 		9BBEC161B700F341AD344FC6 /* EmailConfirmationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D623CEA22CB36B5ED4A247C /* EmailConfirmationView.swift */; };
 		9BBEC162B700F342AD344FC7 /* NewPasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D623CEB22CB36B6ED4A247D /* NewPasswordView.swift */; };
 		A10000010000000000000001 /* ChloeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000001 /* ChloeApp.swift */; };
@@ -79,7 +78,6 @@
 		B95D54A9FAB2885D920CBFD0 /* GlowUpStreak.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E0D67819E2FDC56855D65EC /* GlowUpStreak.swift */; };
 		C0457D63F55A6FE260BAA7AD /* SidebarTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 177002C5E96240F457D7325D /* SidebarTests.swift */; };
 		C10000040000000000000001 /* ConfettiSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = C20000040000000000000001 /* ConfettiSwiftUI */; };
-		C10000050000000000000001 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = C20000050000000000000001 /* MarkdownUI */; };
 		C10000060000000000000001 /* TelemetryDeck in Frameworks */ = {isa = PBXBuildFile; productRef = C20000060000000000000001 /* TelemetryDeck */; };
 		C10000070000000000000001 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = C20000070000000000000001 /* Supabase */; };
 		C464FDAB03F70B178380EBD1 /* AuthenticationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0BD0D2B73E2D62ECCD08558 /* AuthenticationTests.swift */; };
@@ -241,7 +239,6 @@
 		D30000020000000000000001 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
 		D30000030000000000000001 /* SupabaseDataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseDataService.swift; sourceTree = "<group>"; };
 		D30000040000000000000001 /* SyncDataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncDataService.swift; sourceTree = "<group>"; };
-		D43EE6EBAC2A490942E57A64 /* ChloeApp/Views/Components/ChloeEmptyState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ChloeApp/Views/Components/ChloeEmptyState.swift; sourceTree = SOURCE_ROOT; };
 		DC0000020000000000000001 /* DataCollectionInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataCollectionInfoView.swift; sourceTree = "<group>"; };
 		DC0000040000000000000001 /* AboutChloeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutChloeView.swift; sourceTree = "<group>"; };
 		E1A2B3C4D5E6F70800112234 /* ChloeApp/Views/Components/EmptyStateView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ChloeApp/Views/Components/EmptyStateView.swift; sourceTree = SOURCE_ROOT; };
@@ -311,7 +308,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				C10000040000000000000001 /* ConfettiSwiftUI in Frameworks */,
-				C10000050000000000000001 /* MarkdownUI in Frameworks */,
 				C10000060000000000000001 /* TelemetryDeck in Frameworks */,
 				C10000070000000000000001 /* Supabase in Frameworks */,
 			);
@@ -508,7 +504,6 @@
 				RS0000010000000000000001 /* ReportSheet.swift */,
 				902324AB633D17FC0C08036A /* StrategyOptionsView.swift */,
 				BA5DAFF02E46B79A5EABE633 /* ChloeApp/Views/Components/ChloeFloatingActionButton.swift */,
-				D43EE6EBAC2A490942E57A64 /* ChloeApp/Views/Components/ChloeEmptyState.swift */,
 				E1A2B3C4D5E6F70800112234 /* ChloeApp/Views/Components/EmptyStateView.swift */,
 				SB0000020000000000000001 /* SyncStatusBadge.swift */,
 			);
@@ -672,7 +667,6 @@
 			name = ChloeApp;
 			packageProductDependencies = (
 				C20000040000000000000001 /* ConfettiSwiftUI */,
-				C20000050000000000000001 /* MarkdownUI */,
 				C20000060000000000000001 /* TelemetryDeck */,
 				C20000070000000000000001 /* Supabase */,
 			);
@@ -728,7 +722,6 @@
 			mainGroup = A50000010000000000000001;
 			packageReferences = (
 				D10000040000000000000001 /* XCRemoteSwiftPackageReference "ConfettiSwiftUI" */,
-				D10000050000000000000001 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */,
 				D10000060000000000000001 /* XCRemoteSwiftPackageReference "SwiftClient" */,
 				D10000070000000000000001 /* XCRemoteSwiftPackageReference "supabase-swift" */,
 			);
@@ -895,7 +888,6 @@
 				35B2F1331062D827771ADA81 /* PasswordResetView.swift in Sources */,
 				13AAA29D3391452E7DCA5A2C /* ChloeApp/Theme/ChloeViewModifiers.swift in Sources */,
 				8E3D83A5B652B8DED38B2FC3 /* ChloeApp/Views/Components/ChloeFloatingActionButton.swift in Sources */,
-				90C3CBE435FAA7DCD942145D /* ChloeApp/Views/Components/ChloeEmptyState.swift in Sources */,
 				E1A2B3C4D5E6F70800112233 /* ChloeApp/Views/Components/EmptyStateView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1252,15 +1244,7 @@
 				minimumVersion = 1.0.0;
 			};
 		};
-		D10000050000000000000001 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/gonzalezreal/swift-markdown-ui.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.0.0;
-			};
-		};
-		D10000060000000000000001 /* XCRemoteSwiftPackageReference "SwiftClient" */ = {
+			D10000060000000000000001 /* XCRemoteSwiftPackageReference "SwiftClient" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/TelemetryDeck/SwiftClient.git";
 			requirement = {
@@ -1284,12 +1268,7 @@
 			package = D10000040000000000000001 /* XCRemoteSwiftPackageReference "ConfettiSwiftUI" */;
 			productName = ConfettiSwiftUI;
 		};
-		C20000050000000000000001 /* MarkdownUI */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D10000050000000000000001 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */;
-			productName = MarkdownUI;
-		};
-		C20000060000000000000001 /* TelemetryDeck */ = {
+			C20000060000000000000001 /* TelemetryDeck */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = D10000060000000000000001 /* XCRemoteSwiftPackageReference "SwiftClient" */;
 			productName = TelemetryDeck;
